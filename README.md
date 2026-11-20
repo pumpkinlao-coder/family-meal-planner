@@ -1,7 +1,7 @@
 # 家庭餐桌 · 双视图版
 
 > **在线预览**：<https://pumpkinlao-coder.github.io/family-meal-planner/>  
-> **验收包下载**：[家庭餐桌-DeepSeek验收包-修复版.zip](dist/家庭餐桌-DeepSeek验收包-修复版.zip)
+> **验收包下载**：[家庭餐桌-DeepSeek验收包-修复版.zip](https://pumpkinlao-coder.github.io/family-meal-planner/dist/家庭餐桌-DeepSeek验收包-修复版.zip)
 
 本项目给同一户家庭提供简选和完整两个入口。日常从简选视图查看菜单、换一餐和买菜。想调整食材克数、米饭方案或查看分装依据时切到完整视图。
 
