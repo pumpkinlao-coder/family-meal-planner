@@ -5,9 +5,9 @@
    ========================================================= */
 window.MEALPREP = {
   meta: {
-    version: '3.2.0',
+    version: '3.3.0',
     updated: '2026-11-20',
-    title: '家庭三餐规划 V3.2',
+    title: '家庭三餐规划 V3.3',
     subtitle: '可编辑份量、逐食材营养与自动采购的离线备用餐工具'
   },
 
@@ -1414,15 +1414,6 @@ window.MEALPREP = {
   leafy('garlic_nai_bai', '蒜蓉奶白菜', 'nai_bai', 150, '奶白菜水分多，大火快炒，不要盖盖焖。');
   leafy('garlic_you_dong', '蒜蓉油冬菜', 'you_dong_cai', 150, '油冬菜切小段，梗叶分开下锅。');
 
-  var greensCycle = ['garlic_spinach', 'garlic_bok_choy', 'garlic_nai_bai', 'garlic_you_dong'];
-  var leafyDishes = { garlic_spinach: true, garlic_bok_choy: true, garlic_nai_bai: true, garlic_you_dong: true };
-  var dinnerIds = Object.keys(D.meals).filter(function (id) { return D.meals[id].type === 'dinner'; });
-  dinnerIds.forEach(function (id, index) {
-    var dishId = greensCycle[index % greensCycle.length];
-    var exists = D.meals[id].items.some(function (item) { return leafyDishes[item.dish]; });
-    if (!exists) D.meals[id].items.push({ dish: dishId });
-  });
-
   D.tips.greens = [
     '叶菜每天都要有：菠菜、小青菜、奶白菜、油冬菜轮换，快炒或焯水，不要久煮。',
     '绿叶菜体积大、纤维多，配足水和一点油脂更容易排便；只吃纤维不喝水反而更干。',
@@ -1469,5 +1460,640 @@ window.MEALPREP = {
       note:'当前没有具体商品标签，成品营养未计入；启用过敏排除时暂不推荐。'
     };
     data.meals['bf_' + key] = {type:'breakfast',name:name+'＋'+entry[5],items:[{dish:key},{dish:entry[3]},{dish:entry[4]}]};
+  });
+})(window.MEALPREP);
+
+/* =========================================================
+   V3.3 蔬菜数据库（42 种）与蔬菜侧菜生成（84 道）
+   只做增量：不改动既有 ingredients / dishes / meals / plans / rotations / presets。
+   新增蔬菜营养值按同类蔬菜常见值估算，不冒充 USDA 实测；
+   菜品由静态表生成，结果确定、幂等：重复加载只会覆盖同名 id，不会产生重复项。
+   ========================================================= */
+(function (D) {
+  D.vegCategories = { leafy: '绿叶菜', gourd: '瓜果菜', root: '根茎及鳞茎菜' };
+  D.vegTargets = { 3: [5, 7], 4: [6, 9], 5: [8, 12] };
+
+  var CAT = D.vegCategories;
+
+  function estSource() {
+    return { type: '估算', desc: '按同类蔬菜常见值估算，非USDA实测' };
+  }
+
+  /* ---------- 新增蔬菜食材（34 种；其余 8 种复用现有 ingredient id） ---------- */
+  var NEW_ING = {
+    choy_sum: {
+      name: '菜心',
+      per100: { kcal: 16, protein: 1.5, fat: 0.2, carb: 2.8, fiber: 1.4, calcium: 105, iron: 0.7, sodium: 60 },
+      purchase: { mode: 'count', unit: '把', unitGrams: 300, packCount: 1, packLabel: '把' },
+      edibleRatio: 0.85,
+      purchaseNote: '一把约 300 g，修根后按可食部约 85% 计；按同类绿叶菜常见值估算。'
+    },
+    gai_lan: {
+      name: '芥蓝',
+      per100: { kcal: 22, protein: 2.5, fat: 0.3, carb: 3.5, fiber: 2.6, calcium: 128, iron: 1, sodium: 50 },
+      purchase: { mode: 'count', unit: '把', unitGrams: 300, packCount: 1, packLabel: '把' },
+      edibleRatio: 0.85,
+      purchaseNote: '一把约 300 g，去老梗后按可食部约 85% 计；按同类绿叶菜常见值估算。'
+    },
+    shanghai_qing: {
+      name: '上海青',
+      per100: { kcal: 14, protein: 1.4, fat: 0.2, carb: 2.3, fiber: 1.1, calcium: 100, iron: 0.8, sodium: 55 },
+      purchase: { mode: 'count', unit: '把', unitGrams: 300, packCount: 1, packLabel: '把' },
+      edibleRatio: 0.85,
+      purchaseNote: '一把约 300 g，去根后按可食部约 85% 计；按同类绿叶菜常见值估算。'
+    },
+    lettuce: {
+      name: '生菜',
+      per100: { kcal: 15, protein: 1.36, fat: 0.15, carb: 2.87, fiber: 1.3, calcium: 36, iron: 0.86, sodium: 28 },
+      purchase: { mode: 'count', unit: '颗', unitGrams: 350, packCount: 1, packLabel: '颗' },
+      edibleRatio: 0.85,
+      purchaseNote: '一颗约 350 g，去根和外层老叶后按可食部约 85% 计；按同类叶菜常见值估算。'
+    },
+    youmaicai: {
+      name: '油麦菜',
+      per100: { kcal: 16, protein: 1.4, fat: 0.3, carb: 2.6, fiber: 1.2, calcium: 70, iron: 1.2, sodium: 40 },
+      purchase: { mode: 'count', unit: '把', unitGrams: 300, packCount: 1, packLabel: '把' },
+      edibleRatio: 0.85,
+      purchaseNote: '一把约 300 g，去根后按可食部约 85% 计；按同类叶菜常见值估算。'
+    },
+    water_spinach: {
+      name: '空心菜',
+      per100: { kcal: 19, protein: 2.6, fat: 0.2, carb: 3.1, fiber: 2.1, calcium: 99, iron: 2.3, sodium: 94 },
+      purchase: { mode: 'count', unit: '把', unitGrams: 300, packCount: 1, packLabel: '把' },
+      edibleRatio: 0.85,
+      purchaseNote: '一把约 300 g，摘去老梗后按可食部约 85% 计；按同类叶菜常见值估算。'
+    },
+    amaranth: {
+      name: '苋菜',
+      per100: { kcal: 23, protein: 2.46, fat: 0.33, carb: 4.02, fiber: 2.2, calcium: 215, iron: 2.32, sodium: 20 },
+      purchase: { mode: 'count', unit: '把', unitGrams: 300, packCount: 1, packLabel: '把' },
+      edibleRatio: 0.85,
+      purchaseNote: '一把约 300 g，去根后按可食部约 85% 计；钙含量按同类苋菜常见值估算。'
+    },
+    crown_daisy: {
+      name: '茼蒿',
+      per100: { kcal: 21, protein: 1.8, fat: 0.3, carb: 3, fiber: 1.6, calcium: 65, iron: 1.5, sodium: 80 },
+      purchase: { mode: 'count', unit: '把', unitGrams: 300, packCount: 1, packLabel: '把' },
+      edibleRatio: 0.85,
+      purchaseNote: '一把约 300 g，摘去老梗后按可食部约 85% 计；按同类叶菜常见值估算。'
+    },
+    kale: {
+      name: '羽衣甘蓝',
+      per100: { kcal: 49, protein: 4.28, fat: 0.93, carb: 8.75, fiber: 3.6, calcium: 150, iron: 1.47, sodium: 38 },
+      purchase: { mode: 'weight', packKg: 0.3, packLabel: '300 g 袋' },
+      edibleRatio: 0.9,
+      purchaseNote: '一袋约 300 g，去粗梗后按可食部约 90% 计；按同类十字花科叶菜常见值估算。'
+    },
+    sweet_potato_leaf: {
+      name: '红薯叶',
+      per100: { kcal: 19, protein: 2.5, fat: 0.2, carb: 3.5, fiber: 2.2, calcium: 80, iron: 1.5, sodium: 60 },
+      purchase: { mode: 'count', unit: '把', unitGrams: 300, packCount: 1, packLabel: '把' },
+      edibleRatio: 0.85,
+      purchaseNote: '一把约 300 g，摘去老梗后按可食部约 85% 计；按同类叶菜常见值估算。'
+    },
+    mustard_greens: {
+      name: '芥菜',
+      per100: { kcal: 27, protein: 2.9, fat: 0.6, carb: 4.2, fiber: 2.8, calcium: 118, iron: 1.2, sodium: 25 },
+      purchase: { mode: 'count', unit: '把', unitGrams: 300, packCount: 1, packLabel: '把' },
+      edibleRatio: 0.85,
+      purchaseNote: '一把约 300 g，去根后按可食部约 85% 计；按同类芥菜常见值估算。'
+    },
+    baby_cabbage: {
+      name: '娃娃菜',
+      per100: { kcal: 14, protein: 1.2, fat: 0.2, carb: 2.8, fiber: 1.1, calcium: 50, iron: 0.5, sodium: 20 },
+      purchase: { mode: 'count', unit: '颗', unitGrams: 250, packCount: 1, packLabel: '颗' },
+      edibleRatio: 0.9,
+      purchaseNote: '一颗约 250 g，去根后按可食部约 90% 计；按白菜类常见值估算。'
+    },
+    green_pepper: {
+      name: '青椒',
+      per100: { kcal: 20, protein: 0.86, fat: 0.17, carb: 4.64, fiber: 1.7, calcium: 10, iron: 0.34, sodium: 3 },
+      purchase: { mode: 'count', unit: '个', unitGrams: 100, packCount: 1, packLabel: '个' },
+      edibleRatio: 0.85,
+      purchaseNote: '一个约 100 g，去籽去蒂后按可食部约 85% 计；按同类甜椒常见值估算。'
+    },
+    eggplant: {
+      name: '茄子',
+      per100: { kcal: 25, protein: 0.98, fat: 0.18, carb: 5.88, fiber: 3, calcium: 9, iron: 0.23, sodium: 2 },
+      purchase: { mode: 'count', unit: '根', unitGrams: 250, packCount: 1, packLabel: '根' },
+      edibleRatio: 0.9,
+      purchaseNote: '一根约 250 g，去蒂后按可食部约 90% 计；按同类茄子常见值估算。'
+    },
+    zucchini: {
+      name: '西葫芦',
+      per100: { kcal: 17, protein: 1.21, fat: 0.32, carb: 3.11, fiber: 1, calcium: 16, iron: 0.37, sodium: 8 },
+      purchase: { mode: 'count', unit: '个', unitGrams: 300, packCount: 1, packLabel: '个' },
+      edibleRatio: 0.95,
+      purchaseNote: '一个约 300 g，去蒂后按可食部约 95% 计；按同类瓜类常见值估算。'
+    },
+    cucumber: {
+      name: '青瓜',
+      per100: { kcal: 15, protein: 0.65, fat: 0.11, carb: 3.63, fiber: 0.5, calcium: 16, iron: 0.28, sodium: 2 },
+      purchase: { mode: 'count', unit: '根', unitGrams: 200, packCount: 1, packLabel: '根' },
+      edibleRatio: 0.95,
+      purchaseNote: '一根约 200 g，去两端后按可食部约 95% 计；按同类黄瓜常见值估算。'
+    },
+    winter_melon: {
+      name: '冬瓜',
+      per100: { kcal: 13, protein: 0.4, fat: 0.2, carb: 3, fiber: 0.7, calcium: 19, iron: 0.2, sodium: 2 },
+      purchase: { mode: 'weight', packKg: 0.5, packLabel: '500 g 段' },
+      edibleRatio: 0.85,
+      purchaseNote: '买切段约 500 g，去瓤去皮后按可食部约 85% 计；按同类冬瓜常见值估算。'
+    },
+    fuzzy_melon: {
+      name: '节瓜',
+      per100: { kcal: 14, protein: 0.6, fat: 0.2, carb: 3, fiber: 0.8, calcium: 20, iron: 0.3, sodium: 3 },
+      purchase: { mode: 'count', unit: '个', unitGrams: 300, packCount: 1, packLabel: '个' },
+      edibleRatio: 0.9,
+      purchaseNote: '一个约 300 g，去瓤去皮后按可食部约 90% 计；按同类瓜类常见值估算。'
+    },
+    luffa: {
+      name: '丝瓜',
+      per100: { kcal: 20, protein: 1.2, fat: 0.2, carb: 4.4, fiber: 1.1, calcium: 20, iron: 0.4, sodium: 3 },
+      purchase: { mode: 'count', unit: '根', unitGrams: 250, packCount: 1, packLabel: '根' },
+      edibleRatio: 0.85,
+      purchaseNote: '一根约 250 g，去皮去瓤后按可食部约 85% 计；按同类瓜类常见值估算。'
+    },
+    bitter_melon: {
+      name: '苦瓜',
+      per100: { kcal: 17, protein: 0.84, fat: 0.17, carb: 4.32, fiber: 2.8, calcium: 18, iron: 0.38, sodium: 5 },
+      purchase: { mode: 'count', unit: '根', unitGrams: 250, packCount: 1, packLabel: '根' },
+      edibleRatio: 0.9,
+      purchaseNote: '一根约 250 g，去瓤去籽后按可食部约 90% 计；按同类苦瓜常见值估算。'
+    },
+    pumpkin: {
+      name: '南瓜',
+      per100: { kcal: 26, protein: 1, fat: 0.1, carb: 6.5, fiber: 0.5, calcium: 21, iron: 0.8, sodium: 1 },
+      purchase: { mode: 'weight', packKg: 0.5, packLabel: '500 g 块' },
+      edibleRatio: 0.85,
+      purchaseNote: '买切块约 500 g，去瓤去皮后按可食部约 85% 计；按同类南瓜常见值估算。'
+    },
+    okra: {
+      name: '秋葵',
+      per100: { kcal: 33, protein: 1.93, fat: 0.19, carb: 7.45, fiber: 3.2, calcium: 82, iron: 0.62, sodium: 7 },
+      purchase: { mode: 'weight', packKg: 0.3, packLabel: '300 g 袋' },
+      edibleRatio: 0.95,
+      purchaseNote: '一袋约 300 g，去蒂后按可食部约 95% 计；按同类秋葵常见值估算。'
+    },
+    green_beans: {
+      name: '四季豆',
+      per100: { kcal: 31, protein: 1.83, fat: 0.22, carb: 6.97, fiber: 2.7, calcium: 37, iron: 1.03, sodium: 6 },
+      purchase: { mode: 'weight', packKg: 0.3, packLabel: '300 g 袋' },
+      edibleRatio: 0.95,
+      purchaseNote: '一袋约 300 g，去两端和筋后按可食部约 95% 计；按同类菜豆常见值估算。'
+    },
+    snow_peas: {
+      name: '荷兰豆',
+      per100: { kcal: 42, protein: 2.8, fat: 0.2, carb: 7.55, fiber: 2.6, calcium: 43, iron: 2.1, sodium: 4 },
+      purchase: { mode: 'weight', packKg: 0.3, packLabel: '300 g 袋' },
+      edibleRatio: 0.95,
+      purchaseNote: '一袋约 300 g，去两端和筋后按可食部约 95% 计；按同类荷兰豆常见值估算。'
+    },
+    long_beans: {
+      name: '豇豆',
+      per100: { kcal: 35, protein: 2.7, fat: 0.3, carb: 6.5, fiber: 2.3, calcium: 42, iron: 1, sodium: 4 },
+      purchase: { mode: 'weight', packKg: 0.3, packLabel: '300 g 袋' },
+      edibleRatio: 0.95,
+      purchaseNote: '一袋约 300 g，去两端后按可食部约 95% 计；按同类豇豆常见值估算。'
+    },
+    daikon: {
+      name: '白萝卜',
+      per100: { kcal: 18, protein: 0.6, fat: 0.1, carb: 4.1, fiber: 1.6, calcium: 27, iron: 0.4, sodium: 21 },
+      purchase: { mode: 'count', unit: '根', unitGrams: 500, packCount: 1, packLabel: '根' },
+      edibleRatio: 0.9,
+      purchaseNote: '一根约 500 g，去皮后按可食部约 90% 计；按同类萝卜常见值估算。'
+    },
+    lotus_root: {
+      name: '莲藕',
+      per100: { kcal: 74, protein: 2.6, fat: 0.1, carb: 17.23, fiber: 4.9, calcium: 45, iron: 1.16, sodium: 40 },
+      purchase: { mode: 'count', unit: '节', unitGrams: 300, packCount: 1, packLabel: '节' },
+      edibleRatio: 0.9,
+      purchaseNote: '一节约 300 g，去皮去节后按可食部约 90% 计；按同类莲藕常见值估算。'
+    },
+    chinese_yam: {
+      name: '山药',
+      per100: { kcal: 57, protein: 1.9, fat: 0.2, carb: 12.7, fiber: 1.2, calcium: 20, iron: 0.3, sodium: 10 },
+      purchase: { mode: 'count', unit: '根', unitGrams: 300, packCount: 1, packLabel: '根' },
+      edibleRatio: 0.85,
+      purchaseNote: '一根约 300 g，去皮后按可食部约 85% 计；按同类山药常见值估算。'
+    },
+    potato: {
+      name: '土豆',
+      per100: { kcal: 77, protein: 2.05, fat: 0.09, carb: 17.49, fiber: 2.2, calcium: 12, iron: 0.81, sodium: 6 },
+      purchase: { mode: 'count', unit: '个', unitGrams: 150, packCount: 1, packLabel: '个' },
+      edibleRatio: 0.95,
+      purchaseNote: '一个约 150 g，去皮后按可食部约 95% 计；发芽或变绿的不要用。'
+    },
+    taro: {
+      name: '芋头',
+      per100: { kcal: 112, protein: 1.5, fat: 0.2, carb: 26.46, fiber: 4.1, calcium: 43, iron: 0.55, sodium: 33 },
+      purchase: { mode: 'weight', packKg: 0.5, packLabel: '500 g 袋' },
+      edibleRatio: 0.9,
+      purchaseNote: '一袋约 500 g，去皮后按可食部约 90% 计；按同类芋头常见值估算。'
+    },
+    celtuce: {
+      name: '莴笋',
+      per100: { kcal: 15, protein: 0.8, fat: 0.2, carb: 2.8, fiber: 1, calcium: 25, iron: 0.5, sodium: 35 },
+      purchase: { mode: 'count', unit: '根', unitGrams: 300, packCount: 1, packLabel: '根' },
+      edibleRatio: 0.7,
+      purchaseNote: '一根约 300 g，去皮去老叶后按可食部约 70% 计；按同类莴笋常见值估算。'
+    },
+    beetroot: {
+      name: '甜菜根',
+      per100: { kcal: 43, protein: 1.61, fat: 0.17, carb: 9.56, fiber: 2.8, calcium: 16, iron: 0.8, sodium: 78 },
+      purchase: { mode: 'count', unit: '个', unitGrams: 250, packCount: 1, packLabel: '个' },
+      edibleRatio: 0.9,
+      purchaseNote: '一个约 250 g，去皮后按可食部约 90% 计；按同类甜菜根常见值估算。'
+    },
+    water_chestnut: {
+      name: '荸荠',
+      per100: { kcal: 97, protein: 1.4, fat: 0.1, carb: 23.94, fiber: 3, calcium: 11, iron: 0.6, sodium: 14 },
+      purchase: { mode: 'weight', packKg: 0.5, packLabel: '500 g 袋' },
+      edibleRatio: 0.85,
+      purchaseNote: '一袋约 500 g，去皮后按可食部约 85% 计；必须煮熟后再吃。'
+    },
+    burdock: {
+      name: '牛蒡',
+      per100: { kcal: 72, protein: 1.5, fat: 0.1, carb: 17.3, fiber: 3.3, calcium: 41, iron: 0.8, sodium: 5 },
+      purchase: { mode: 'count', unit: '根', unitGrams: 250, packCount: 1, packLabel: '根' },
+      edibleRatio: 0.9,
+      purchaseNote: '一根约 250 g，去皮后按可食部约 90% 计；按同类根菜常见值估算。'
+    }
+  };
+
+  Object.keys(NEW_ING).forEach(function (id) {
+    var row = NEW_ING[id];
+    D.ingredients[id] = {
+      name: row.name, group: '蔬菜', state: '生重', allergens: [],
+      per100: row.per100,
+      purchase: row.purchase,
+      edibleRatio: row.edibleRatio,
+      purchaseNote: row.purchaseNote,
+      source: estSource()
+    };
+  });
+
+  /* ---------- 42 种蔬菜元数据 ---------- */
+  /* [id, 名称, 简称, 类别, 上市月份, 常用做法, 常见搭配, 冷藏天数, 先用, 儿童处理, 安全提示, 来源备注] */
+  var VEG_ROWS = [
+    ['spinach', '菠菜', '菠菜', 'leafy', [1, 2, 3, 4, 10, 11, 12], ['waterOil', 'stirFry', 'blanch', 'steam'], ['egg', 'tofu_firm', 'garlic'], 2, true, '切小段；焯水后挤干再切碎', '必须彻底加热；菠菜先焯 20–30 秒减少草酸', 'USDA SR Legacy（沿用现有食材数据）'],
+    ['pak_choi', '小白菜（小青菜）', '小白菜', 'leafy', [1, 2, 3, 4, 10, 11, 12], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'tofu_firm', 'egg'], 2, true, '掰开洗净切小段；梗先下锅', '必须彻底加热至梗叶软透', 'USDA SR Legacy（沿用现有食材数据）'],
+    ['nai_bai', '奶白菜', '奶白菜', 'leafy', [1, 2, 3, 4, 10, 11, 12], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'tofu_firm', 'egg'], 2, true, '掰开洗净切小段', '必须彻底加热至软透', 'USDA SR Legacy（沿用现有食材数据）'],
+    ['choy_sum', '菜心', '菜心', 'leafy', [1, 2, 3, 4, 10, 11, 12], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'egg', 'tofu_firm'], 2, true, '切小段；梗部斜切薄片', '必须彻底加热；梗部要煮透', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['gai_lan', '芥蓝', '芥蓝', 'leafy', [1, 2, 3, 4, 11, 12], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'tofu_firm', 'egg'], 2, true, '切小段；梗部斜切薄片', '必须彻底加热；梗部较硬要煮透', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['shanghai_qing', '上海青', '上海青', 'leafy', [1, 2, 3, 4, 10, 11, 12], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'tofu_firm', 'egg'], 2, true, '掰开洗净，梗叶分开', '必须彻底加热至软透', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['lettuce', '生菜', '生菜', 'leafy', [1, 2, 3, 4, 10, 11, 12], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'egg', 'tofu_firm'], 2, true, '手撕或切小段', '本菜按熟制处理；给幼儿建议加热，不直接生吃', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['youmaicai', '油麦菜', '油麦菜', 'leafy', [1, 2, 3, 4, 10, 11, 12], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'egg', 'tofu_firm'], 2, true, '切小段，梗叶分开', '必须彻底加热至软透', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['water_spinach', '空心菜', '空心菜', 'leafy', [5, 6, 7, 8, 9], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'egg', 'tofu_firm'], 2, true, '摘去老梗，切小段', '必须彻底加热至软透；不要久焖', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['amaranth', '苋菜', '苋菜', 'leafy', [5, 6, 7, 8, 9], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'egg', 'tofu_firm'], 2, true, '切小段；易熟，快炒 1–2 分钟', '必须彻底加热至软透', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['crown_daisy', '茼蒿', '茼蒿', 'leafy', [1, 2, 3, 4, 10, 11, 12], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'egg', 'tofu_firm'], 2, true, '切小段；易熟，不宜久煮', '必须彻底加热至软透', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['kale', '羽衣甘蓝', '羽衣甘蓝', 'leafy', [1, 2, 3, 4, 10, 11, 12], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'egg', 'chicken_thigh'], 2, true, '去粗梗，切小片', '必须彻底加热；焯 60–90 秒后再炒，减少苦味', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['sweet_potato_leaf', '红薯叶', '红薯叶', 'leafy', [6, 7, 8, 9], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'egg', 'tofu_firm'], 2, true, '摘去老梗，切小段', '必须彻底加热至软透', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['mustard_greens', '芥菜', '芥菜', 'leafy', [1, 2, 3, 4, 10, 11, 12], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'egg', 'tofu_firm'], 2, true, '切段；梗部斜切薄片', '必须彻底加热；略有苦味，焯水后再炒', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['baby_cabbage', '娃娃菜', '娃娃菜', 'leafy', [1, 2, 3, 4, 10, 11, 12], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'egg', 'tofu_firm'], 3, true, '纵向切小瓣，容易蒸透', '必须彻底加热至软透，中心 ≥74°C', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['pepper_red', '彩椒（红彩椒）', '彩椒', 'gourd', [5, 6, 7, 8, 9, 10], ['waterOil', 'stirFry', 'blanch', 'steam'], ['chicken_thigh', 'beef_slice', 'egg'], 5, false, '去籽去蒂切小丁，不辣', '去籽彻底；快炒断生也要热透', 'USDA SR Legacy（沿用现有食材数据）'],
+    ['tomato', '番茄', '番茄', 'gourd', [5, 6, 7, 8, 9, 10], ['waterOil', 'stirFry', 'blanch', 'braise'], ['egg', 'tofu_firm', 'beef_slice'], 5, false, '去皮去籽切小块；焯水 20–30 秒易去皮', '彻底加热至软烂；给幼儿去皮去籽', 'USDA SR Legacy（沿用现有食材数据）'],
+    ['green_pepper', '青椒', '青椒', 'gourd', [5, 6, 7, 8, 9, 10], ['waterOil', 'stirFry', 'blanch', 'steam'], ['chicken_thigh', 'beef_slice', 'egg'], 5, false, '去籽去蒂切小丁；不辣', '去籽彻底；彻底加热至软透', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['eggplant', '茄子', '茄子', 'gourd', [6, 7, 8, 9, 10], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'pork_mince', 'tofu_firm'], 5, false, '切小条或小丁，立即加热防氧化', '彻底加热至软透；少油可用水油焖', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['zucchini', '西葫芦', '西葫芦', 'gourd', [5, 6, 7, 8, 9], ['waterOil', 'stirFry', 'blanch', 'steam'], ['egg', 'shrimp', 'garlic'], 5, false, '去籽切薄片或小丁', '彻底加热至软透；生食口感硬，儿童建议熟食', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['cucumber', '青瓜', '青瓜', 'gourd', [5, 6, 7, 8, 9], ['waterOil', 'stirFry', 'blanch', 'steam'], ['garlic', 'egg', 'shrimp'], 5, false, '去籽切薄片；给幼儿去皮', '本菜按熟制处理；彻底加热至热透', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['winter_melon', '冬瓜', '冬瓜', 'gourd', [6, 7, 8, 9], ['waterOil', 'stirFry', 'blanch', 'steam', 'braise'], ['pork_ribs', 'shrimp', 'mushroom'], 5, false, '去皮去瓤切小块', '彻底加热至透明软透；水分多，复热时搅匀', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['fuzzy_melon', '节瓜', '节瓜', 'gourd', [5, 6, 7, 8, 9], ['waterOil', 'stirFry', 'blanch', 'steam', 'braise'], ['pork_ribs', 'shrimp', 'egg'], 5, false, '去皮去瓤切小块', '彻底加热至软透', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['luffa', '丝瓜', '丝瓜', 'gourd', [5, 6, 7, 8, 9], ['waterOil', 'stirFry', 'blanch', 'steam'], ['egg', 'shrimp', 'garlic'], 5, false, '去皮去瓤切滚刀块', '彻底加热至软透；不要生食', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['bitter_melon', '苦瓜', '苦瓜', 'gourd', [5, 6, 7, 8, 9], ['waterOil', 'stirFry', 'blanch', 'steam'], ['egg', 'pork_mince', 'garlic'], 5, false, '去瓤去籽切薄片；焯 1–2 分钟减苦味', '彻底加热；儿童少量尝试，不强迫', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['pumpkin', '南瓜', '南瓜', 'gourd', [8, 9, 10, 11, 12, 1], ['waterOil', 'steam', 'braise', 'riceCooker'], ['milk', 'egg', 'pork_mince'], 7, false, '去瓤去皮切块；压泥更易入口', '彻底蒸熟至软透，中心 ≥74°C', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['okra', '秋葵', '秋葵', 'gourd', [6, 7, 8, 9], ['blanch', 'steam', 'waterOil', 'stirFry'], ['garlic', 'egg', 'shrimp'], 5, false, '整根焯或蒸，给幼儿切小段', '整根彻底加热；焯 2–3 分钟或蒸 5–6 分钟', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['green_beans', '四季豆', '四季豆', 'gourd', [5, 6, 7, 8, 9, 10], ['waterOil', 'stirFry', 'blanch', 'steam'], ['pork_mince', 'garlic', 'egg'], 5, false, '去两端和筋，切小段', '必须彻底炒熟/焯透：颜色变深、无生豆味，避免生豆中毒', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['snow_peas', '荷兰豆', '荷兰豆', 'gourd', [4, 5, 6, 11, 12], ['waterOil', 'stirFry', 'blanch', 'steam'], ['shrimp', 'chicken_thigh', 'garlic'], 5, false, '去两端和筋；给幼儿切小段', '必须彻底炒熟至颜色变深、无生豆味', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['long_beans', '豇豆', '豇豆', 'gourd', [6, 7, 8, 9, 10], ['waterOil', 'stirFry', 'blanch', 'steam'], ['pork_mince', 'garlic', 'egg'], 5, false, '去两端切段；给幼儿切碎', '必须彻底炒熟/焯透，避免生豆中毒', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['carrot', '胡萝卜', '胡萝卜', 'root', [1, 2, 3, 10, 11, 12], ['waterOil', 'stirFry', 'steam', 'braise', 'riceCooker'], ['egg', 'beef_slice', 'pork_mince'], 14, false, '切薄片、擦丝或切小条，蒸软', '彻底加热至软；给幼儿切细丝防呛', 'USDA SR Legacy（沿用现有食材数据）'],
+    ['onion', '洋葱', '洋葱', 'root', [1, 2, 3, 4, 5, 6], ['waterOil', 'stirFry', 'steam', 'braise'], ['beef_slice', 'chicken_thigh', 'egg'], 14, false, '切小丁炒软；给幼儿切碎', '彻底炒软至透明；生洋葱刺激肠胃，儿童熟食', 'USDA SR Legacy（沿用现有食材数据）'],
+    ['sweet_potato', '红薯', '红薯', 'root', [8, 9, 10, 11, 12, 1], ['steam', 'riceCooker', 'waterOil', 'braise'], ['egg', 'milk'], 14, false, '去皮压泥或切小块', '彻底蒸熟至筷子轻松插入；去皮后给幼儿压泥', 'USDA SR Legacy（沿用现有食材数据；食材原在“主食与谷物”组）'],
+    ['daikon', '白萝卜', '白萝卜', 'root', [10, 11, 12, 1, 2, 3], ['waterOil', 'stirFry', 'steam', 'braise'], ['pork_ribs', 'mushroom', 'shrimp'], 14, false, '去皮切薄片或小块，煮透', '彻底加热至透明软透，去辛辣', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['lotus_root', '莲藕', '莲藕', 'root', [9, 10, 11, 12, 1, 2], ['waterOil', 'stirFry', 'blanch', 'steam'], ['pork_mince', 'chicken_thigh', 'garlic'], 7, false, '去皮切薄片；给幼儿切小丁', '去皮切片后泡水防氧化；彻底加热至软', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['chinese_yam', '山药', '山药', 'root', [9, 10, 11, 12, 1], ['steam', 'riceCooker', 'waterOil', 'braise'], ['pork_ribs', 'chicken_thigh', 'egg'], 10, false, '去皮切段蒸软；压泥更易入口', '去皮时戴手套防痒；必须蒸熟透，不生食', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['potato', '土豆', '土豆', 'root', [1, 2, 3, 4, 5, 6], ['steam', 'riceCooker', 'waterOil', 'stirFry'], ['egg', 'milk', 'onion'], 14, false, '去皮切小块，压泥或切薄片', '发芽或变绿的土豆不要用；彻底加热至软透', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['taro', '芋头', '芋头', 'root', [9, 10, 11, 12, 1, 2], ['steam', 'riceCooker', 'waterOil', 'braise'], ['pork_ribs', 'chicken_thigh', 'egg'], 10, false, '去皮切块蒸软；压泥更易入口', '去皮时戴手套防痒；必须蒸熟透，不生食', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['celtuce', '莴笋', '莴笋', 'root', [3, 4, 5, 10, 11], ['waterOil', 'stirFry', 'blanch', 'steam'], ['pork_mince', 'garlic', 'egg'], 7, false, '去皮去老叶，切薄片', '彻底加热至软透；生食需洗净去皮', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['beetroot', '甜菜根', '甜菜根', 'root', [9, 10, 11, 12, 1, 2], ['waterOil', 'steam', 'blanch', 'braise'], ['egg', 'orange', 'garlic'], 14, false, '去皮切小块，蒸软压泥', '彻底蒸熟至筷子轻松插入；汁液可能染红尿液/便便，属正常', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['water_chestnut', '荸荠', '荸荠', 'root', [11, 12, 1, 2, 3], ['waterOil', 'steam', 'blanch', 'braise'], ['pork_mince', 'chicken_thigh', 'egg'], 7, false, '去皮切小丁；给幼儿切碎', '去皮后彻底煮熟，不生吃（避免寄生虫风险）', '按同类蔬菜常见值估算，非 USDA 实测'],
+    ['burdock', '牛蒡', '牛蒡', 'root', [10, 11, 12, 1, 2, 3], ['waterOil', 'stirFry', 'steam', 'braise'], ['pork_mince', 'chicken_thigh', 'garlic'], 14, false, '去皮切细丝或薄片，泡水防氧化', '去皮后彻底加热至软；不要生食', '按同类蔬菜常见值估算，非 USDA 实测']
+  ];
+
+  D.vegetables = {};
+  var vegById = {};
+  VEG_ROWS.forEach(function (r) {
+    D.vegetables[r[0]] = {
+      name: r[1],
+      category: r[3],
+      season: r[4],
+      methods: r[5],
+      pairs: r[6],
+      storage: { fridgeDays: r[7], freeze: false, useFirst: r[8] },
+      childPrep: r[9],
+      safety: r[10],
+      sourceNote: r[11]
+    };
+    vegById[r[0]] = { id: r[0], name: r[1], short: r[2], category: r[3], childPrep: r[9], safety: r[10] };
+  });
+
+  /* ---------- 蔬菜侧菜：每种蔬菜 2 个变体（quick / gentle） ---------- */
+  /* [id, 快手做法, 快手名前缀, 温和做法, 温和名前缀] */
+  var DISH_ROWS = [
+    ['spinach', 'waterOil', '水油焖', 'blanch', '白灼'],
+    ['pak_choi', 'waterOil', '水油焖', 'blanch', '白灼'],
+    ['nai_bai', 'waterOil', '水油焖', 'steam', '清蒸'],
+    ['choy_sum', 'waterOil', '水油焖', 'blanch', '白灼'],
+    ['gai_lan', 'waterOil', '水油焖', 'blanch', '白灼'],
+    ['shanghai_qing', 'waterOil', '水油焖', 'blanch', '白灼'],
+    ['lettuce', 'stirFry', '蒜香快炒', 'blanch', '白灼'],
+    ['youmaicai', 'stirFry', '蒜香快炒', 'blanch', '白灼'],
+    ['water_spinach', 'stirFry', '蒜香快炒', 'blanch', '白灼'],
+    ['amaranth', 'stirFry', '蒜香快炒', 'blanch', '白灼'],
+    ['crown_daisy', 'waterOil', '水油焖', 'blanch', '白灼'],
+    ['kale', 'waterOil', '水油焖', 'blanch', '白灼'],
+    ['sweet_potato_leaf', 'stirFry', '蒜香快炒', 'blanch', '白灼'],
+    ['mustard_greens', 'waterOil', '水油焖', 'blanch', '白灼'],
+    ['baby_cabbage', 'waterOil', '水油焖', 'steam', '蒜蓉蒸'],
+    ['pepper_red', 'waterOil', '水油焖', 'steam', '清蒸'],
+    ['tomato', 'stirFry', '蒜香快炒', 'blanch', '白灼'],
+    ['green_pepper', 'waterOil', '水油焖', 'steam', '清蒸'],
+    ['eggplant', 'waterOil', '水油焖', 'steam', '清蒸'],
+    ['zucchini', 'stirFry', '清炒', 'steam', '清蒸'],
+    ['cucumber', 'waterOil', '水油焖', 'blanch', '白灼'],
+    ['winter_melon', 'waterOil', '水油焖', 'steam', '清蒸'],
+    ['fuzzy_melon', 'waterOil', '水油焖', 'steam', '清蒸'],
+    ['luffa', 'stirFry', '蒜香快炒', 'steam', '清蒸'],
+    ['bitter_melon', 'waterOil', '水油焖', 'blanch', '白灼'],
+    ['pumpkin', 'riceCooker', '电饭煲蒸', 'steam', '清蒸'],
+    ['okra', 'waterOil', '水油焖', 'blanch', '白灼'],
+    ['green_beans', 'waterOil', '水油焖', 'blanch', '白灼'],
+    ['snow_peas', 'stirFry', '清炒', 'blanch', '白灼'],
+    ['long_beans', 'waterOil', '水油焖', 'blanch', '白灼'],
+    ['carrot', 'waterOil', '水油焖', 'steam', '清蒸'],
+    ['onion', 'waterOil', '水油焖', 'steam', '清蒸'],
+    ['sweet_potato', 'riceCooker', '电饭煲蒸', 'steam', '清蒸'],
+    ['daikon', 'waterOil', '水油焖', 'steam', '清蒸'],
+    ['lotus_root', 'stirFry', '清炒', 'steam', '清蒸'],
+    ['chinese_yam', 'riceCooker', '电饭煲蒸', 'steam', '清蒸'],
+    ['potato', 'riceCooker', '电饭煲蒸', 'steam', '清蒸'],
+    ['taro', 'riceCooker', '电饭煲蒸', 'steam', '清蒸'],
+    ['celtuce', 'waterOil', '水油焖', 'blanch', '白灼'],
+    ['beetroot', 'waterOil', '水油焖', 'steam', '清蒸'],
+    ['water_chestnut', 'waterOil', '水油焖', 'steam', '清蒸'],
+    ['burdock', 'stirFry', '清炒', 'steam', '清蒸']
+  ];
+
+  var METHOD_INFO = {
+    waterOil: {
+      equipment: ['stove'], lowSmoke: true, oil: 3,
+      time: { leafy: '1–2 分钟', gourd: '3–5 分钟', root: '4–6 分钟' }
+    },
+    stirFry: {
+      equipment: ['stove'], lowSmoke: false, oil: 3,
+      time: { leafy: '1–2 分钟', gourd: '2–4 分钟', root: '3–5 分钟' }
+    },
+    blanch: {
+      equipment: ['stove'], lowSmoke: true, oil: 2,
+      time: { leafy: '45–90 秒', gourd: '2–3 分钟', root: '3–5 分钟' }
+    },
+    steam: {
+      equipment: ['steamer'], lowSmoke: true, oil: 2,
+      time: { leafy: '4–6 分钟', gourd: '8–12 分钟', root: '15–20 分钟' }
+    },
+    braise: {
+      equipment: ['stove'], lowSmoke: true, oil: 2,
+      time: { leafy: '2–3 分钟', gourd: '6–8 分钟', root: '8–12 分钟' }
+    },
+    riceCooker: {
+      equipment: ['riceCooker'], lowSmoke: true, oil: 1,
+      time: { leafy: '煮饭程序结束后', gourd: '煮饭程序结束后', root: '煮饭程序结束后' }
+    }
+  };
+
+  var TIME_OVERRIDE = {
+    spinach: { blanch: '20–30 秒' },
+    kale: { blanch: '60–90 秒' },
+    lettuce: { blanch: '30–45 秒' },
+    mustard_greens: { blanch: '60–90 秒' },
+    tomato: { blanch: '20–30 秒' },
+    bitter_melon: { blanch: '1–2 分钟' },
+    okra: { blanch: '2–3 分钟', steam: '5–6 分钟' },
+    green_beans: { blanch: '3–4 分钟', steam: '6–8 分钟', waterOil: '5–6 分钟' },
+    snow_peas: { blanch: '3–4 分钟', steam: '5–6 分钟', stirFry: '3–4 分钟' },
+    long_beans: { blanch: '3–4 分钟', steam: '6–8 分钟', waterOil: '5–6 分钟' },
+    baby_cabbage: { steam: '8–10 分钟' },
+    eggplant: { steam: '10–12 分钟' },
+    zucchini: { steam: '8–10 分钟' },
+    cucumber: { steam: '6–8 分钟' },
+    pepper_red: { steam: '6–8 分钟' },
+    green_pepper: { steam: '6–8 分钟' },
+    winter_melon: { steam: '10–12 分钟' },
+    fuzzy_melon: { steam: '10–12 分钟' },
+    luffa: { steam: '8–10 分钟' },
+    pumpkin: { steam: '12–15 分钟' },
+    sweet_potato: { steam: '15–20 分钟' },
+    potato: { steam: '15–20 分钟' },
+    taro: { steam: '15–20 分钟' },
+    chinese_yam: { steam: '15–20 分钟' },
+    daikon: { steam: '12–15 分钟' },
+    lotus_root: { steam: '12–15 分钟' },
+    celtuce: { steam: '8–10 分钟' },
+    beetroot: { steam: '20–25 分钟' },
+    water_chestnut: { steam: '10–12 分钟' },
+    burdock: { steam: '15–20 分钟' }
+  };
+
+  /* 关键安全/预处理的额外说明（写在第一步之后） */
+  var SPECIAL_PREP = {
+    spinach: { quick: '菠菜先入沸水焯 20–30 秒，捞出挤干后再焖，可减少部分草酸。', gentle: '' },
+    gai_lan: '梗部斜切薄片，先下梗后下叶。',
+    choy_sum: '梗部斜切薄片，先下梗后下叶。',
+    kale: { quick: '先焯 60–90 秒再焖，减少苦味。', gentle: '' },
+    mustard_greens: { quick: '先焯 60–90 秒再焖，减少苦味。', gentle: '' },
+    tomato: '顶部划十字，沸水焯 20–30 秒后可轻松去皮；给幼儿去籽。',
+    bitter_melon: '去瓤去籽切薄片；焯水 1–2 分钟可减少苦味。',
+    okra: '整根焯水或蒸，不要切破，减少黏液流失。',
+    green_beans: '四季豆必须先焯水 3–4 分钟，或炒时加水焖 5–6 分钟，至颜色变深、无生豆味。',
+    snow_peas: '荷兰豆必须炒到颜色变深、无生豆味；可先焯水 3–4 分钟。',
+    long_beans: '豇豆必须彻底炒熟或焯透，避免生豆中毒。',
+    chinese_yam: '去皮时戴手套防痒；切块后立即加热，不生食。',
+    taro: '去皮时戴手套防痒；切块后立即加热，不生食。',
+    potato: '发芽或变绿的土豆不要使用；去皮切块后彻底加热。',
+    water_chestnut: '去皮后彻底煮熟再吃，不生食。',
+    lotus_root: '去皮切薄片后泡水防氧化；焯 1–2 分钟去部分淀粉。',
+    burdock: '去皮后泡水防氧化，切细丝或薄片。',
+    beetroot: '去皮切块；汁液可能把尿液或便便染红，属正常现象。',
+    winter_melon: '去皮去瓤切小块；煮到透明软透。',
+    fuzzy_melon: '去皮去瓤切小块；煮到软透。',
+    luffa: '去皮去瓤切滚刀块；彻底加热至软。',
+    pumpkin: '去瓤去皮切块；彻底蒸软。',
+    eggplant: '切块后立即加热，避免氧化发黑。',
+    daikon: '去皮切薄片或小块，煮到透明去辛辣。',
+    celtuce: '去皮去老叶，切薄片；彻底加热。',
+    cucumber: '去皮去籽切薄片；本菜按熟制处理。',
+    lettuce: '手撕或切小段；本菜按熟制处理。',
+    baby_cabbage: '纵向切小瓣，蒸或焖到菜心软透。',
+    water_spinach: '摘去老梗，快炒至软；不要久焖。',
+    amaranth: '苋菜易熟，快炒 1–2 分钟即可。',
+    crown_daisy: '茼蒿易熟，快焖或快炒 1–2 分钟。'
+  };
+
+  var SPECIAL_STEP = {
+    green_beans: '确认完全熟透：颜色变深、无生豆味、咬开无硬芯；宁可多煮 1–2 分钟。',
+    snow_peas: '确认完全熟透：颜色变深、无生豆味；不要只炒到翠绿就出锅。',
+    long_beans: '确认完全熟透：颜色变深、无生豆味；不要只炒到翠绿就出锅。'
+  };
+
+  var NO_GARLIC = { sweet_potato: true, pumpkin: true, beetroot: true, water_chestnut: true };
+
+  var SPECIAL_TAG = {
+    green_beans: ['豆类需熟透'],
+    snow_peas: ['豆类需熟透'],
+    long_beans: ['豆类需熟透'],
+    kale: ['高纤维'],
+    okra: ['高纤维'],
+    sweet_potato: ['高纤维'],
+    burdock: ['高纤维']
+  };
+
+  function estStorageLine(v) {
+    return v.category === 'leafy'
+      ? '绿叶菜不建议冷冻，最好当天吃完，冷藏不超过 1 天；'
+      : '冷藏不超过 2 天，之后改为现做；不建议冷冻；';
+  }
+
+  function timeText(v, method) {
+    var override = TIME_OVERRIDE[v.id] && TIME_OVERRIDE[v.id][method];
+    if (override) return override;
+    return METHOD_INFO[method].time[v.category];
+  }
+
+  function prepLine(v, variant) {
+    var sp = SPECIAL_PREP[v.id];
+    var extra = '';
+    if (typeof sp === 'string') extra = sp;
+    else if (sp && sp[variant]) extra = sp[variant];
+    return v.short + '洗净，' + v.childPrep + '。' + extra;
+  }
+
+  function buildParts(v, method) {
+    var info = METHOD_INFO[method];
+    var parts = [
+      { ingredient: v.id, grams: 150, role: 'veg' },
+      { ingredient: 'oil', grams: info.oil, role: 'fat' }
+    ];
+    if (!NO_GARLIC[v.id]) parts.push({ ingredient: 'garlic', grams: 2, role: 'flavor', optional: true });
+    return parts;
+  }
+
+  function buildSteps(v, variant, method) {
+    var name = v.short;
+    var t = timeText(v, method);
+    var oil = METHOD_INFO[method].oil;
+    var steps;
+    if (method === 'waterOil') {
+      steps = [
+        prepLine(v, variant),
+        '锅烧热，放 ' + oil + ' g 油和蒜末，先下较硬的梗或厚片翻炒 30 秒，再下其余部分。',
+        '沿锅边加 1–2 汤匙水，盖盖小火焖 ' + t + '，至完全软透、中心 ≥74°C；出锅前少量盐或不加盐。',
+        '装 500 ml 盒，放凉后冷藏；' + estStorageLine(v) + '复热到中心 74°C。'
+      ];
+    } else if (method === 'stirFry') {
+      steps = [
+        prepLine(v, variant),
+        '锅烧热放 ' + oil + ' g 油和蒜末，下' + name + '大火快炒 ' + t + '。',
+        '炒到完全软透、中心 ≥74°C；出锅前少量盐或不加盐。',
+        '装盒放凉后冷藏；' + estStorageLine(v) + '复热到中心 74°C。'
+      ];
+    } else if (method === 'blanch') {
+      steps = [
+        prepLine(v, variant),
+        '锅中水烧开，下' + name + '焯 ' + t + '，捞出沥干。',
+        '趁热拌 ' + oil + ' g 油和蒜末（可省），少量盐或不加。',
+        '装盒放凉后冷藏；' + estStorageLine(v) + '复热到中心 74°C。'
+      ];
+    } else if (method === 'steam') {
+      steps = [
+        prepLine(v, variant),
+        '平铺在盘中（可撒蒜末），蒸锅水开后上锅蒸 ' + t + '，至完全软透、中心 ≥74°C。',
+        '出锅拌 ' + oil + ' g 油，少量盐或不加。',
+        '装盒放凉后冷藏；' + estStorageLine(v) + '复热到中心 74°C。'
+      ];
+    } else if (method === 'braise') {
+      steps = [
+        prepLine(v, variant),
+        '锅中放 ' + oil + ' g 油，下' + name + '翻炒 1 分钟，加少量水，盖盖焖 ' + t + ' 至软透。',
+        '确认中心 ≥74°C，少量盐或不加盐。',
+        '装盒放凉后冷藏；' + estStorageLine(v) + '复热到中心 74°C。'
+      ];
+    } else {
+      steps = [
+        prepLine(v, variant),
+        '放蒸架或耐热碗中，电饭煲煮饭时一起蒸；煮饭程序结束后焖 5–10 分钟。',
+        '确认筷子能轻松插入、中心 ≥74°C；取出拌 ' + oil + ' g 油或不加。',
+        '装盒放凉后冷藏；' + estStorageLine(v) + '复热到中心 74°C。'
+      ];
+    }
+    var extra = SPECIAL_STEP[v.id];
+    if (extra) steps.splice(steps.length - 1, 0, extra);
+    return steps;
+  }
+
+  function buildKidNote(v) {
+    return v.childPrep + '；儿童份约成人的 1/2–2/3，先少量尝试，吃着不够再添。';
+  }
+
+  function buildSoftNote(v) {
+    return '多加热 2–3 分钟至软烂，' + v.childPrep + '；确认不烫再给孩子。';
+  }
+
+  function buildNote(v) {
+    var base = v.category === 'leafy'
+      ? '叶菜体积大、纤维多，配足水和一点油；冷藏后风味变差，优先当天吃。'
+      : (v.category === 'gourd'
+        ? '瓜果菜水分多，焖或蒸比久炒省油；复热后口感会变软。'
+        : '根茎及鳞茎菜含淀粉或纤维，切小块更易熟透，蒸或焖能保留甜味。');
+    return base + '每份按 150 g 生重计，儿童按年龄减量。';
+  }
+
+  function buildSafetyNote(v) {
+    return v.safety + '；必须彻底加热至中心 ≥74°C，剩菜只复热一次。';
+  }
+
+  function buildDish(v, variant, method, prefix) {
+    var quick = variant === 'quick';
+    var info = METHOD_INFO[method];
+    var tags = ['蔬菜', CAT[v.category]];
+    if (quick) tags.push('快手');
+    if (info.lowSmoke) tags.push('少油烟');
+    if (SPECIAL_TAG[v.id]) tags = tags.concat(SPECIAL_TAG[v.id]);
+    return {
+      name: prefix + v.short,
+      kind: 'vegSide',
+      vegId: v.id,
+      vegCategory: v.category,
+      cookMethod: method,
+      quick: quick,
+      lowSmoke: info.lowSmoke,
+      storage: v.category === 'leafy' ? 'prep' : 'fridge',
+      maxFridgeDays: v.category === 'leafy' ? 1 : 2,
+      reheat: 'microwave',
+      tags: tags,
+      equipment: info.equipment.slice(),
+      container: 'box500',
+      parts: buildParts(v, method),
+      kidNote: buildKidNote(v),
+      softNote: buildSoftNote(v),
+      steps: buildSteps(v, variant, method),
+      note: buildNote(v),
+      safetyNote: buildSafetyNote(v)
+    };
+  }
+
+  DISH_ROWS.forEach(function (r) {
+    var v = vegById[r[0]];
+    D.dishes['veg_' + v.id + '_quick'] = buildDish(v, 'quick', r[1], r[2]);
+    D.dishes['veg_' + v.id + '_gentle'] = buildDish(v, 'gentle', r[3], r[4]);
   });
 })(window.MEALPREP);

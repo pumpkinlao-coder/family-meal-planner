@@ -10,6 +10,7 @@
 @media (hover:hover) { #tabs .tab[aria-selected="false"]:hover { background: #e9eee2; border-color: #526953; } }
 
 .overview-row[data-slot="breakfast"] small,
+.overview-row[data-slot="lunch"] small,
 .overview-row[data-slot="dinner"] small {
   justify-self: start;
   padding: 0 4px;
@@ -18,6 +19,7 @@
   white-space: nowrap;
 }
 .overview-row[data-slot="breakfast"] small { color: #79441b; background: #ffebc9; }
+.overview-row[data-slot="lunch"] small { color: #4b3f72; background: #ece7f7; }
 .overview-row[data-slot="dinner"] small { color: #394c77; background: #e6eaf6; }
 
 /* Disclosure controls share a visible resting, pressed, open and focused state. */

@@ -1167,3 +1167,111 @@ td.is-unused { color: var(--muted); font-weight: 400; }
 @media (max-width: 340px) {
   .meal-toggle { flex-basis: 100%; }
 }
+
+/* ---------- 蔬菜搭配（V3.3） ---------- */
+
+.veg-settings {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.veg-settings-head {
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+  gap: 4px 12px;
+}
+.veg-settings-head .field-label { margin: 0; }
+.veg-target { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.veg-option {
+  display: grid;
+  grid-template-columns: 5.2em minmax(0, 1fr);
+  gap: 6px 10px;
+  align-items: center;
+  min-width: 0;
+}
+.veg-option-label { font-size: 12px; font-weight: 600; color: var(--muted); line-height: 1.4; }
+.veg-inline-hint { align-self: center; font-size: 11px; color: var(--muted); white-space: nowrap; }
+.veg-option .segmented { max-width: 360px; }
+.veg-option .chips { min-width: 0; }
+.veg-switches { display: flex; flex-wrap: wrap; align-items: center; gap: 0 18px; min-width: 0; }
+.veg-switches .switch { min-height: 36px; }
+
+/* 类别 chip：选中 = 纳入本周搭配（绿色），与过敏原“排除”chip 的语义区分。 */
+.setup .veg-chip[aria-pressed="true"] {
+  background: var(--green-soft);
+  border-color: var(--green-soft-2);
+  color: var(--green);
+  font-weight: 600;
+}
+.setup .veg-chip[aria-pressed="true"]::before { content: none; }
+.setup .veg-chip[aria-pressed="false"] { opacity: .72; }
+
+@media (max-width: 620px) {
+  .veg-option { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+  .veg-option .segmented { max-width: none; }
+  .setup .veg-chip { min-height: 40px; }
+}
+
+/* 菜品上的蔬菜小标签（复用 .dish-tag 与现有配色 token，不新增大色块） */
+.tag-veg { letter-spacing: 0; }
+.tag-veg-leafy { background: var(--green-soft); color: var(--green); }
+.tag-veg-gourd { background: var(--gold-soft); color: #8a641c; }
+.tag-veg-root { background: var(--fresh-soft); color: var(--fresh); }
+.tag-veg-quick { background: var(--accent-soft); color: #8a4a22; }
+.tag-veg-low { background: var(--freeze-soft); color: var(--freeze); }
+.tag-veg-method { background: #f1eee4; color: var(--ink-soft); }
+
+/* “本周蔬菜覆盖”紧凑卡片：不达标/有重复时只变黄色提示，不阻断菜单 */
+.veg-coverage {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.veg-coverage.is-warn { border-color: #e9d5a7; background: var(--gold-soft); }
+.veg-coverage-head {
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+  gap: 2px 10px;
+}
+.veg-coverage-title { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+.veg-coverage.is-warn .veg-coverage-title { color: #7c5b1b; }
+.veg-coverage-flag {
+  flex: none;
+  padding: 1px 9px;
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  font-size: 11px; font-weight: 700;
+}
+.veg-coverage.is-warn .veg-coverage-flag { background: #f0dfb4; color: #7c5b1b; }
+.veg-coverage-main {
+  margin-top: 3px;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+.veg-coverage-main strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+.veg-coverage-meta { color: var(--muted); font-variant-numeric: tabular-nums; }
+.veg-coverage.is-warn .veg-coverage-main { color: #6f5218; }
+.veg-coverage.is-warn .veg-coverage-meta { color: #7c5b1b; }
+.veg-coverage.is-warn .veg-coverage-main strong { color: #63480f; }
+.veg-coverage-notes {
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.veg-coverage.is-warn .veg-coverage-notes { color: #7c5b1b; }
+
+@media (max-width: 620px) {
+  .veg-coverage { padding: 9px 12px; }
+}
+
+@media print {
+  .veg-coverage { display: none !important; }
+}
