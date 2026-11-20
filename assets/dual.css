@@ -1,0 +1,58 @@
+.mode-nav{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0}.mode-nav details{margin-left:auto}.mode-nav summary{cursor:pointer}.mode-nav input{max-width:100%}html.simple-mode .hero{display:none}.setup-head{flex-wrap:wrap}.setup-head h2{order:-1;margin-right:auto}.week-picker summary,.swap-picker summary{cursor:pointer;color:#365a40;font-weight:650;padding:9px}.swap-picker button{margin:4px;white-space:normal;height:auto}.swap-picker{width:100%}.swap-picker label{display:block}.day-foot{flex-wrap:wrap}.setup{margin-top:20px}
+/* Week overview: the complete dish list stays inside its day. */
+.menu-day>summary{display:grid;grid-template-columns:1fr auto;gap:4px 10px;cursor:pointer;padding:10px 14px;list-style:none}.menu-day>summary::-webkit-details-marker{display:none}.overview-row{grid-column:1/-1;display:grid;grid-template-columns:2.4em 1fr;align-items:baseline;line-height:1.45;font-size:14px;color:#38473a;overflow-wrap:anywhere}.overview-row small{font-size:12px;color:#666c5c}.detail-label{font-size:13px;color:#396249}.detail-label::after{content:" ▾"}.menu-day[open] .detail-label::after{content:" ▴"}.menu-day[open]>summary{border-bottom:1px solid #ddd6c9}.day-grid{align-items:start;gap:8px}.setup.card{padding:12px 16px;margin:8px 0}.setup .setup-head,.setup .week-picker,.setup .setup-details,.setup .setup-summary{margin:0}.setup .setup-head{padding:0 0 5px}.setup .week-picker summary,.setup .setup-details>summary{padding:6px 0;min-height:34px}.setup .setup-summary{padding:6px 9px;font-size:13px}.mode-nav{margin:5px 0}.tabs{flex-wrap:wrap;overflow:visible;position:static;margin:8px 0}.section:has(.day-grid)>.section-head .section-sub{display:none}
+@media(max-width:700px){#tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;padding:2px;position:static}#tabs .tab{justify-content:center;white-space:normal;line-height:1.2;min-height:38px;padding:4px 1px;font-size:13px}#tabs .count{display:none}.menu-day>summary{padding:8px 10px}.mode-nav{font-size:13px;gap:6px}.setup.card{padding:9px 12px}.section:has(.day-grid)>.section-head{margin:4px 0 8px}.section:has(.day-grid) .section-actions{display:none}}
+
+#tabs { gap: 5px; }
+#tabs .tab { box-sizing: border-box; border: 1px solid #899687; border-radius: 12px; background: #fffcf5; color: #35473a; }
+#tabs .tab[aria-selected="true"] { background: #213529; border-color: #213529; color: white; }
+#tabs .tab:focus-visible { outline: 2px solid #376249; outline-offset: 1px; }
+@media (hover:hover) { #tabs .tab[aria-selected="false"]:hover { background: #e9eee2; border-color: #526953; } }
+
+.overview-row[data-slot="breakfast"] small,
+.overview-row[data-slot="dinner"] small {
+  justify-self: start;
+  padding: 0 4px;
+  border-radius: 4px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.overview-row[data-slot="breakfast"] small { color: #79441b; background: #ffebc9; }
+.overview-row[data-slot="dinner"] small { color: #394c77; background: #e6eaf6; }
+
+/* Disclosure controls share a visible resting, pressed, open and focused state. */
+details:not(.menu-day)>summary {
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  list-style:none; cursor:pointer; min-height:44px; box-sizing:border-box;
+}
+details>summary::-webkit-details-marker {display:none}
+details:not(.menu-day)>summary>svg.icon {display:none}
+details:not(.menu-day)>summary::after,.menu-day .detail-label {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px; flex:none;
+  border:1px solid #63816b; border-radius:9px; background:#eef4e9; color:#224d35;
+  font:650 13px/1.3 system-ui,sans-serif; padding:5px 9px;
+}
+details:not(.menu-day)>summary::after {content:"展开  ▼"}
+details:not(.menu-day)[open]>summary::after {content:"收起  ▲";background:#30563d;color:white}
+.menu-day .detail-label::after {content:"▼";font-size:14px}
+.menu-day[open] .detail-label {background:#30563d;color:white}
+.menu-day[open] .detail-label::after {content:"▲"}
+.menu-day .when-open,.menu-day[open] .when-closed {display:none}
+.menu-day[open] .when-open {display:inline}
+details>summary:focus-visible,button:focus-visible {outline:3px solid #287354;outline-offset:-3px}
+details>summary:active,#tabs .tab:active {background:#d8e7d7}
+.lane-track {counter-reset:lane-step}
+.block {counter-increment:lane-step}
+.block-time::before {content:"步骤 " counter(lane-step);display:block;width:max-content;padding:2px 5px;border-radius:5px;background:#345b44;color:white;font-size:11px;margin-bottom:3px}
+ol.rule-list {counter-reset:dish-step}
+ol.rule-list>li {counter-increment:dish-step;padding-left:2em}
+ol.rule-list>li::before {content:counter(dish-step);top:.1em;left:0;width:1.6em;height:1.6em;line-height:1.6;text-align:center;border-radius:50%;background:#345b44;color:white;font-size:.9em}
+.shop-filters{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.shop-filters button[aria-pressed=true]{background:#30563d;color:white;border-color:#30563d}
+
+@media screen {
+  .shop-list { gap: 0; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+  .shop-item { min-height: 44px; padding: 5px 10px; column-gap: 10px; background: transparent; border: 0; border-radius: 0; }
+  .shop-item + .shop-item { border-top: 1px solid var(--line); }
+  .shop-note { margin-top: 1px; }
+}
