@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>家庭三餐规划 V3.2 · 早餐/午餐/晚餐可选、待选与整周预设</title>
+<meta name="description" content="为两位成人和一位儿童规划 3–5 天的早餐、午餐和晚餐：可编辑克数、米饭方案、逐食材营养、自动采购清单、工具与容器、炖菜汤块、并行备餐时间线与食品安全复热卡。可离线打开。">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/presets.css">
+<link rel="stylesheet" href="assets/dual.css"></head>
+<body>
+<a class="skip-link" href="#views">跳到主要内容</a>
+
+<svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5 9.2 18 20 6.5"/></symbol>
+  <symbol id="i-snow" viewBox="0 0 24 24"><path d="M12 2v20M3.5 7l17 10M20.5 7l-17 10M12 6l-3-3M12 6l3-3M12 18l-3 3M12 18l3 3M6.5 9.5l-4-1M6.5 14.5l-4 1M17.5 9.5l4-1M17.5 14.5l4 1"/></symbol>
+  <symbol id="i-fridge" viewBox="0 0 24 24"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M5 10h14M9 6v2M9 13v3"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M20 4C11 4 4 8.5 4 16c0 2 .7 3.4.7 3.4S8 20 11.5 18.5C18 15.7 20 10 20 4Z"/><path d="M4.5 19.5C8 13 12 9.5 17 7"/></symbol>
+  <symbol id="i-microwave" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><rect x="5.5" y="9" width="9" height="6" rx="1"/><path d="M18 10v.01M18 13.5v.01M18 16.5v.01"/></symbol>
+  <symbol id="i-steam" viewBox="0 0 24 24"><path d="M4 11h16M5.5 11v3.5A2.5 2.5 0 0 0 8 17h8a2.5 2.5 0 0 0 2.5-2.5V11M9 4c-1.2 1.4-1.2 2.6 0 4M14 4c-1.2 1.4-1.2 2.6 0 4"/></symbol>
+  <symbol id="i-warning" viewBox="0 0 24 24"><path d="M12 3 2.8 19.5h18.4L12 3Z"/><path d="M12 9v4.5M12 17v.2"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16.5 9"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.3l3.4 2"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="m4 20 4.5-1L20 7.5 16.5 4 5 15.5 4 20Z"/><path d="m14.5 6 3.5 3.5"/></symbol>
+  <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V3.5h10V9M7 18H5a1.5 1.5 0 0 1-1.5-1.5V10A1.5 1.5 0 0 1 5 8.5h14a1.5 1.5 0 0 1 1.5 1.5v6.5A1.5 1.5 0 0 1 19 18h-2"/><rect x="7" y="13.5" width="10" height="7" rx="1"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 5v5h5"/><path d="M4.6 9.2A8.5 8.5 0 1 1 4 14.5"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="12" rx="2"/><path d="M15.5 5.5v-1a1 1 0 0 0-1-1h-9a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h1"/></symbol>
+</svg>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <p class="eyebrow">Family meal prep · V3.2</p>
+      <h1>把这几天的餐，<br>安排得刚刚好。</h1>
+      <p class="lead">为两位成人和一位儿童设计。早餐、午餐、晚餐可独立开启；周末集中准备模块，工作日组合、复热与现加；菜单允许重复，优先考虑安全、营养与口感。</p>
+      <p class="hero-meta"><span class="dot"></span>可离线打开<span class="dot"></span>份量与营养可编辑<span class="dot"></span>数据存于本机浏览器</p>
+    </div>
+    <figure class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 220 200" role="presentation">
+        <circle cx="110" cy="106" r="78" class="art-plate"/>
+        <path d="M74 104C76 78 91 64 110 64s34 14 36 40Z" class="art-rice"/>
+        <rect x="101" y="72" width="18" height="32" rx="3" class="art-nori"/>
+        <circle cx="90" cy="88" r="2.2" class="art-fill"/>
+        <circle cx="132" cy="92" r="2" class="art-fill-2"/>
+        <circle cx="113" cy="60" r="1.8" class="art-fill"/>
+        <path d="M50 104h120a60 56 0 0 1-120 0Z" class="art-bowl-fill"/>
+        <path d="M50 104h120a60 56 0 0 1-120 0Z" class="art-bowl"/>
+        <path d="M46 104h128" class="art-line"/>
+        <path d="M92 52c-3-6-2-10 2-14M112 48c-3-5-2-9 2-12" class="art-steam"/>
+        <path d="M58 66c7 0 12 5 13 12-7 0-12-4-13-12ZM72 60c7 1 11 6 11 13-7 0-11-5-11-13Z" class="art-leaf"/>
+        <path d="M40 162h140" class="art-shadow"/>
+      </svg>
+    </figure>
+  </div>
+</header>
+
+<main id="main"><nav class="mode-nav" aria-label="显示模式"><strong>家庭餐桌</strong><button id="switchMode" class="btn secondary small"></button><details><summary>计划备份与导入</summary><button id="exportPlan" class="btn small">导出当前计划</button><label>导入计划 <input id="importPlan" type="file" accept=".json"></label><div id="legacyPlans"></div><span id="backupStatus" role="status"></span></details></nav>
+  <section class="setup card" aria-labelledby="setupTitle">
+    <div class="setup-head">
+      <h2 id="setupTitle">先选一套五日方案</h2>
+      <button type="button" class="btn ghost small" id="resetAll">
+        <svg class="icon"><use href="#i-reset"></use></svg>恢复默认
+      </button>
+    </div>
+
+    <div id="mealSetup" class="meal-setup" aria-label="这周吃哪几餐"></div>
+
+    <div class="preset-grid" id="presets" aria-label="整周五日方案"></div>
+
+    <details class="setup-details" id="detailSettings">
+      <summary>调整细节：人数、天数、米饭、饭团、过敏原、盐量与口感
+        <svg class="icon"><use href="#i-chevron"></use></svg>
+      </summary>
+
+    <div class="setup-grid">
+      <div class="field">
+        <span class="field-label" id="daysLabel">计划天数</span>
+        <div class="segmented" id="days" role="group" aria-labelledby="daysLabel">
+          <button type="button" data-value="3">3 天</button>
+          <button type="button" data-value="4">4 天</button>
+          <button type="button" data-value="5" class="is-active" aria-pressed="true">5 天</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="adults">成人数量</label>
+        <select id="adults">
+          <option value="1">1 位成人</option>
+          <option value="2" selected>2 位成人</option>
+          <option value="3">3 位成人</option>
+          <option value="4">4 位成人</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="kidAge">儿童</label>
+        <select id="kidAge">
+          <option value="none">无儿童</option>
+          <option value="4-6">4–6 岁</option>
+          <option value="7-10" selected>7–10 岁</option>
+          <option value="11-13">11–13 岁</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="style">早餐风格</label>
+        <select id="style">
+          <option value="classic" selected>经典＋日式饭团</option>
+          <option value="onigiri">饭团优先</option>
+          <option value="oat">燕麦优先</option>
+          <option value="frozen">超市冷冻早餐（蒸锅）</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <span class="field-label">省事方式</span>
+        <label class="switch">
+          <input type="checkbox" id="shortcut">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="switch-text">用现成烤鸡替换自制鸡腿</span>
+        </label>
+      </div>
+
+      <div class="field">
+        <span class="field-label">饭团规格 <span class="muted">（成人每人）</span></span>
+        <div class="inline-fields">
+          <select id="onigiriSize" aria-label="单个饭团米饭克数">
+            <option value="60">小 60 g</option>
+            <option value="80" selected>中 80 g</option>
+            <option value="100">大 100 g</option>
+          </select>
+          <select id="onigiriPieces" aria-label="成人每人饭团个数">
+            <option value="1">1 个</option>
+            <option value="2" selected>2 个</option>
+            <option value="3">3 个</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field field-rice">
+        <label class="field-label" for="riceType">晚餐米饭</label>
+        <select id="riceType"></select>
+      </div>
+
+      <div class="field field-rice">
+        <label class="field-label" for="riceAddIn">同煮加料 <span class="muted">（大块）</span></label>
+        <select id="riceAddIn"></select>
+      </div>
+    </div>
+
+    <div class="filters">
+      <div class="filter-block">
+        <span class="field-label">过敏原排除 <span class="muted">（可多选）</span></span>
+        <div class="chips" id="allergens" role="group" aria-label="排除的过敏原"></div>
+      </div>
+      <div class="filter-block">
+        <span class="field-label">盐量</span>
+        <div class="segmented compact" id="salt" role="group" aria-label="盐量">
+          <button type="button" data-value="standard" class="is-active" aria-pressed="true">标准</button>
+          <button type="button" data-value="low">减盐</button>
+        </div>
+      </div>
+      <div class="filter-block">
+        <span class="field-label">儿童口感</span>
+        <div class="segmented compact" id="texture" role="group" aria-label="儿童口感">
+          <button type="button" data-value="standard" class="is-active" aria-pressed="true">标准</button>
+          <button type="button" data-value="soft">软烂易嚼</button>
+        </div>
+      </div>
+    </div>
+
+    </details>
+
+    <p class="setup-summary" id="setupSummary" aria-live="polite"></p>
+  </section>
+
+  <nav class="tabs" id="tabs" role="tablist" aria-label="内容分区"></nav>
+  <div id="views" tabindex="-1"></div>
+  <p class="build-note" id="buildNote"></p>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p><strong>这是家庭规划工具，不是医疗或营养处方。</strong>数值为普通食材与示例份量的逐项估算，品牌、烹调油、可食部与个体差异都会改变结果；页面只覆盖已选餐次（早餐、午餐或晚餐），加餐和饮料未计入。</p>
+    <p class="footer-links">
+      <a href="#about">数据来源与精度说明</a>
+      <span>·</span>
+      <a href="#storage">食品安全要点</a>
+      <span>·</span>
+      <span>本地离线运行，不上传任何数据</span>
+    </p>
+  </div>
+</footer>
+
+<dialog class="sheet" id="dishDialog" aria-labelledby="dishDialogTitle">
+  <form method="dialog" class="sheet-form" id="dishForm">
+    <header class="sheet-head">
+      <div>
+        <p class="eyebrow" id="dishDialogKicker">编辑份量</p>
+        <h2 id="dishDialogTitle">菜品</h2>
+      </div>
+      <button type="button" class="icon-btn" id="dishClose" aria-label="关闭">
+        <svg class="icon"><use href="#i-x"></use></svg>
+      </button>
+    </header>
+    <div class="sheet-body" id="dishBody"></div>
+    <footer class="sheet-foot">
+      <button type="button" class="btn ghost" id="dishReset">恢复默认份量</button>
+      <div class="sheet-actions">
+        <button type="button" class="btn secondary" id="dishCancel">取消</button>
+        <button type="button" class="btn primary" id="dishSave">保存份量</button>
+      </div>
+    </footer>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<template id="simpleSetup"><section class="setup card" aria-labelledby="setupTitle">
+    <div class="setup-head"><a class="btn primary" href="#shopping">看采购清单</a>
+      <h2 id="setupTitle">本周餐桌</h2>
+      <button type="button" class="btn ghost small" id="resetAll">
+        <svg class="icon"><use href="#i-reset"></use></svg>恢复默认
+      </button>
+    </div>
+
+<details class="week-picker"><summary>换整周方案</summary>    <div class="preset-grid" id="presets" aria-label="整周五日方案"></div>
+
+</details>    <details class="setup-details" id="detailSettings">
+      <summary>家庭设置与饮食偏好
+        <svg class="icon"><use href="#i-chevron"></use></svg>
+      </summary>
+
+        <div id="mealSetup" class="meal-setup" aria-label="这周吃哪几餐"></div>
+
+<div class="setup-grid">
+      <div class="field">
+        <span class="field-label" id="daysLabel">计划天数</span>
+        <div class="segmented" id="days" role="group" aria-labelledby="daysLabel">
+          <button type="button" data-value="3">3 天</button>
+          <button type="button" data-value="4">4 天</button>
+          <button type="button" data-value="5" class="is-active" aria-pressed="true">5 天</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="adults">成人数量</label>
+        <select id="adults">
+          <option value="1">1 位成人</option>
+          <option value="2" selected>2 位成人</option>
+          <option value="3">3 位成人</option>
+          <option value="4">4 位成人</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="kidAge">儿童</label>
+        <select id="kidAge">
+          <option value="none">无儿童</option>
+          <option value="4-6">4–6 岁</option>
+          <option value="7-10" selected>7–10 岁</option>
+          <option value="11-13">11–13 岁</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="style">早餐风格</label>
+        <select id="style">
+          <option value="classic" selected>经典＋日式饭团</option>
+          <option value="onigiri">饭团优先</option>
+          <option value="oat">燕麦优先</option>
+          <option value="frozen">超市冷冻早餐（蒸锅）</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <span class="field-label">省事方式</span>
+        <label class="switch">
+          <input type="checkbox" id="shortcut">
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="switch-text">用现成烤鸡替换自制鸡腿</span>
+        </label>
+      </div>
+
+      <div class="field">
+        <span class="field-label">饭团规格 <span class="muted">（成人每人）</span></span>
+        <div class="inline-fields">
+          <select id="onigiriSize" aria-label="单个饭团米饭克数">
+            <option value="60">小 60 g</option>
+            <option value="80" selected>中 80 g</option>
+            <option value="100">大 100 g</option>
+          </select>
+          <select id="onigiriPieces" aria-label="成人每人饭团个数">
+            <option value="1">1 个</option>
+            <option value="2" selected>2 个</option>
+            <option value="3">3 个</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field field-rice">
+        <label class="field-label" for="riceType">晚餐米饭</label>
+        <select id="riceType"></select>
+      </div>
+
+      <div class="field field-rice">
+        <label class="field-label" for="riceAddIn">同煮加料 <span class="muted">（大块）</span></label>
+        <select id="riceAddIn"></select>
+      </div>
+    </div>
+
+    <div class="filters">
+      <div class="filter-block">
+        <span class="field-label">过敏原排除 <span class="muted">（可多选）</span></span>
+        <div class="chips" id="allergens" role="group" aria-label="排除的过敏原"></div>
+      </div>
+      <div class="filter-block">
+        <span class="field-label">盐量</span>
+        <div class="segmented compact" id="salt" role="group" aria-label="盐量">
+          <button type="button" data-value="standard" class="is-active" aria-pressed="true">标准</button>
+          <button type="button" data-value="low">减盐</button>
+        </div>
+      </div>
+      <div class="filter-block">
+        <span class="field-label">儿童口感</span>
+        <div class="segmented compact" id="texture" role="group" aria-label="儿童口感">
+          <button type="button" data-value="standard" class="is-active" aria-pressed="true">标准</button>
+          <button type="button" data-value="soft">软烂易嚼</button>
+        </div>
+      </div>
+    </div>
+
+    </details>
+
+    <p class="setup-summary" id="setupSummary" aria-live="polite"></p>
+  </section>
+
+</template><script src="assets/modes.js"></script><script src="assets/data.js"></script>
+<script src="assets/model.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/presets.js"></script>
+</body>
+</html>
