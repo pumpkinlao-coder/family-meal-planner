@@ -1,9 +1,18 @@
-# 家庭餐桌 · 双视图版
+# 家庭餐桌 · 双视图版 V3.3
 
 > **在线预览**：<https://pumpkinlao-coder.github.io/family-meal-planner/>  
-> **验收包下载**：[家庭餐桌-DeepSeek验收包-修复版.zip](https://pumpkinlao-coder.github.io/family-meal-planner/dist/家庭餐桌-DeepSeek验收包-修复版.zip)
+> **验收包下载**：[家庭餐桌-DeepSeek验收包-V3.3.zip](https://pumpkinlao-coder.github.io/family-meal-planner/dist/家庭餐桌-DeepSeek验收包-V3.3.zip)
 
 本项目给同一户家庭提供简选和完整两个入口。日常从简选视图查看菜单、换一餐和买菜。想调整食材克数、米饭方案或查看分装依据时切到完整视图。
+
+## V3.3 蔬菜搭配
+
+- 42 种蔬菜：绿叶菜 15、瓜果菜 15、根茎及鳞茎菜 12；补充分类、季节、做法、储存、儿童处理和安全提示。
+- 84 道蔬菜配菜，支持水油焖、快炒、白灼、清蒸、焖炖、电饭煲一锅出。
+- 蔬菜策略：均衡多样 / 优先应季 / 优先省事；三类开关；快手菜、少油烟偏好。
+- 菜单自动分配配菜：绿叶菜每日、三类覆盖、避免连续重复、3/4/5 天目标 5–7 / 6–9 / 8–12 种。
+- 菜单页显示整周蔬菜覆盖；菜品带类别标签；时间线和采购同步更新。
+- 详细变更见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 给 DeepSeek 的运行与验收说明
 

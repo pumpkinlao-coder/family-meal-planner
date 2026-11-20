@@ -39,6 +39,503 @@
   function dish(id) { return DATA.dishes[id] || null; }
   function meal(id) { return DATA.meals[id] || null; }
 
+  /* ---------------- 蔬菜（V3.3） ---------------- */
+
+  /* 蔬菜类别固定三类，数据层只提供键与中文名；缺失时用内置文案。
+     与蔬菜有关的逻辑都放在这里，供设置、生成菜单、覆盖统计和界面助手共用。 */
+  var VEG_CATEGORY_KEYS = ['leafy', 'gourd', 'root'];
+  var VEG_CATEGORY_LABELS = { leafy: '绿叶菜', gourd: '瓜果菜', root: '根茎及鳞茎菜' };
+  var VEG_STRATEGIES = ['balanced', 'seasonal', 'easy'];
+  var DEFAULT_VEG_TARGETS = { 3: [5, 7], 4: [6, 9], 5: [8, 12] };
+
+  function vegCategoryKey(value) {
+    return VEG_CATEGORY_KEYS.indexOf(value) >= 0 ? value : null;
+  }
+
+  function allVegCategories() {
+    return { leafy: true, gourd: true, root: true };
+  }
+
+  function vegCategoryLabels() {
+    var labels = {};
+    VEG_CATEGORY_KEYS.forEach(function (key) {
+      var raw = DATA.vegCategories && DATA.vegCategories[key];
+      labels[key] = typeof raw === 'string' && raw ? raw : VEG_CATEGORY_LABELS[key];
+    });
+    return labels;
+  }
+
+  /* 旧存档/旧调用没有 vegCategories：默认三类全开。
+     settingsFrom 里全 false 会回退成三类全开；buildPlan 内部用 allowEmpty
+     保留“全关”状态，才能按“跳过并记 warning”处理。 */
+  function normalizeVegCategories(raw, allowEmpty) {
+    var out = allVegCategories();
+    var seenBoolean = false;
+    if (Array.isArray(raw)) {
+      // 兼容界面层可能传入的数组形式（['leafy'] 表示只保留这一类）。
+      out = { leafy: false, gourd: false, root: false };
+      raw.forEach(function (key) {
+        if (VEG_CATEGORY_KEYS.indexOf(key) >= 0) out[key] = true;
+      });
+      seenBoolean = true;
+    } else if (raw && typeof raw === 'object') {
+      VEG_CATEGORY_KEYS.forEach(function (key) {
+        if (typeof raw[key] === 'boolean') {
+          out[key] = raw[key];
+          seenBoolean = true;
+        }
+      });
+    }
+    if (!seenBoolean) return allVegCategories();
+    if (!out.leafy && !out.gourd && !out.root) {
+      return allowEmpty ? out : allVegCategories();
+    }
+    return out;
+  }
+
+  function normalizeVegStrategy(raw) {
+    return VEG_STRATEGIES.indexOf(raw) >= 0 ? raw : 'balanced';
+  }
+
+  /* 蔬菜设置的统一视图：不修改原 settings，直接调用 buildPlan 时也能兜底。 */
+  function settingsVeg(settings, options) {
+    settings = settings || {};
+    return {
+      strategy: normalizeVegStrategy(settings.vegStrategy),
+      categories: normalizeVegCategories(settings.vegCategories, !!(options && options.allowEmptyCategories)),
+      quick: settings.vegQuick === true,
+      lowSmoke: settings.vegLowSmoke === true,
+      exclude: Array.isArray(settings.exclude) ? settings.exclude : []
+    };
+  }
+
+  /* 显式把三类都关掉：跳过蔬菜配菜并记 warning，但绝不把整餐标 pending。 */
+  function categoriesClosed(settings) {
+    var raw = settings && settings.vegCategories;
+    return !!(raw && typeof raw === 'object' &&
+      raw.leafy === false && raw.gourd === false && raw.root === false);
+  }
+
+  function vegetableInfo(ingredientId) {
+    var catalog = DATA.vegetables;
+    return catalog && catalog[ingredientId] ? catalog[ingredientId] : null;
+  }
+
+  function vegetableCategoryOf(ingredientId) {
+    var info = vegetableInfo(ingredientId);
+    return info ? vegCategoryKey(info.category) : null;
+  }
+
+  /* 天数目标统一从 DATA.vegTargets 取；数据缺失时用内置区间，3–5 天之外按最近档位。 */
+  function vegTargetFor(days) {
+    var table = DATA.vegTargets && typeof DATA.vegTargets === 'object' ? DATA.vegTargets : DEFAULT_VEG_TARGETS;
+    var rounded = Math.round(num(days, 5));
+    var key = String(Math.min(5, Math.max(3, isFinite(rounded) ? rounded : 5)));
+    var fallback = DEFAULT_VEG_TARGETS[key];
+    var raw = table[key];
+    var min = Array.isArray(raw) ? num(raw[0], fallback[0]) : fallback[0];
+    var max = Array.isArray(raw) ? num(raw[1], fallback[1]) : fallback[1];
+    if (min > max) {
+      var swap = min;
+      min = max;
+      max = swap;
+    }
+    return [min, max];
+  }
+
+  /* 菜品上的蔬菜元数据：优先读 DATA.dishes 字段（契约字段），
+     数据不完整时再用第一个蔬菜食材回填，方便过渡期与测试使用。 */
+  function dishVegMeta(dishId) {
+    var d = dish(dishId);
+    if (!d) return null;
+    var vegId = d.vegId != null ? d.vegId : null;
+    if (!vegId && DATA.vegetables) {
+      (d.parts || []).some(function (part) {
+        if (DATA.vegetables[part.ingredient]) {
+          vegId = part.ingredient;
+          return true;
+        }
+        return false;
+      });
+    }
+    var info = vegId ? vegetableInfo(vegId) : null;
+    var category = d.vegCategory != null ? d.vegCategory : (info ? info.category : null);
+    return {
+      id: dishId,
+      vegId: vegId || null,
+      category: vegCategoryKey(category),
+      rawCategory: category || null,
+      cookMethod: d.cookMethod || null,
+      quick: d.quick === true,
+      lowSmoke: d.lowSmoke === true,
+      info: info,
+      dish: d
+    };
+  }
+
+  /* 类别过滤：三大类按开关；三大类之外的蔬菜（例如西兰花）只在三类全开时作为兜底候选。 */
+  function dishMatchesVegCategories(meta, categories) {
+    if (!meta || !meta.rawCategory) return false;
+    if (meta.category) return categories[meta.category] === true;
+    return categories.leafy !== false && categories.gourd !== false && categories.root !== false;
+  }
+
+  /* 蔬菜候选池：所有 kind==='vegSide' 的菜品，按蔬菜类别过滤；
+     vegQuick / vegLowSmoke 只保留对应偏好的菜，单条过滤后为空时回退到过滤前的集合。 */
+  function vegetableDishPool(settings) {
+    if (!DATA.vegetables) return [];
+    var veg = settingsVeg(settings);
+    var ids = Object.keys(DATA.dishes).filter(function (id) {
+      return DATA.dishes[id] && DATA.dishes[id].kind === 'vegSide';
+    }).sort();
+    ids = ids.filter(function (id) {
+      return dishMatchesVegCategories(dishVegMeta(id), veg.categories);
+    });
+    if (veg.quick) {
+      var quickOnly = ids.filter(function (id) { return DATA.dishes[id].quick === true; });
+      if (quickOnly.length) ids = quickOnly;
+    }
+    if (veg.lowSmoke) {
+      var lowSmokeOnly = ids.filter(function (id) { return DATA.dishes[id].lowSmoke === true; });
+      if (lowSmokeOnly.length) ids = lowSmokeOnly;
+    }
+    return ids;
+  }
+
+  /* 蔬菜安全过滤：以最终配方（改克数、减盐替换、0 g 移除后）为准，
+     再加一次过敏原检查；未知配料视为不安全，不允许进入菜单。 */
+  function vegetableDishFits(dishId, settings, edits) {
+    var d = dish(dishId);
+    if (!d || d.kind !== 'vegSide') return false;
+    var veg = settingsVeg(settings);
+    var parts = resolveParts(dishId, settings, edits);
+    if (!parts.length) return false;
+    var unknown = parts.some(function (part) {
+      var ing = DATA.ingredients[part.ingredient];
+      return !!(ing && ing.labelUnknown);
+    });
+    if (unknown) return false;
+    var allergens = finalDishAllergens(dishId, settings, edits);
+    return !allergens.some(function (allergen) {
+      return veg.exclude.indexOf(allergen) >= 0;
+    });
+  }
+
+  /* 确定性评分（不使用随机数）：类别覆盖不足、绿叶优先、当季、快/少油烟、
+     与前一天/近两天/当天重复都按固定分值加减，最后按固定顺序打破平局。 */
+  function scoreVegetableCandidate(meta, ctx) {
+    var score = 0;
+    var category = meta.category;
+    var seasonal = !!(meta.info && Array.isArray(meta.info.season) &&
+      meta.info.season.indexOf(ctx.month) >= 0);
+    if (category) {
+      if (!ctx.todayCats[category]) score += 26;   // 当天还没覆盖这一类
+      if (!ctx.planCats[category]) score += 14;    // 本周还没出现过这一类
+      if (category === 'leafy') score += 18;       // 绿叶菜每日优先
+      if (ctx.todayCats[category]) score -= 8;     // 当天已有同类，重复减分
+    }
+    if (seasonal) {
+      // 当季加分：当季策略明显偏好应季菜；均衡/省事只轻微参考。
+      score += ctx.strategy === 'seasonal' ? 30 : (ctx.strategy === 'easy' ? 6 : 12);
+    } else if (ctx.strategy === 'seasonal') {
+      score -= 18;                                 // 当季策略避开反季菜
+    }
+    if (meta.quick) score += ctx.quick ? 16 : 0;      // 只有用户开了“快手菜”才加权
+    if (meta.lowSmoke) score += ctx.lowSmoke ? 16 : 0; // 只有用户开了“少油烟”才加权
+    if (ctx.strategy === 'easy') {
+      // 省事策略：优先快手、少油烟和不用看火的蒸/焯/电饭煲做法。
+      if (meta.quick) score += 10;
+      if (meta.lowSmoke) score += 6;
+      if (meta.cookMethod === 'steam' || meta.cookMethod === 'riceCooker' || meta.cookMethod === 'blanch') {
+        score += 6;
+      }
+    }
+    if (ctx.strategy === 'balanced' && typeof ctx.dayIndex === 'number') {
+      // 均衡策略按天交替“快手/温和”做法，避免整周都是同一种做法。
+      var wantsQuick = ctx.dayIndex % 2 === 0;
+      if (meta.quick === wantsQuick) score += 5;
+    }
+    if (meta.vegId) {
+      if (ctx.prevIds[meta.vegId]) score -= 60;    // 与前一天同一种蔬菜：强惩罚
+      if (ctx.recentIds[meta.vegId]) score -= 22;  // 近两天重复
+      if (ctx.todayIds[meta.vegId]) score -= 30;   // 当天已有同一种蔬菜
+      if (!ctx.usedIds[meta.vegId]) score += 12;   // 本周还没用过
+    }
+    var pairs = meta.info && meta.info.pairs;
+    if (pairs && Array.isArray(pairs)) {
+      var paired = pairs.some(function (pair) {
+        return !!(ctx.mealDishIds[pair] || ctx.mealIngredientIds[pair]);
+      });
+      if (paired) score += 6;                      // 与当天主菜/食材搭配
+    }
+    return score;
+  }
+
+  function vegCategoryOrder(meta) {
+    return meta && meta.category ? VEG_CATEGORY_KEYS.indexOf(meta.category) : VEG_CATEGORY_KEYS.length;
+  }
+
+  /* 为某一餐挑 1 个蔬菜配菜。返回 {id, reason}：
+     id 为 null 时只表示“这餐跳过蔬菜配菜”，调用方不会把整餐标 pending。 */
+  function pickVegetableSide(settings, edits, ctx) {
+    var pool = vegetableDishPool(settings);
+    if (!pool.length) return { id: null, reason: 'empty-pool', score: 0 };
+    var safe = pool.filter(function (id) { return vegetableDishFits(id, settings, edits); });
+    if (!safe.length) return { id: null, reason: 'no-safe', score: 0 };
+    // 尽量排除前一天、当天已经用过的蔬菜；没有替代时才允许重复（采购复用）。
+    var preferred = safe.filter(function (id) {
+      var meta = dishVegMeta(id);
+      return !(meta.vegId && (ctx.prevIds[meta.vegId] || ctx.todayIds[meta.vegId]));
+    });
+    var usePool = preferred.length ? preferred : safe;
+    var best = null;
+    usePool.forEach(function (id) {
+      var meta = dishVegMeta(id);
+      var candidate = { id: id, meta: meta, score: scoreVegetableCandidate(meta, ctx) };
+      if (!best ||
+        candidate.score > best.score ||
+        (candidate.score === best.score && vegCategoryOrder(candidate.meta) < vegCategoryOrder(best.meta)) ||
+        (candidate.score === best.score && vegCategoryOrder(candidate.meta) === vegCategoryOrder(best.meta) &&
+          candidate.id < best.id)) {
+        best = candidate;
+      }
+    });
+    if (!best) return { id: null, reason: 'no-safe', score: 0 };
+    return { id: best.id, reason: null, score: best.score };
+  }
+
+  /* 收集一餐里出现的蔬菜：ids 用于避免重复，cats 用于类别覆盖加分。 */
+  function vegUsageFromItems(items, settings, edits) {
+    var ids = {};
+    var cats = {};
+    (items || []).forEach(function (item) {
+      resolveParts(item.dish, settings, edits).forEach(function (part) {
+        var info = vegetableInfo(part.ingredient);
+        if (!info) return;
+        ids[part.ingredient] = true;
+        var category = vegCategoryKey(info.category);
+        if (category) cats[category] = true;
+      });
+    });
+    return { ids: ids, cats: cats };
+  }
+
+  function mergeVegUsage(target, source) {
+    Object.keys(source.ids).forEach(function (key) { target.ids[key] = true; });
+    Object.keys(source.cats).forEach(function (key) { target.cats[key] = true; });
+    return target;
+  }
+
+  function copyBoolMap(map) {
+    var out = {};
+    Object.keys(map || {}).forEach(function (key) { out[key] = true; });
+    return out;
+  }
+
+  function unionVegHistoryIds(history, daysBack) {
+    var out = {};
+    var start = Math.max(0, history.length - daysBack);
+    for (var i = start; i < history.length; i++) {
+      Object.keys(history[i].ids).forEach(function (key) { out[key] = true; });
+    }
+    return out;
+  }
+
+  function unionVegHistoryCats(history) {
+    var out = {};
+    for (var i = 0; i < history.length; i++) {
+      Object.keys(history[i].cats).forEach(function (key) { out[key] = true; });
+    }
+    return out;
+  }
+
+  /* 给已确认的一餐追加 1 个安全蔬菜配菜：返回新的 effective 与更新后的当天蔬菜聚合。
+     只在 dinner 和现做 lunch 上调用；packed lunch 复制 dinner，不重复追加。 */
+  function addVegetableSide(effective, settings, edits, dayIndex, mealSlot, vegHistory, todayVeg, warnings) {
+    if (!effective || !effective.items) return { effective: effective, usage: todayVeg, added: null };
+    if (categoriesClosed(settings)) return { effective: effective, usage: todayVeg, added: null };
+    var already = effective.items.some(function (item) {
+      var itemDish = dish(item.dish);
+      return !!(itemDish && itemDish.kind === 'vegSide');
+    });
+    if (already) return { effective: effective, usage: todayVeg, added: null };
+    var pool = vegetableDishPool(settings);
+    if (!pool.length) return { effective: effective, usage: todayVeg, added: null };
+
+    var pairingDishIds = {};
+    var pairingIngredientIds = {};
+    effective.items.forEach(function (item) {
+      pairingDishIds[item.dish] = true;
+      resolveParts(item.dish, settings, edits).forEach(function (part) {
+        pairingIngredientIds[part.ingredient] = true;
+      });
+    });
+
+    var veg = settingsVeg(settings);
+    var picked = pickVegetableSide(settings, edits, {
+      month: (new Date()).getMonth() + 1,
+      dayIndex: dayIndex,
+      strategy: veg.strategy,
+      quick: veg.quick,
+      lowSmoke: veg.lowSmoke,
+      prevIds: vegHistory.length ? vegHistory[vegHistory.length - 1].ids : {},
+      recentIds: unionVegHistoryIds(vegHistory, 2),
+      usedIds: unionVegHistoryIds(vegHistory, vegHistory.length),
+      planCats: unionVegHistoryCats(vegHistory),
+      todayIds: todayVeg.ids,
+      todayCats: todayVeg.cats,
+      mealDishIds: pairingDishIds,
+      mealIngredientIds: pairingIngredientIds
+    });
+
+    if (!picked.id) {
+      if (picked.reason === 'no-safe' && warnings) {
+        warnings.push({
+          day: dayIndex,
+          meal: mealSlot,
+          from: null,
+          to: null,
+          pending: false,
+          kind: 'vegetable',
+          reason: '没有通过过敏原与配料检查的蔬菜配菜，已跳过这餐的蔬菜配菜。'
+        });
+      }
+      return { effective: effective, usage: todayVeg, added: null };
+    }
+
+    var nextEffective = {
+      id: effective.id,
+      type: effective.type,
+      name: effective.name,
+      items: effective.items.concat([{ dish: picked.id, vegSide: true }]),
+      shortcut: effective.shortcut
+    };
+    var usage = { ids: copyBoolMap(todayVeg.ids), cats: copyBoolMap(todayVeg.cats) };
+    mergeVegUsage(usage, vegUsageFromItems([{ dish: picked.id }], settings, edits));
+    return { effective: nextEffective, usage: usage, added: picked.id };
+  }
+
+  /* ---------------- 蔬菜覆盖统计 ---------------- */
+
+  /* 覆盖统计只看午餐/晚餐里实际存在的非待选餐：
+     - 早餐不以蔬菜配菜为目标，早餐里的红薯等主食不计入覆盖；
+     - packed 午餐是晚餐的复制份，不重复计数；
+     计数口径：菜单 parts 里带 DATA.vegetables 且属于三大类的食材出现次数，
+     base 菜里的胡萝卜/彩椒/番茄/洋葱等也按类别计入，西兰花等三大类之外的不计入。 */
+  function vegetableSummary(plan, settings, edits) {
+    plan = plan || {};
+    settings = settings || plan.settings || {};
+    var days = Array.isArray(plan.days) ? plan.days : [];
+    var target = vegTargetFor(days.length || settings.days || 5);
+    var labels = vegCategoryLabels();
+    var categories = { leafy: 0, gourd: 0, root: 0 };
+    var count = 0;
+    var dayEntries = [];
+    var usedMap = {};
+
+    days.forEach(function (day) {
+      var dayIds = {};
+      builtMealSlots(day).forEach(function (slot) {
+        var m = day[slot];
+        if (!m || m.pending) return;
+        if (slot === 'breakfast') return;
+        if (slot === 'lunch' && m.packed) return;
+        (m.dishes || []).forEach(function (item) {
+          resolveParts(item.id, settings, edits).forEach(function (part) {
+            var info = vegetableInfo(part.ingredient);
+            var category = info ? vegCategoryKey(info.category) : null;
+            if (!category) return;
+            count += 1;
+            categories[category] += 1;
+            dayIds[part.ingredient] = true;
+            if (!usedMap[part.ingredient]) {
+              var ing = DATA.ingredients[part.ingredient] || {};
+              usedMap[part.ingredient] = {
+                id: part.ingredient,
+                name: info.name || ing.name || part.ingredient,
+                category: category,
+                dayMap: {}
+              };
+            }
+            usedMap[part.ingredient].dayMap[day.index] = true;
+          });
+        });
+      });
+      dayEntries.push({ index: day.index, ids: dayIds });
+    });
+
+    var leafyDays = dayEntries.filter(function (entry) {
+      return Object.keys(entry.ids).some(function (id) {
+        return vegetableCategoryOf(id) === 'leafy';
+      });
+    }).length;
+
+    // repeats：相邻两天都出现同一种蔬菜的“天数对数”。
+    var repeats = 0;
+    for (var r = 1; r < dayEntries.length; r++) {
+      var shared = Object.keys(dayEntries[r].ids).some(function (id) {
+        return !!dayEntries[r - 1].ids[id];
+      });
+      if (shared) repeats += 1;
+    }
+
+    var used = Object.keys(usedMap).map(function (id) {
+      var entry = usedMap[id];
+      return {
+        id: entry.id,
+        name: entry.name,
+        category: entry.category,
+        days: Object.keys(entry.dayMap).length
+      };
+    });
+    used.sort(function (a, b) {
+      if (b.days !== a.days) return b.days - a.days;
+      return String(a.name).localeCompare(String(b.name), 'zh-Hans-CN');
+    });
+
+    var totalDays = days.length;
+    var distinct = used.length;
+    // 目标按“不同蔬菜种数”判断；count 是份次，只作辅助说明。
+    var ok = distinct >= target[0] && distinct <= target[1];
+    var notes = [];
+    if (!DATA.vegetables) {
+      notes.push('蔬菜数据尚未加载，本次菜单没有追加蔬菜配菜；补齐 data.js 后重新生成即可。');
+    }
+    var span = totalDays + ' 天';
+    if (ok) {
+      notes.push('蔬菜 ' + distinct + ' 种不同（' + count + ' 份次），达到 ' + span + '目标 ' + target[0] + '–' + target[1] + '。');
+    } else if (distinct < target[0]) {
+      notes.push('蔬菜 ' + distinct + ' 种不同（' + count + ' 份次），低于 ' + span + '目标 ' + target[0] + '–' + target[1] +
+        '；可多开一类蔬菜、增加现做餐，或保留更多蔬菜配菜。');
+    } else {
+      notes.push('蔬菜 ' + distinct + ' 种不同（' + count + ' 份次），高于 ' + span + '目标 ' + target[0] + '–' + target[1] +
+        '；三餐全开或现做午餐较多时会自然偏多，属正常范围，可按食量减少配菜。');
+    }
+    VEG_CATEGORY_KEYS.forEach(function (key) {
+      if (!categories[key]) {
+        notes.push('本周没有' + labels[key] + '；可在蔬菜设置里至少开启这一类，或换一种搭配。');
+      }
+    });
+    if (totalDays && leafyDays < totalDays) {
+      notes.push('有 ' + (totalDays - leafyDays) + ' 天没有绿叶菜；绿叶菜建议每天有一份。');
+    }
+    if (repeats > 0) {
+      notes.push('有 ' + repeats + ' 天的蔬菜与前一天重复；尽量轮换，采购允许复用的蔬菜可以保留。');
+    }
+    return {
+      count: count,
+      distinct: distinct,
+      target: [target[0], target[1]],
+      categories: categories,
+      leafyDays: leafyDays,
+      totalDays: totalDays,
+      repeats: repeats,
+      used: used,
+      ok: ok,
+      notes: notes
+    };
+  }
+
   /* ---------------- 餐次 ---------------- */
 
   /* 三餐顺序固定为早、午、晚；午餐复用晚餐菜库（type==='dinner' 的餐），
@@ -132,6 +629,8 @@
     (DATA.equipment || []).forEach(function (tool) {
       tools[tool.id] = raw.tools && raw.tools[tool.id] === false ? false : true;
     });
+    /* V3.3 蔬菜设置：缺失字段（旧存档/旧调用）用默认值；全 false 回退三类全开。 */
+    var vegCategories = normalizeVegCategories(raw.vegCategories);
     return {
       days: clamp(Math.round(num(raw.days, 5)), 3, 5),
       adults: clamp(Math.round(num(raw.adults, 2)), 1, 4),
@@ -154,7 +653,11 @@
       breakfastOverrides: breakfastOverrides,
       lunchOverrides: lunchOverrides,
       meals: normalizeMeals(raw.meals),
-      lunchMode: normalizeLunchMode(raw.lunchMode)
+      lunchMode: normalizeLunchMode(raw.lunchMode),
+      vegStrategy: normalizeVegStrategy(raw.vegStrategy),
+      vegCategories: vegCategories,
+      vegQuick: raw.vegQuick === true,
+      vegLowSmoke: raw.vegLowSmoke === true
     };
   }
 
@@ -502,6 +1005,17 @@
     var pendingCount = 0;
     var confirmedMeals = 0;
 
+    /* V3.3 蔬菜：每天维护已出现的蔬菜（含 base 菜），跨天避免连吃同一种。
+       三类蔬菜被显式全部关闭时跳过追加并记 warning，但不会把整餐标 pending。 */
+    var vegCategoriesOff = categoriesClosed(settings);
+    var vegHistory = [];
+    if (vegCategoriesOff) {
+      warnings.push({
+        day: 0, meal: 'dinner', from: null, to: null, pending: false, kind: 'vegetable',
+        reason: '三类蔬菜都被关闭，本周不追加蔬菜配菜；菜单按原菜谱生成，未把任何一餐标为待选。'
+      });
+    }
+
     for (var i = 0; i < settings.days; i++) {
       var breakfastId = breakfastSeq[i % breakfastSeq.length];
       var dinnerId = dinnerSeq[i % dinnerSeq.length];
@@ -543,10 +1057,24 @@
         }
       }
 
+      // 当天蔬菜聚合：先收已确认早餐与晚餐/现做午餐基础菜里的蔬菜，再决定配菜。
+      var todayVeg = { ids: {}, cats: {} };
+      if (breakfast && !breakfast.pending) {
+        mergeVegUsage(todayVeg, vegUsageFromItems(breakfast.items, settings, edits));
+      }
+      var dinnerEffective = hasDinner ? effectiveMeal(dinnerId, settings, i) : null;
+      var lunchEffective = hasLunch && lunchMode === 'cook' && lunchId ? effectiveMeal(lunchId, settings, i) : null;
+      var dinnerFits = hasDinner ? mealFits(dinnerId, settings, edits) : false;
+      var lunchFits = hasLunch && lunchMode === 'cook' && lunchId ? mealFits(lunchId, settings, edits) : false;
+      if (dinnerFits) mergeVegUsage(todayVeg, vegUsageFromItems(dinnerEffective.items, settings, edits));
+      if (lunchFits) mergeVegUsage(todayVeg, vegUsageFromItems(lunchEffective.items, settings, edits));
+
       var dinner = null;
       if (hasDinner) {
-        if (mealFits(dinnerId, settings, edits)) {
-          dinner = decorateMeal(effectiveMeal(dinnerId, settings, i), i, settings, edits);
+        if (dinnerFits) {
+          var dinnerApplied = addVegetableSide(dinnerEffective, settings, edits, i, 'dinner', vegHistory, todayVeg, warnings);
+          todayVeg = dinnerApplied.usage;
+          dinner = decorateMeal(dinnerApplied.effective, i, settings, edits);
           confirmedMeals += 1;
           lastDinner = dinnerId;
           confirmedIngredients = confirmedIngredients.concat(dinnerIngredients);
@@ -577,8 +1105,10 @@
         }
       } else if (hasLunch) {
         // 现做午餐：从晚餐菜库独立选一道，套用 effectiveMeal（如省事模式烤鸡替换）再做最终过敏检查。
-        if (mealFits(lunchId, settings, edits)) {
-          lunch = decorateMeal(effectiveMeal(lunchId, settings, i), i, settings, edits);
+        if (lunchFits) {
+          var lunchApplied = addVegetableSide(lunchEffective, settings, edits, i, 'lunch', vegHistory, todayVeg, warnings);
+          todayVeg = lunchApplied.usage;
+          lunch = decorateMeal(lunchApplied.effective, i, settings, edits);
           lunch.type = 'lunch';
           lunch.name = '午餐：' + lunch.name;
           lunch.packed = false;
@@ -606,10 +1136,18 @@
         }
       }
 
+      vegHistory.push({ ids: copyBoolMap(todayVeg.ids), cats: copyBoolMap(todayVeg.cats) });
       days.push({ index: i, breakfast: breakfast, lunch: lunch, dinner: dinner });
     }
 
-    return {
+    if (DATA.vegetables && !vegCategoriesOff && vegetableDishPool(settings).length === 0) {
+      warnings.push({
+        day: 0, meal: 'dinner', from: null, to: null, pending: false, kind: 'vegetable',
+        reason: '蔬菜数据里没有可用的配菜菜谱，本次菜单没有追加蔬菜配菜。'
+      });
+    }
+
+    var plan = {
       days: days,
       warnings: warnings,
       settings: settings,
@@ -620,6 +1158,9 @@
       confirmedMeals: confirmedMeals,
       totalMeals: settings.days * slots.length
     };
+    // 覆盖统计按实际菜单推算：营养、采购、容器、时间线都已自动包含新增蔬菜配菜。
+    plan.vegetableSummary = vegetableSummary(plan, settings, edits);
+    return plan;
   }
 
   function decorateMeal(effective, dayIndex, settings, edits) {
@@ -627,6 +1168,8 @@
     var dishes = effective.items.map(function (item) {
       var d = DATA.dishes[item.dish];
       var storage = storageFor(d, dayIndex, settings, item.dish);
+      // 蔬菜标签字段：优先读 DATA.dishes 的契约字段，蔬菜侧菜再回填一次，供界面出标签。
+      var vegMeta = d && d.kind === 'vegSide' ? dishVegMeta(item.dish) : null;
       return {
         id: item.dish,
         name: d ? d.name : item.dish,
@@ -634,7 +1177,12 @@
         storage: storage,
         reheat: d ? d.reheat : 'none',
         allergens: finalDishAllergens(item.dish, settings, edits),
-        tags: d ? (d.tags || []) : []
+        tags: d ? (d.tags || []) : [],
+        vegId: d && d.vegId != null ? d.vegId : (vegMeta ? vegMeta.vegId : null),
+        vegCategory: d && d.vegCategory != null ? d.vegCategory : (vegMeta ? vegMeta.category : null),
+        cookMethod: d && d.cookMethod != null ? d.cookMethod : null,
+        quick: d ? d.quick === true : false,
+        lowSmoke: d ? d.lowSmoke === true : false
       };
     });
     return {
@@ -658,6 +1206,15 @@
       };
     }
     if (d.storage === 'fresh') return DATA.storage.fresh;
+    // 有明确冷藏上限的菜（蔬菜侧菜等）：超过 maxFridgeDays 改成“当天现做”，
+    // 不进入“后几天冷冻”的通用逻辑；storage 已是 prep 的绿叶菜保持现做。
+    var maxFridgeDays = num(d.maxFridgeDays, NaN);
+    if (isFinite(maxFridgeDays)) {
+      if (dayIndex >= maxFridgeDays) return DATA.storage.prep;
+      if (d.storage === 'prep') return DATA.storage.prep;
+      if (d.storage === 'freeze') return DATA.storage.freeze;
+      return DATA.storage.fridge;
+    }
     if (d.storage === 'prep') return DATA.storage.prep;
     if (d.kind === 'onigiri') return DATA.storage.freeze;
     if (d.storage === 'freeze') return DATA.storage.freeze;
@@ -1082,6 +1639,8 @@
     var tofuOnigiri = 0;
     var blanchVeg = 0;
     var stirVeg = 0;
+    var vegSideGrams = 0;   // 新增蔬菜配菜：按 cookMethod 汇总，走通用遍历
+    var vegSideMethods = {};
     var onigiriCount = 0;
     var instantRice = 0;
     var riceAddInGrams = 0;
@@ -1114,6 +1673,14 @@
             if (d.kind === 'stew' && part.role === 'protein') {
               stewGrams += grams;
               stewNames[d.name] = true;
+            }
+            // 新增蔬菜配菜按 cookMethod 汇总，不再逐个硬编码蔬菜食材；
+            // 旧菜里的西兰花/胡萝卜等仍走下面的固定分类，保证时间线行为不变。
+            if (d.kind === 'vegSide' && vegetableInfo(part.ingredient) && part.role === 'veg') {
+              var vegSideMethod = d.cookMethod || 'stirFry';
+              vegSideGrams += grams;
+              vegSideMethods[vegSideMethod] = (vegSideMethods[vegSideMethod] || 0) + grams;
+              return;
             }
             switch (part.ingredient) {
               case 'rice_cooked':
@@ -1148,7 +1715,14 @@
               case 'pak_choi':
               case 'nai_bai':
               case 'you_dong_cai': stirVeg += grams; break;
-              default: break;
+              default:
+                // 兜底：base 菜里出现的新蔬菜食材也按菜品 cookMethod 计入，避免遗漏。
+                if (vegetableInfo(part.ingredient) && part.role === 'veg') {
+                  var fallbackVegMethod = d.cookMethod || 'stirFry';
+                  vegSideGrams += grams;
+                  vegSideMethods[fallbackVegMethod] = (vegSideMethods[fallbackVegMethod] || 0) + grams;
+                }
+                break;
             }
           });
         });
@@ -1169,7 +1743,7 @@
     var riceHint = settings.tools.riceCooker ? '' : '（无电饭煲：厚底锅小火煮开后焖 10 分钟）';
 
     add('备菜', '0:00', '洗切与称量',
-      '蔬菜合计 ' + round((blanchVeg + stirVeg) / 1000, 2) + ' kg；肉类和豆制品分装并擦干，准备腌料、汤块冰格和保鲜盒。');
+      '蔬菜合计 ' + round((blanchVeg + stirVeg + vegSideGrams) / 1000, 2) + ' kg；肉类和豆制品分装并擦干，准备腌料、汤块冰格和保鲜盒。');
     if (instantRice > 0) {
       add('备菜', '0:03', '叮叮饭',
         '微波米饭 ' + round(instantRice / 1000, 2) + ' kg，按包装微波/热水加热；不参与周末煮饭和冷冻。');
@@ -1243,6 +1817,19 @@
     }
     if (shrimp > 0) {
       add('炉灶', '1:05', '虾仁快炒', '虾仁 ' + round(shrimp / 1000, 2) + ' kg，最后 3–4 分钟大火快炒，避免过熟。');
+    }
+    // 新增蔬菜配菜：按 cookMethod 汇总一块，不逐个硬编码蔬菜做法。
+    if (vegSideGrams > 0) {
+      var vegMethodLabels = {
+        waterOil: '水油焖', stirFry: '快炒', blanch: '焯水',
+        steam: '蒸', braise: '焖烧', riceCooker: '电饭煲同煮'
+      };
+      var vegMethodDetail = Object.keys(vegSideMethods).sort().map(function (key) {
+        return (vegMethodLabels[key] || key) + '约 ' + round(vegSideMethods[key] / 1000, 2) + ' kg';
+      }).join('、');
+      add('炉灶', '1:15', '蔬菜配菜（按做法汇总）',
+        '本周蔬菜配菜合计约 ' + round(vegSideGrams / 1000, 2) + ' kg：' + vegMethodDetail +
+        '。按做法分锅处理，叶菜快炒、瓜果/根茎可蒸或焖；当天现做或冷藏 1–2 天，不冷冻。');
     }
 
     if (riceOnigiri > 0) {
@@ -1320,7 +1907,8 @@
         salmonKg: round((salmonDinner + salmonOnigiri) / 1000, 2),
         shrimpKg: round(shrimp / 1000, 2),
         tofuKg: round((tofuDinner + tofuOnigiri) / 1000, 2),
-        vegKg: round((blanchVeg + stirVeg) / 1000, 2),
+        vegKg: round((blanchVeg + stirVeg + vegSideGrams) / 1000, 2),
+        vegSideKg: round(vegSideGrams / 1000, 2),
         instantRiceKg: round(instantRice / 1000, 2),
         stewKg: round(stewGrams / 1000, 2),
         packedLunchDays: packedLunchDays,
@@ -1373,6 +1961,9 @@
     buildEquipmentUsage: buildEquipmentUsage,
     describePlan: describePlan,
     allergenList: allergenList,
+    // V3.3 蔬菜：候选池与覆盖统计供界面/测试直接调用；不改动旧导出。
+    vegetableDishPool: vegetableDishPool,
+    vegetableSummary: vegetableSummary,
     storage: function () { return DATA.storage; },
     reheat: function () { return DATA.reheat; },
     round: round

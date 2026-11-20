@@ -48,6 +48,28 @@
     cook: '现做（单独开火）'
   };
 
+  /* 蔬菜搭配（V3.3）：界面层的契约常量。
+     模型会规整并保留 settings.vegStrategy / vegCategories / vegQuick / vegLowSmoke，
+     data 层提供 DATA.vegCategories 与 DATA.vegTargets；这里保留降级值，旧数据也能用。 */
+  var VEG_STRATEGIES = [
+    { id: 'balanced', label: '均衡多样', hint: '每周换着吃，三大类别尽量齐全' },
+    { id: 'seasonal', label: '优先应季', hint: '当季蔬菜优先，价格和口感更稳' },
+    { id: 'easy', label: '优先省事', hint: '快手、少油烟的蔬菜优先' }
+  ];
+  var VEG_STRATEGY_LABEL = {};
+  VEG_STRATEGIES.forEach(function (item) { VEG_STRATEGY_LABEL[item.id] = item.label; });
+  var VEG_CATEGORY_ORDER = ['leafy', 'gourd', 'root'];
+  var VEG_CATEGORY_SHORT = { leafy: '绿叶', gourd: '瓜果', root: '根茎' };
+  var VEG_CATEGORY_LABEL_FALLBACK = { leafy: '绿叶菜', gourd: '瓜果菜', root: '根茎及鳞茎菜' };
+  var VEG_TARGET_FALLBACK = { 3: [5, 7], 4: [6, 9], 5: [8, 12] };
+  /* data 层 cookMethod 枚举：waterOil / stirFry / blanch / steam / braise / riceCooker；
+     旧值一并兼容，未知值不显示标签。 */
+  var VEG_METHOD_LABEL = {
+    waterOil: '水油焖', water_oil: '水油焖', stirFry: '快炒', stirfry: '快炒', 'stir-fry': '快炒', stir_fry: '快炒',
+    blanch: '白灼', steam: '清蒸', braise: '焖', riceCooker: '电饭煲蒸', rice_cooker: '电饭煲蒸',
+    roast: '烤', bake: '烤', boil: '焯', stew: '炖', soup: '汤', raw: '凉拌', salad: '凉拌', microwave: '微波'
+  };
+
   var dialogContext = null;
   var toastTimer = null;
 
@@ -60,6 +82,7 @@
       var saved = JSON.parse(raw);
       if (!saved || typeof saved !== 'object') return;
       state.settings = normalizeMealSettings(M.settingsFrom(saved.settings || null));
+      normalizeVegSettings(state.settings, saved.settings || null);
       ensureOverrideMaps();
       state.edits = sanitizeEdits(saved.edits);
       state.checks = saved.checks && typeof saved.checks === 'object' ? saved.checks : {};
@@ -79,9 +102,13 @@
     } catch (err) { /* 忽略写入失败 */ }
   }
 
-  /* 所有 settings 重建都走这里：模型默认值 + 界面需要保留的三餐开关。 */
+  /* 所有 settings 重建都走这里：模型默认值 + 界面需要保留的三餐开关与蔬菜设置。 */
   function applySettings(raw) {
+    var source = raw && typeof raw === 'object' ? raw : null;
+    /* 某些调用只传了部分字段（例如旧代码），此时沿用当前界面的蔬菜设置。 */
+    if (source && !hasVegFields(source)) source = vegSettingsSource(state.settings);
     state.settings = normalizeMealSettings(M.settingsFrom(raw || null));
+    normalizeVegSettings(state.settings, source);
     ensureOverrideMaps();
     return state.settings;
   }
@@ -101,6 +128,261 @@
       if (Object.keys(valid).length) out[dishId] = valid;
     });
     return out;
+  }
+
+  /* ---------------- 蔬菜搭配设置（V3.3） ---------------- */
+
+  function vegCategoryLabels() {
+    var labels = DATA && DATA.vegCategories;
+    if (!labels || typeof labels !== 'object') return VEG_CATEGORY_LABEL_FALLBACK;
+    var out = {};
+    VEG_CATEGORY_ORDER.forEach(function (id) {
+      out[id] = typeof labels[id] === 'string' && labels[id] ? labels[id] : VEG_CATEGORY_LABEL_FALLBACK[id];
+    });
+    return out;
+  }
+
+  function hasVegFields(source) {
+    return !!source && typeof source === 'object' && (
+      'vegStrategy' in source || 'vegCategories' in source ||
+      'vegQuick' in source || 'vegLowSmoke' in source
+    );
+  }
+
+  function vegSettingsSource(settings) {
+    if (!settings || typeof settings !== 'object') return null;
+    return {
+      vegStrategy: settings.vegStrategy,
+      vegCategories: settings.vegCategories,
+      vegQuick: settings.vegQuick,
+      vegLowSmoke: settings.vegLowSmoke
+    };
+  }
+
+  /* 把模型/存档/界面里的蔬菜设置规整成统一形状；没有来源时回到默认值。
+     模型之后会自己规整这些字段，这里保留一层兜底，旧模型或旧存档也能正常渲染。 */
+  function normalizeVegSettings(settings, source) {
+    settings = settings || state.settings || {};
+    source = source && typeof source === 'object' ? source : {};
+    settings.vegStrategy = VEG_STRATEGY_LABEL[source.vegStrategy] ? source.vegStrategy : 'balanced';
+    var rawCats = source.vegCategories;
+    var cats = { leafy: true, gourd: true, root: true };
+    if (Array.isArray(rawCats)) {
+      cats = { leafy: false, gourd: false, root: false };
+      rawCats.forEach(function (id) { if (cats.hasOwnProperty(id)) cats[id] = true; });
+    } else if (rawCats && typeof rawCats === 'object') {
+      VEG_CATEGORY_ORDER.forEach(function (id) { cats[id] = rawCats[id] !== false; });
+    }
+    /* 至少保留一类，和界面、模型的口径一致。 */
+    if (!cats.leafy && !cats.gourd && !cats.root) cats.leafy = true;
+    settings.vegCategories = cats;
+    settings.vegQuick = source.vegQuick === true;
+    settings.vegLowSmoke = source.vegLowSmoke === true;
+    return settings;
+  }
+
+  function ensureVegSettings() {
+    normalizeVegSettings(state.settings, hasVegFields(state.settings) ? state.settings : null);
+    return state.settings;
+  }
+
+  function activeVegCategories(settings) {
+    settings = settings || ensureVegSettings();
+    return VEG_CATEGORY_ORDER.filter(function (id) { return !!settings.vegCategories[id]; });
+  }
+
+  function vegTargetFallback(days) {
+    var direct = VEG_TARGET_FALLBACK[days];
+    if (direct) return direct.slice();
+    var keys = Object.keys(VEG_TARGET_FALLBACK).map(Number).sort(function (a, b) {
+      return Math.abs(a - days) - Math.abs(b - days);
+    });
+    return (keys.length ? VEG_TARGET_FALLBACK[keys[0]] : [5, 7]).slice();
+  }
+
+  function normalizeVegTarget(value) {
+    if (!value) return null;
+    var min = null;
+    var max = null;
+    if (Array.isArray(value) && value.length >= 2) {
+      min = Number(value[0]);
+      max = Number(value[1]);
+    } else if (typeof value === 'object') {
+      min = Number(value.min);
+      max = Number(value.max);
+    }
+    if (!isFinite(min) || !isFinite(max) || max < min) return null;
+    return [Math.round(min), Math.round(max)];
+  }
+
+  /* DATA.vegTargets 以计划天数为键（如 {3:[5,7],4:[6,9],5:[8,12]}）；也兼容函数或 {min,max}。 */
+  function vegTargetRange(days) {
+    days = Number(days) || (state.settings && state.settings.days) || 5;
+    var targets = DATA && DATA.vegTargets;
+    if (targets) {
+      var value = null;
+      if (typeof targets === 'function') value = targets(days);
+      else if (typeof targets === 'object') value = targets[days] || targets[String(days)];
+      var range = normalizeVegTarget(value);
+      if (range) return range;
+    }
+    return vegTargetFallback(days);
+  }
+
+  function vegSettingsHtml() {
+    var labels = vegCategoryLabels();
+    var strategies = VEG_STRATEGIES.map(function (item) {
+      return '<button type="button" data-veg-strategy="' + item.id + '" data-value="' + item.id +
+        '" aria-pressed="false" title="' + esc(item.hint) + '">' + esc(item.label) + '</button>';
+    }).join('');
+    var chips = VEG_CATEGORY_ORDER.map(function (id) {
+      return '<button type="button" class="chip veg-chip" data-veg-category="' + id +
+        '" data-value="' + id + '" aria-pressed="false">' + esc(labels[id]) + '</button>';
+    }).join('');
+    return '<div class="veg-settings-head"><span class="field-label">蔬菜搭配</span>' +
+      '<span class="veg-target" id="vegTargetHint">目标 — 种</span></div>' +
+      '<div class="veg-option"><span class="veg-option-label">搭配方式</span>' +
+      '<div class="segmented compact" id="vegStrategy" role="group" aria-label="蔬菜搭配方式">' + strategies + '</div></div>' +
+      '<div class="veg-option"><span class="veg-option-label">蔬菜类别</span>' +
+      '<div class="chips" id="vegCategories" role="group" aria-label="蔬菜类别（至少保留一类）">' +
+      chips + '<span class="veg-inline-hint">至少保留一类</span></div></div>' +
+      '<div class="veg-option"><span class="veg-option-label">偏好</span><div class="veg-switches">' +
+      '<label class="switch"><input type="checkbox" id="vegQuick" data-veg-toggle="vegQuick">' +
+      '<span class="switch-track" aria-hidden="true"></span><span class="switch-text">快手菜</span></label>' +
+      '<label class="switch"><input type="checkbox" id="vegLowSmoke" data-veg-toggle="vegLowSmoke">' +
+      '<span class="switch-track" aria-hidden="true"></span><span class="switch-text">少油烟</span></label>' +
+      '</div></div>';
+  }
+
+  /* 在 #detailSettings 内、filters 之后插入一次；简单视图模板克隆后同样能找到并补插。 */
+  function ensureVegSettingsBlock() {
+    var details = document.getElementById('detailSettings');
+    if (!details) return null;
+    var existing = details.querySelector('.veg-settings');
+    if (existing) return existing;
+    var block = document.createElement('div');
+    block.className = 'veg-settings';
+    block.id = 'vegSettings';
+    block.setAttribute('role', 'group');
+    block.setAttribute('aria-label', '蔬菜搭配');
+    block.setAttribute('data-veg-block', 'true');
+    block.innerHTML = vegSettingsHtml();
+    var filters = details.querySelector('.filters');
+    if (filters && filters.parentNode === details) details.insertBefore(block, filters.nextSibling);
+    else details.appendChild(block);
+    return block;
+  }
+
+  function syncVegControls() {
+    var settings = ensureVegSettings();
+    var block = ensureVegSettingsBlock();
+    var range = vegTargetRange(settings.days);
+    var hint = document.getElementById('vegTargetHint');
+    if (hint) hint.textContent = '目标 ' + range[0] + '–' + range[1] + ' 种';
+    if (!block) return;
+    $$('#vegStrategy button', block).forEach(function (btn) {
+      var active = btn.getAttribute('data-veg-strategy') === settings.vegStrategy;
+      btn.classList.toggle('is-active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    $$('#vegCategories .veg-chip', block).forEach(function (chip) {
+      var active = !!settings.vegCategories[chip.getAttribute('data-veg-category')];
+      chip.classList.toggle('is-active', active);
+      chip.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    var quick = $('#vegQuick', block);
+    if (quick) quick.checked = !!settings.vegQuick;
+    var lowSmoke = $('#vegLowSmoke', block);
+    if (lowSmoke) lowSmoke.checked = !!settings.vegLowSmoke;
+  }
+
+  function focusVeg(selector) {
+    var block = document.getElementById('vegSettings');
+    if (!block || !selector) return;
+    var el = block.querySelector(selector);
+    if (el && el.focus) el.focus({ preventScroll: true });
+  }
+
+  function setVegStrategy(value) {
+    if (!VEG_STRATEGY_LABEL[value]) return;
+    var settings = ensureVegSettings();
+    if (settings.vegStrategy !== value) {
+      settings.vegStrategy = value;
+      save();
+      render();
+      showToast('蔬菜搭配：' + VEG_STRATEGY_LABEL[value]);
+    }
+    focusVeg('[data-veg-strategy="' + value + '"]');
+  }
+
+  function toggleVegCategory(category) {
+    var labels = vegCategoryLabels();
+    if (!labels[category]) return;
+    var settings = ensureVegSettings();
+    var active = activeVegCategories(settings);
+    if (settings.vegCategories[category] && active.length <= 1) {
+      showToast('蔬菜类别至少保留一个：不能把「' + labels[category] + '」也关掉');
+      syncVegControls();
+      focusVeg('[data-veg-category="' + category + '"]');
+      return;
+    }
+    settings.vegCategories[category] = !settings.vegCategories[category];
+    save();
+    render();
+    focusVeg('[data-veg-category="' + category + '"]');
+    showToast((settings.vegCategories[category] ? '已保留类别：' : '已关闭类别：') + labels[category]);
+  }
+
+  function setVegToggle(field, checked) {
+    if (field !== 'vegQuick' && field !== 'vegLowSmoke') return;
+    var settings = ensureVegSettings();
+    settings[field] = !!checked;
+    save();
+    render();
+    focusVeg('#' + field);
+    showToast((checked ? '已开启：' : '已关闭：') + (field === 'vegQuick' ? '快手菜' : '少油烟'));
+  }
+
+  /* 用文档级委托绑定，简单视图模板克隆替换整块设置区后也不需要重新绑定。 */
+  function bindVegSettings() {
+    if (document.documentElement.getAttribute('data-veg-bound') === 'true') return;
+    document.documentElement.setAttribute('data-veg-bound', 'true');
+    document.addEventListener('click', function (event) {
+      var target = event.target;
+      if (!target || !target.closest) return;
+      var strategy = target.closest('[data-veg-strategy]');
+      if (strategy && strategy.closest('.veg-settings')) {
+        setVegStrategy(strategy.getAttribute('data-veg-strategy'));
+        return;
+      }
+      var category = target.closest('[data-veg-category]');
+      if (category && category.closest('.veg-settings')) {
+        toggleVegCategory(category.getAttribute('data-veg-category'));
+      }
+    });
+    document.addEventListener('change', function (event) {
+      var target = event.target;
+      if (!target || !target.closest) return;
+      var toggle = target.closest('[data-veg-toggle]');
+      if (!toggle || !toggle.closest('.veg-settings')) return;
+      setVegToggle(toggle.getAttribute('data-veg-toggle'), toggle.checked);
+    });
+  }
+
+  /* presets.js 套用整周方案时会直接调用 M.settingsFrom 并整体替换 state.settings，
+     且不会带上蔬菜字段。这里包一层，让套用方案时保留当前的蔬菜设置，而不是静悄悄回到默认。 */
+  function installVegSettingsBridge() {
+    if (!M || typeof M.settingsFrom !== 'function' || M.settingsFrom.__vegBridge) return;
+    var original = M.settingsFrom;
+    var bridge = function (raw) {
+      var out = original.apply(M, arguments);
+      var source = raw && typeof raw === 'object' ? raw : null;
+      if (source && !hasVegFields(source)) source = vegSettingsSource(state.settings);
+      normalizeVegSettings(out, source);
+      return out;
+    };
+    bridge.__vegBridge = true;
+    M.settingsFrom = bridge;
   }
 
   /* ---------------- 餐次设置 ---------------- */
@@ -634,6 +916,8 @@
       var active = s.exclude.indexOf(chip.dataset.allergen) >= 0;
       chip.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
+    /* 蔬菜搭配块：策略分段、类别 chips、快手/少油烟开关都与 state.settings 同步。 */
+    syncVegControls();
 
     var kidLabels = { '4-6': '4–6 岁', '7-10': '7–10 岁', '11-13': '11–13 岁' };
     var peopleLabel = s.adults + ' 位成人' +
@@ -653,7 +937,11 @@
     notes.push('晚餐米饭：' + (riceType ? riceType.label : '白米饭') +
       (s.riceType === 'instant' ? '（饭团仍用白米）' : addIn && addIn.id !== 'none' ? '；同煮：' + addIn.label : ''));
     if (s.exclude.length) notes.push('已排除：' + M.allergenList(s).join('、'));
-    $('#setupSummary').textContent = s.days+' 天 · '+peopleLabel+' · '+enabledNames+(s.exclude.length?' · 已排除 '+M.allergenList(s).join('、'):'');
+    var vegLabel = '蔬菜：' + (VEG_STRATEGY_LABEL[s.vegStrategy] || VEG_STRATEGY_LABEL.balanced) + ' · ' +
+      activeVegCategories(s).map(function (id) { return VEG_CATEGORY_SHORT[id] || id; }).join('/');
+    notes.push(vegLabel);
+    $('#setupSummary').textContent = s.days+' 天 · '+peopleLabel+' · '+enabledNames+
+      (s.exclude.length?' · 已排除 '+M.allergenList(s).join('、'):'')+' · '+vegLabel;
   }
 
   function renderRiceOptions() {
@@ -796,6 +1084,8 @@
 
   function render() {
     ensureMealSettings();
+    ensureVegSettings();
+    ensureVegSettingsBlock();
     var model = build();
     syncControls();
     renderMealSetup();
@@ -887,6 +1177,224 @@
       '<p>请到「备餐模块」打开对应工具，或在每天菜单底部逐天换餐。</p></div></div>';
   }
 
+  /* =========================================================
+     蔬菜搭配（V3.3）：覆盖卡与菜品小标签
+     ========================================================= */
+
+  function vegRepeatCount(summary) {
+    var repeats = summary && summary.repeats;
+    if (typeof repeats === 'number' && isFinite(repeats)) return repeats;
+    if (Array.isArray(repeats)) return repeats.length;
+    if (repeats && typeof repeats === 'object') return Object.keys(repeats).length;
+    var count = 0;
+    ((summary && summary.used) || []).forEach(function (item) {
+      var days = item && item.days;
+      var len = Array.isArray(days) ? days.length : (typeof days === 'number' ? days : 0);
+      if (len > 1) count += 1;
+    });
+    return count;
+  }
+
+  function vegRepeatNames(summary) {
+    var names = [];
+    var repeats = summary && summary.repeats;
+    if (Array.isArray(repeats)) {
+      repeats.forEach(function (item) {
+        if (typeof item === 'string') names.push(item);
+        else if (item && item.name) names.push(item.name);
+      });
+      return names;
+    }
+    if (repeats && typeof repeats === 'object') {
+      Object.keys(repeats).forEach(function (key) {
+        var item = repeats[key];
+        if (typeof item === 'string') names.push(item);
+        else if (item && item.name) names.push(item.name);
+      });
+      return names;
+    }
+    /* 模型给的是“相邻两天重复”的次数，没有具体菜名；能从 used 推出的只有跨天出现的蔬菜，
+       不等同于相邻重复，所以这里不硬猜菜名。 */
+    return names;
+  }
+
+  /* 优先用模型的 plan.vegetableSummary；旧模型缺这个字段时按装饰菜品做一份等价兜底。 */
+  function vegSummaryFor(plan) {
+    var raw = plan && plan.vegetableSummary;
+    if (!raw || typeof raw !== 'object') raw = fallbackVegSummary(plan);
+    var totalDays = Number(raw.totalDays);
+    if (!isFinite(totalDays) || totalDays <= 0) {
+      totalDays = plan && plan.days ? plan.days.length : (state.settings.days || 0);
+    }
+    var target = normalizeVegTarget(raw.target) || vegTargetRange(totalDays);
+    var count = Number(raw.count);
+    if (!isFinite(count)) count = 0;
+    var categories = {};
+    VEG_CATEGORY_ORDER.forEach(function (id) {
+      var value = raw.categories ? Number(raw.categories[id]) : 0;
+      categories[id] = isFinite(value) ? value : 0;
+    });
+    var leafyDays = Number(raw.leafyDays);
+    if (!isFinite(leafyDays)) leafyDays = 0;
+    var notes = Array.isArray(raw.notes) ? raw.notes.filter(Boolean).map(String)
+      : (raw.notes ? [String(raw.notes)] : []);
+    var ok = typeof raw.ok === 'boolean' ? raw.ok : count >= target[0];
+    return {
+      count: count,
+      target: target,
+      categories: categories,
+      leafyDays: leafyDays,
+      totalDays: totalDays,
+      repeats: vegRepeatCount(raw),
+      repeatNames: vegRepeatNames(raw),
+      used: Array.isArray(raw.used) ? raw.used : [],
+      notes: notes,
+      ok: ok
+    };
+  }
+
+  function fallbackVegSummary(plan) {
+    var totalDays = plan && plan.days ? plan.days.length : (state.settings.days || 0);
+    var target = vegTargetRange(totalDays);
+    var categories = { leafy: 0, gourd: 0, root: 0 };
+    var used = {};
+    var usedList = [];
+    var count = 0;
+    var leafyDays = 0;
+    if (plan && plan.days) {
+      plan.days.forEach(function (day) {
+        var dayVeg = {};
+        planSlots(plan).forEach(function (slot) {
+          var meal = day[slot.id];
+          if (!meal || isPendingMeal(meal)) return;
+          (meal.dishes || []).forEach(function (dish) {
+            var info = dishVegInfo(dish, true);
+            if (info) dayVeg[info.id] = info;
+          });
+        });
+        var hasLeafy = false;
+        Object.keys(dayVeg).forEach(function (id) {
+          var info = dayVeg[id];
+          count += 1;
+          categories[info.category] = (categories[info.category] || 0) + 1;
+          if (info.category === 'leafy') hasLeafy = true;
+          if (!used[id]) {
+            used[id] = { id: id, name: info.name, category: info.category, days: [] };
+            usedList.push(used[id]);
+          }
+          used[id].days.push(day.index + 1);
+        });
+        if (hasLeafy) leafyDays += 1;
+      });
+    }
+    var repeats = 0;
+    usedList.forEach(function (item) { if (item.days.length > 1) repeats += 1; });
+    return {
+      count: count,
+      target: target,
+      categories: categories,
+      leafyDays: leafyDays,
+      totalDays: totalDays,
+      repeats: repeats,
+      used: usedList,
+      ok: count >= target[0] && count <= target[1],
+      notes: []
+    };
+  }
+
+  /* 某道菜是否为蔬菜菜：优先读模型装饰到 plan 副本上的 vegCategory/vegId/quick/lowSmoke；
+     allowIngredients 仅用于没有模型汇总时的兜底统计（按 DATA.vegetables 的食材反查）。 */
+  function dishVegInfo(dish, allowIngredients) {
+    if (!dish) return null;
+    var meta = (DATA.dishes && DATA.dishes[dish.id]) || {};
+    var category = dish.vegCategory || meta.vegCategory || null;
+    var vegId = dish.vegId || meta.vegId || null;
+    var quick = dish.quick != null ? !!dish.quick : !!meta.quick;
+    var lowSmoke = dish.lowSmoke != null ? !!dish.lowSmoke : !!meta.lowSmoke;
+    var cookMethod = dish.cookMethod || meta.cookMethod || null;
+    if (!category && allowIngredients && DATA.vegetables) {
+      (meta.parts || []).forEach(function (part) {
+        var veg = DATA.vegetables[part.ingredient];
+        if (!veg || category) return;
+        category = veg.category || null;
+        vegId = part.ingredient;
+        if (!cookMethod) cookMethod = (veg.methods || [''])[0] || null;
+      });
+    }
+    if (!category || VEG_CATEGORY_ORDER.indexOf(category) < 0) return null;
+    var veg = vegId && DATA.vegetables ? DATA.vegetables[vegId] : null;
+    var ing = vegId && DATA.ingredients ? DATA.ingredients[vegId] : null;
+    return {
+      id: vegId || dish.id,
+      name: (veg && veg.name) || (ing && ing.name) || dish.name,
+      category: category,
+      quick: quick,
+      lowSmoke: lowSmoke,
+      cookMethod: cookMethod
+    };
+  }
+
+  /* 菜单里的蔬菜菜：类别小标签 + 至多两个偏好标签，避免堆太多。 */
+  function dishVegTags(dish) {
+    var info = dishVegInfo(dish, false);
+    if (!info) return '';
+    var labels = vegCategoryLabels();
+    var html = tag(labels[info.category], 'tag-veg tag-veg-' + info.category, 'i-leaf');
+    if (info.quick) html += tag('快手', 'tag-veg-quick');
+    if (info.lowSmoke) html += tag('少油烟', 'tag-veg-low');
+    if (!info.quick && !info.lowSmoke && info.cookMethod && VEG_METHOD_LABEL[info.cookMethod]) {
+      html += tag(VEG_METHOD_LABEL[info.cookMethod], 'tag-veg-method');
+    }
+    return html;
+  }
+
+  /* “本周蔬菜覆盖”紧凑卡片：warnings 之后、day-grid 之前。不达标/有重复只用黄色提示，不阻断。 */
+  function vegCoverageHtml(plan) {
+    if (!plan || !plan.days || !plan.days.length) return '';
+    var summary = vegSummaryFor(plan);
+    var range = summary.target;
+    var totalDays = summary.totalDays || plan.days.length;
+    /* 验收目标按“不同蔬菜种数”（used.length）判断；summary.count 是份次，仅作辅助说明。
+       黄色只用于不足/偏科/重复；超过上限用中性“高于目标”，避免把三餐全开误报成问题。 */
+    var types = Array.isArray(summary.used) && summary.used.length ? summary.used.length : summary.count;
+    var under = types < range[0];
+    var over = types > range[1];
+    var flags = [];
+    if (under) flags.push('还差 ' + (range[0] - types) + ' 种');
+    activeVegCategories(state.settings).forEach(function (id) {
+      if (!summary.categories[id]) flags.push('缺' + VEG_CATEGORY_SHORT[id]);
+    });
+    if (state.settings.vegCategories.leafy && summary.leafyDays < totalDays) {
+      flags.push('绿叶菜未覆盖每天');
+    }
+    if (summary.repeats > 0) flags.push('有 ' + summary.repeats + ' 处相邻重复');
+    var warn = flags.length > 0;
+    /* 紧凑卡：达标时只保留口径行；不达标/重复/偏多时才展开模型 notes 说明。 */
+    var flagText = warn ? flags[0] : over ? '高于目标' : '达标';
+    var noteBits = [];
+    if (warn || over) {
+      if (summary.repeatNames.length) {
+        noteBits.push('重复：' + summary.repeatNames.slice(0, 3).join('、') +
+          (summary.repeatNames.length > 3 ? ' 等' : ''));
+      }
+      if (summary.notes.length) noteBits.push(summary.notes.join('；'));
+    }
+    var attr = ' data-warn="' + (warn ? 'true' : 'false') + '" data-count="' + esc(summary.count) +
+      '" data-types="' + esc(types) + '" data-target-min="' + esc(range[0]) +
+      '" data-target-max="' + esc(range[1]) + '" data-leafy-days="' + esc(summary.leafyDays) +
+      '" data-total-days="' + esc(totalDays) + '" data-repeats="' + esc(summary.repeats) +
+      '" data-ok="' + (summary.ok ? 'true' : 'false') + '"';
+    return '<div class="veg-coverage' + (warn ? ' is-warn' : '') + '" id="vegCoverage" data-veg-coverage="true"' + attr + '>' +
+      '<div class="veg-coverage-head"><span class="veg-coverage-title">本周蔬菜覆盖</span>' +
+      '<span class="veg-coverage-flag">' + esc(flagText) + '</span></div>' +
+      '<p class="veg-coverage-main"><strong>' + fmt(types) + ' 种不同蔬菜</strong>（目标 ' +
+      fmt(range[0]) + '–' + fmt(range[1]) + '）<span class="veg-coverage-meta"> · 共 ' +
+      fmt(summary.count) + ' 份次 · 绿叶 ' + fmt(summary.leafyDays) + '/' + fmt(totalDays) + ' 天 · 瓜果 ' +
+      fmt(summary.categories.gourd) + ' · 根茎 ' + fmt(summary.categories.root) + '</span></p>' +
+      (noteBits.length ? '<p class="veg-coverage-notes">' + esc(noteBits.join('；')) + '</p>' : '') +
+      '</div>';
+  }
+
   function viewMenu(model) {
     var plan = model.plan;
     var settings = state.settings;
@@ -919,6 +1427,7 @@
       (threeMeals && !lunchPackedFor(plan) ? '午餐从晚餐菜库独立选一道。' : '') + '</p></div>' +
       '<div class="section-actions"><button type="button" class="btn secondary small" data-action="print">' + icon('i-print') + '打印菜单</button></div></div>' +
       notices +
+      vegCoverageHtml(plan) +
       '<div class="day-grid" style="--days:' + settings.days + '">' + cards + '</div>' +
       '</section>' +
       '<section class="section">' +
@@ -1020,6 +1529,7 @@
         '<span><span class="dish-name">' + esc(dish.name) + (dish.swappedFrom ? '（烤鸡替换）' : '') + '</span>' +
         '<span class="dish-meta">' + esc(summary) +
         storageTag(dish.storage) +
+        dishVegTags(dish) +
         (edited ? tag('已调整', 'tag-low', 'i-pencil') : '') +
         allergenBadges(allergens) +
         (dishHasUnknownNutrition(dish.id) ? tag('过敏原待核', 'tag-allergen', 'i-warning') : '') +
@@ -1102,6 +1612,9 @@
     var groups = {};
     var modeNotes = [];
     plan.warnings.forEach(function (warning) {
+      /* 蔬菜配菜无法分配单独的 warning 由菜单顶部的“本周蔬菜覆盖”卡片统一说明，
+         不混进过敏原/午餐模式的通知文案里。 */
+      if (warning.kind === 'vegetable') return;
       // 待选餐由独立卡片说明原因，不再沿用旧的“已保留原餐”文案。
       if (warning.pending) return;
       // 晚餐关闭但选择了带饭午餐：模型会自动按现做处理，这里只做说明。
@@ -2527,7 +3040,11 @@
   /* ---------------- 初始化 ---------------- */
 
   function init() {
+    installVegSettingsBridge();
     load();
+    ensureVegSettings();
+    ensureVegSettingsBlock();
+    bindVegSettings();
     ensureOverrideMaps();
     ensureMealSetup();
     bindMealSetup();
@@ -2558,7 +3075,10 @@
       data: DATA,
       selectTab: selectTab,
       openDishDialog: openDishDialog,
-      saveDialog: saveDialog
+      saveDialog: saveDialog,
+      /* 便于验收脚本读取蔬菜覆盖口径（与覆盖卡同源）。 */
+      vegSummary: function () { return vegSummaryFor(build().plan); },
+      vegTargetRange: vegTargetRange
     };
   }
 
