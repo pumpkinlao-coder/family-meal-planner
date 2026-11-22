@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>厚皮橙专区 · 家庭餐桌</title>
-<meta name="description" content="厚皮橙专区：30 道橙学快手家常菜，含用料、做法、要点与出处，可搜索、筛选和打印。">
+<meta name="description" content="厚皮橙专区：100 道橙学快手家常菜，含用料、做法、要点与出处，可搜索、筛选和打印。">
 <style>
 :root {
   --paper: #f7f4ec; --paper-deep: #efe9dc; --card: #fffdf8;
@@ -61,14 +61,15 @@ a:hover { text-decoration-color: var(--green); }
   background: rgba(247,244,236,.9); backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
 }
-.toolbar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
+.toolbar .wrap { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px 12px; }
 #q {
-  flex: 1 1 260px; min-width: 200px; padding: 10px 16px; font: inherit; font-size: 14.5px;
+  grid-column: 1; grid-row: 1;
+  width: 100%; min-width: 0; padding: 10px 16px; font: inherit; font-size: 14.5px;
   color: var(--ink); background: var(--card);
   border: 1px solid var(--line-strong); border-radius: 999px;
 }
 #q::placeholder { color: #9aa093; }
-.chips { display: flex; gap: 6px; overflow-x: auto; max-width: 100%; padding: 2px; scrollbar-width: none; }
+.chips { grid-column: 1 / -1; grid-row: 2; display: flex; gap: 6px; overflow-x: auto; max-width: 100%; padding: 2px; scrollbar-width: none; }
 .chips::-webkit-scrollbar { display: none; }
 .chip {
   flex: none; padding: 7px 13px; font: inherit; font-size: 13px; font-weight: 600;
@@ -80,7 +81,8 @@ a:hover { text-decoration-color: var(--green); }
 .chip.is-on { background: var(--green); border-color: var(--green); color: #fff; }
 .chip.is-on i { color: rgba(255,255,255,.75); }
 #print {
-  margin-left: auto; padding: 9px 16px; font: inherit; font-size: 13.5px; font-weight: 600;
+  grid-column: 2; grid-row: 1; justify-self: end;
+  padding: 9px 16px; font: inherit; font-size: 13.5px; font-weight: 600;
   color: var(--accent); background: var(--accent-soft); border: 1px solid #eccdbd;
   border-radius: 999px; cursor: pointer;
 }
@@ -181,7 +183,10 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
   .card h2 { font-size: 19px; }
   .cat { display: none; }
   .src { margin-left: 0; text-align: left; }
-  #print { width: 100%; text-align: center; margin-left: 0; }
+  .toolbar .wrap { grid-template-columns: 1fr; }
+  #q { grid-column: 1; grid-row: 1; }
+  .chips { grid-column: 1; grid-row: 2; }
+  #print { grid-column: 1; grid-row: 3; width: 100%; text-align: center; justify-self: stretch; }
 }
 @media print {
   @page { margin: 12mm 12mm; }
@@ -225,9 +230,9 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
   <div class="wrap">
     <p class="eyebrow">🍊 橙学 · 菜谱收集</p>
     <h1>厚皮橙<em>专区</em></h1>
-    <p class="lede">广东妈妈 <b>@厚皮橙</b> 的快手家常菜。一次收齐 <b>30 道</b>，按“基本功 → 蔬菜 → 蛋 → 鸡 → 肉 → 海鲜 → 主食 → 汤 → 小食”排好；每道都有用料、步骤、要点和出处，照着就能做。</p>
+    <p class="lede">广东妈妈 <b>@厚皮橙</b> 的快手家常菜。一次收齐 <b>100 道</b>，按“基本功 → 蔬菜 → 蛋 → 鸡 → 肉 → 海鲜 → 主食 → 汤 → 小食”排好；每道都有用料、步骤、要点和出处，照着就能做。</p>
     <ul class="stats">
-      <li><b>30</b> 道菜</li>
+      <li><b>100</b> 道菜</li>
       <li><b>9</b> 类</li>
       <li><b>2–4</b> 人份</li>
       <li><b>0</b> 油烟</li>
@@ -239,8 +244,8 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 <div class="toolbar">
   <div class="wrap">
     <input id="q" type="search" placeholder="搜菜名或食材：排骨、蒜、鸡蛋" aria-label="搜索菜谱">
-    <div class="chips" id="chips"><button class="chip is-on" data-cat="全部">全部</button><button class="chip" data-cat="基本功">基本功<i>3</i></button><button class="chip" data-cat="蔬菜">蔬菜<i>4</i></button><button class="chip" data-cat="蛋与早餐">蛋与早餐<i>4</i></button><button class="chip" data-cat="鸡肉">鸡肉<i>3</i></button><button class="chip" data-cat="猪牛肉">猪牛肉<i>5</i></button><button class="chip" data-cat="海鲜">海鲜<i>2</i></button><button class="chip" data-cat="主食">主食<i>4</i></button><button class="chip" data-cat="汤水">汤水<i>4</i></button><button class="chip" data-cat="小食">小食<i>1</i></button></div>
-    <button id="print" type="button" title="也可以按 ⌘P / Ctrl+P" onclick="try{window.print()}catch(e){alert('当前预览窗口不支持直接打印，请按 ⌘P / Ctrl+P，或打开同目录的 PDF 版。')}">🖨 打印 / 存 PDF</button>
+    <div class="chips" id="chips"><button class="chip is-on" data-cat="全部">全部</button><button class="chip" data-cat="基本功">基本功<i>3</i></button><button class="chip" data-cat="蔬菜">蔬菜<i>15</i></button><button class="chip" data-cat="蛋与早餐">蛋与早餐<i>15</i></button><button class="chip" data-cat="鸡肉">鸡肉<i>9</i></button><button class="chip" data-cat="猪牛肉">猪牛肉<i>16</i></button><button class="chip" data-cat="海鲜">海鲜<i>9</i></button><button class="chip" data-cat="主食">主食<i>20</i></button><button class="chip" data-cat="汤水">汤水<i>8</i></button><button class="chip" data-cat="小食">小食<i>5</i></button></div>
+    <button id="print" type="button" title="先按类别或搜索筛选，只会打印当前显示的菜；也可以按 ⌘P / Ctrl+P" onclick="try{window.print()}catch(e){alert('当前预览窗口不支持直接打印，请按 ⌘P / Ctrl+P，或打开同目录的 PDF 版。')}">🖨 打印 / 存 PDF</button>
   </div>
 </div>
 
@@ -485,9 +490,383 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
     <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/67eb831d000000001e0024c2" target="_blank" rel="noopener noreferrer">厚皮橙「微波炉蒜蓉酥」</a></p>
   </div>
 </article>
-<article class="card" id="shuijian-dan" data-cat="蛋与早餐" data-text="无油水煎蛋 冷锅下蛋再开火，一滴油也不粘 蛋与早餐 不粘锅带盖 鸡蛋 水 10分钟 早餐 少油 减脂">
+<article class="card" id="d034" data-cat="蔬菜" data-text="蒜蓉菜心 先梗后叶，一勺水炒出脆绿 蔬菜 炒锅 菜心 蒜 油 盐 快手 粤菜 少油">
   <div class="card-top">
     <span class="no">08</span>
+    <div class="card-title">
+      <h2>蒜蓉菜心</h2>
+      <p class="tagline">先梗后叶，一勺水炒出脆绿</p>
+    </div>
+    <span class="cat">蔬菜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>10 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>炒锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">菜心</span><span class="i-amt">300 克</span></li><li><span class="i-name">蒜</span><span class="i-amt">2 瓣</span></li><li><span class="i-name">油</span><span class="i-amt">1 茶匙</span></li><li><span class="i-name">盐</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>菜心洗净，粗茎纵剖，蒜切碎。</li><li>炒香蒜末，先下菜梗，再下菜叶，加一勺水翻炒到菜梗变软，加盐出锅。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>粗茎剖开熟得快，也不会夹生。</li><li>一勺水是让菜心翠绿的秘诀，别干炒。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">快手</span><span class="tag">粤菜</span><span class="tag">少油</span></div>
+    <p class="src">出处：<a href="https://www.sina.cn/news/detail/5315497121812332.html" target="_blank" rel="noopener noreferrer">新浪 · 厚皮橙原帖</a></p>
+  </div>
+</article>
+<article class="card" id="d035" data-cat="蔬菜" data-text="蒜蓉蒸丝瓜 丝瓜垫底，蒜蓉铺面，蒸出的汁别倒 蔬菜 蒸锅 + 深盘 丝瓜 蒜 油 生抽 蒸菜 清淡 快手">
+  <div class="card-top">
+    <span class="no">09</span>
+    <div class="card-title">
+      <h2>蒜蓉蒸丝瓜</h2>
+      <p class="tagline">丝瓜垫底，蒜蓉铺面，蒸出的汁别倒</p>
+    </div>
+    <span class="cat">蔬菜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>15 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>蒸锅 + 深盘</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">丝瓜</span><span class="i-amt">1 根</span></li><li><span class="i-name">蒜</span><span class="i-amt">3 瓣</span></li><li><span class="i-name">油</span><span class="i-amt">1 茶匙</span></li><li><span class="i-name">生抽</span><span class="i-amt">1 茶匙</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>丝瓜去皮切厚片铺盘，蒜末拌油和生抽后铺在上面。</li><li>水开后上锅，蒸到筷子能轻松穿透丝瓜，约 6–8 分钟。端出来时盘底的汁一起上桌。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>丝瓜别切太薄，蒸完会缩。</li><li>盘底的汁是精华，拌饭很鲜。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">蒸菜</span><span class="tag">清淡</span><span class="tag">快手</span></div>
+    <p class="src">出处：<a href="https://t.cn/AXC8dt87" target="_blank" rel="noopener noreferrer">厚皮橙原帖（短链）</a></p>
+  </div>
+</article>
+<article class="card" id="d036" data-cat="蔬菜" data-text="蒜蓉西兰花 焯到八分熟，再下锅裹蒜香 蔬菜 炒锅 + 汤锅 西兰花 蒜 油 盐 快手 少油 孩子">
+  <div class="card-top">
+    <span class="no">10</span>
+    <div class="card-title">
+      <h2>蒜蓉西兰花</h2>
+      <p class="tagline">焯到八分熟，再下锅裹蒜香</p>
+    </div>
+    <span class="cat">蔬菜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>15 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>炒锅 + 汤锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">西兰花</span><span class="i-amt">300 克</span></li><li><span class="i-name">蒜</span><span class="i-amt">2 瓣</span></li><li><span class="i-name">油</span><span class="i-amt">1 茶匙</span></li><li><span class="i-name">盐</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>西兰花切小朵，粗茎削皮切片，一起焯到接近想要的软度，沥水。</li><li>用油炒香蒜末，放西兰花翻匀，加少许盐出锅。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>先焯后炒，颜色绿、也不吸油。</li><li>给孩子的部分可以多焯 1 分钟。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">快手</span><span class="tag">少油</span><span class="tag">孩子</span></div>
+    <p class="src">出处：<a href="https://www.sina.cn/news/detail/5293477414047898.html" target="_blank" rel="noopener noreferrer">新浪 · 厚皮橙原帖</a></p>
+  </div>
+</article>
+<article class="card" id="d037" data-cat="蔬菜" data-text="蒸土豆 整块蒸透，当主食也当配菜 蔬菜 蒸锅 土豆 清淡 备餐 孩子">
+  <div class="card-top">
+    <span class="no">11</span>
+    <div class="card-title">
+      <h2>蒸土豆</h2>
+      <p class="tagline">整块蒸透，当主食也当配菜</p>
+    </div>
+    <span class="cat">蔬菜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>蒸锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">土豆</span><span class="i-amt">2 个</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>土豆去皮切成大小接近的块，平铺在耐热盘里。</li><li>水开后上锅，蒸到筷子能轻松穿透，约 15 分钟。可以直接配肉菜，也可以趁热压成泥。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>切块大小一致，熟得才均匀。</li><li>蒸好别马上开盖，焖 2 分钟更粉。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">清淡</span><span class="tag">备餐</span><span class="tag">孩子</span></div>
+    <p class="src">出处：<a href="https://www.sina.cn/news/detail/5293477414047898.html" target="_blank" rel="noopener noreferrer">新浪 · 厚皮橙原帖</a></p>
+  </div>
+</article>
+<article class="card" id="d071" data-cat="蔬菜" data-text="油焖豆腐 五花肉垫底，豆腐铺面，不加水焖 蔬菜 厚底带盖锅 老豆腐 五花肉 洋葱 生抽 油 下饭 无油烟 家常">
+  <div class="card-top">
+    <span class="no">12</span>
+    <div class="card-title">
+      <h2>油焖豆腐</h2>
+      <p class="tagline">五花肉垫底，豆腐铺面，不加水焖</p>
+    </div>
+    <span class="cat">蔬菜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>30 分钟</span>
+    <span><b>份量</b>2–3 人</span>
+    <span><b>工具</b>厚底带盖锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">老豆腐</span><span class="i-amt">1 块</span></li><li><span class="i-name">五花肉</span><span class="i-amt">100 克</span></li><li><span class="i-name">洋葱</span><span class="i-amt">半个</span></li><li><span class="i-name">生抽</span><span class="i-amt">2 勺</span></li><li><span class="i-name">油</span><span class="i-amt">1 小勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>五花肉切薄片，用料酒、生粉抓一下；豆腐切厚片，洋葱切丝。</li><li>锅底铺五花肉，中间洋葱，上面豆腐，淋生抽，盖盖中小火焖 15 分钟。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>豆腐用老豆腐，嫩的一焖就碎。</li><li>全程不加水，靠洋葱和肉出汁。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">下饭</span><span class="tag">无油烟</span><span class="tag">家常</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/68ca8d20000000000e00fb3f" target="_blank" rel="noopener noreferrer">小红书 · 厚皮橙的油焖豆腐</a></p>
+  </div>
+</article>
+<article class="card" id="d072" data-cat="蔬菜" data-text="蒜香茄子 平底锅当烤架，蒜油焖软再撒烧烤料 蔬菜 带盖平底锅 长茄子 油浸蒜 生抽 烧烤料 葱花 下饭 少油 烧烤味">
+  <div class="card-top">
+    <span class="no">13</span>
+    <div class="card-title">
+      <h2>蒜香茄子</h2>
+      <p class="tagline">平底锅当烤架，蒜油焖软再撒烧烤料</p>
+    </div>
+    <span class="cat">蔬菜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>带盖平底锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">长茄子</span><span class="i-amt">2 根</span></li><li><span class="i-name">油浸蒜</span><span class="i-amt">2 勺</span></li><li><span class="i-name">生抽</span><span class="i-amt">2 勺</span></li><li><span class="i-name">烧烤料</span><span class="i-amt">1 小勺</span></li><li><span class="i-name">葱花</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>茄子对半切开，皮朝下摆进平底锅，加两勺水，盖盖小火焖 8 分钟。</li><li>淋油浸蒜和生抽，撒烧烤料，再焖 3 分钟，出锅撒葱花和白芝麻。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>茄子先焖软再调味，不吸油。</li><li>有烧烤料就不用另外放盐。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">下饭</span><span class="tag">少油</span><span class="tag">烧烤味</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/6863c008000000001202ca9a" target="_blank" rel="noopener noreferrer">小红书 · 油浸蒜做蒜香茄子</a></p>
+  </div>
+</article>
+<article class="card" id="d073" data-cat="蔬菜" data-text="清炒丝瓜 大火快炒，丝瓜出水就出锅 蔬菜 炒锅 丝瓜 蒜 盐 油 清淡 快手 少油">
+  <div class="card-top">
+    <span class="no">14</span>
+    <div class="card-title">
+      <h2>清炒丝瓜</h2>
+      <p class="tagline">大火快炒，丝瓜出水就出锅</p>
+    </div>
+    <span class="cat">蔬菜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>10 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>炒锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">丝瓜</span><span class="i-amt">2 根</span></li><li><span class="i-name">蒜</span><span class="i-amt">2 瓣</span></li><li><span class="i-name">盐</span><span class="i-amt">少许</span></li><li><span class="i-name">油</span><span class="i-amt">1 小勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>丝瓜去皮切滚刀块，蒜切片。</li><li>热锅下油炒香蒜，倒丝瓜大火翻炒 2–3 分钟，加盐出锅。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>丝瓜容易出水，火要大。</li><li>别盖盖，盖了会发黄。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">清淡</span><span class="tag">快手</span><span class="tag">少油</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/68663b89000000000b02f643" target="_blank" rel="noopener noreferrer">小红书 · 盐焗虾配清炒丝瓜</a></p>
+  </div>
+</article>
+<article class="card" id="d074" data-cat="蔬菜" data-text="上汤菜心 皮蛋咸蛋做上汤，菜心焯水再浇 蔬菜 汤锅 + 炒锅 菜心 皮蛋 咸蛋 蒜 高汤 粤菜 汤菜 下饭">
+  <div class="card-top">
+    <span class="no">15</span>
+    <div class="card-title">
+      <h2>上汤菜心</h2>
+      <p class="tagline">皮蛋咸蛋做上汤，菜心焯水再浇</p>
+    </div>
+    <span class="cat">蔬菜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>汤锅 + 炒锅</span>
+    <span><b>难度</b>中等</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">菜心</span><span class="i-amt">300 克</span></li><li><span class="i-name">皮蛋</span><span class="i-amt">1 个</span></li><li><span class="i-name">咸蛋</span><span class="i-amt">1 个</span></li><li><span class="i-name">蒜</span><span class="i-amt">3 瓣</span></li><li><span class="i-name">高汤</span><span class="i-amt">400 毫升</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>菜心焯水摆盘；皮蛋咸蛋切丁，蒜拍碎。</li><li>炒香蒜和蛋丁，倒高汤煮开，加盐，浇在菜心上。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>菜心焯水时加一点油，颜色更绿。</li><li>没有高汤就用清水加一小撮虾皮。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">粤菜</span><span class="tag">汤菜</span><span class="tag">下饭</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/detail/5305810710169312" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙一肉多吃</a></p>
+  </div>
+</article>
+<article class="card" id="d096" data-cat="蔬菜" data-text="微波炉蒸三样 茄子辣椒番茄，微波五分钟拌一拌 蔬菜 微波炉 茄子 青椒 番茄 油浸蒜 生抽 微波炉 无油烟 10分钟">
+  <div class="card-top">
+    <span class="no">16</span>
+    <div class="card-title">
+      <h2>微波炉蒸三样</h2>
+      <p class="tagline">茄子辣椒番茄，微波五分钟拌一拌</p>
+    </div>
+    <span class="cat">蔬菜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>10 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>微波炉</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">茄子</span><span class="i-amt">1 根</span></li><li><span class="i-name">青椒</span><span class="i-amt">2 个</span></li><li><span class="i-name">番茄</span><span class="i-amt">1 个</span></li><li><span class="i-name">油浸蒜</span><span class="i-amt">1 勺</span></li><li><span class="i-name">生抽</span><span class="i-amt">1 勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>三样菜洗净切块，放盘子里，盖一个盘子。</li><li>微波高火 5 分钟，取出倒掉水，拌油浸蒜和生抽。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>盖盘子代替保鲜膜，更安心。</li><li>微波功率不同，第一次守着看。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">微波炉</span><span class="tag">无油烟</span><span class="tag">10分钟</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/6858be9400000000110029e2" target="_blank" rel="noopener noreferrer">小红书 · 微波炉下饭菜</a></p>
+  </div>
+</article>
+<article class="card" id="d097" data-cat="蔬菜" data-text="蒜蓉油麦菜（微波） 三分钟一盘，比炒的还绿 蔬菜 微波炉 油麦菜 油浸蒜 生抽 微波炉 无油烟 5分钟">
+  <div class="card-top">
+    <span class="no">17</span>
+    <div class="card-title">
+      <h2>蒜蓉油麦菜（微波）</h2>
+      <p class="tagline">三分钟一盘，比炒的还绿</p>
+    </div>
+    <span class="cat">蔬菜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>5 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>微波炉</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">油麦菜</span><span class="i-amt">300 克</span></li><li><span class="i-name">油浸蒜</span><span class="i-amt">1 勺</span></li><li><span class="i-name">生抽</span><span class="i-amt">1 勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>油麦菜洗净甩干，铺进微波炉碗。</li><li>淋油浸蒜和生抽，盖盖微波高火 3 分钟，取出翻匀。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>不用加水，菜本身的水够。</li><li>时间到立刻取出，余温会继续熟。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">微波炉</span><span class="tag">无油烟</span><span class="tag">5分钟</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/685a166a000000001203e23b" target="_blank" rel="noopener noreferrer">小红书 · 微波炉水油焖菜</a></p>
+  </div>
+</article>
+<article class="card" id="d098" data-cat="蔬菜" data-text="油浸蒜凉拌菜 虾仁鸡蛋配菜，一勺蒜油一拌 蔬菜 无火 虾仁 鸡蛋 黄瓜 油浸蒜 凉拌汁 减脂 凉拌 快手">
+  <div class="card-top">
+    <span class="no">18</span>
+    <div class="card-title">
+      <h2>油浸蒜凉拌菜</h2>
+      <p class="tagline">虾仁鸡蛋配菜，一勺蒜油一拌</p>
+    </div>
+    <span class="cat">蔬菜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>15 分钟</span>
+    <span><b>份量</b>1–2 人</span>
+    <span><b>工具</b>无火</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">虾仁</span><span class="i-amt">100 克</span></li><li><span class="i-name">鸡蛋</span><span class="i-amt">1 个</span></li><li><span class="i-name">黄瓜</span><span class="i-amt">1 根</span></li><li><span class="i-name">油浸蒜</span><span class="i-amt">1 勺</span></li><li><span class="i-name">凉拌汁</span><span class="i-amt">2 勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>虾仁焯熟，鸡蛋煮熟切片，黄瓜拍碎。</li><li>全部放碗里，加油浸蒜和凉拌汁，抓匀。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>虾仁焯到卷起就好。</li><li>没有凉拌汁就用生抽、醋、辣椒油调。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">减脂</span><span class="tag">凉拌</span><span class="tag">快手</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/686a5888000000002400f771" target="_blank" rel="noopener noreferrer">小红书 · 油浸蒜凉拌菜</a></p>
+  </div>
+</article>
+<article class="card" id="shuijian-dan" data-cat="蛋与早餐" data-text="无油水煎蛋 冷锅下蛋再开火，一滴油也不粘 蛋与早餐 不粘锅带盖 鸡蛋 水 10分钟 早餐 少油 减脂">
+  <div class="card-top">
+    <span class="no">19</span>
     <div class="card-title">
       <h2>无油水煎蛋</h2>
       <p class="tagline">冷锅下蛋再开火，一滴油也不粘</p>
@@ -521,7 +900,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="maifen" data-cat="蛋与早餐" data-text="橙学麦芬（滑蛋麦芬） 麦芬淋水进空气炸锅，滑蛋一夹就成 蛋与早餐 空气炸锅 + 平底锅 英式麦芬 鸡蛋 牛奶 盐、黑胡椒 芝士片 黄油 早餐 10分钟 带饭 孩子">
   <div class="card-top">
-    <span class="no">09</span>
+    <span class="no">20</span>
     <div class="card-title">
       <h2>橙学麦芬（滑蛋麦芬）</h2>
       <p class="tagline">麦芬淋水进空气炸锅，滑蛋一夹就成</p>
@@ -555,7 +934,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="nainai-dan" data-cat="蛋与早餐" data-text="爆浆肉末芝士焗蛋 肉末垫底、鸡蛋划散、芝士盖顶，一锅到底 蛋与早餐 带盖平底锅或烤箱 牛肉末 洋葱 玉米粒 鸡蛋 芝士碎 蚝油 生抽 黑胡椒盐 下饭 孩子 高蛋白 一锅出">
   <div class="card-top">
-    <span class="no">10</span>
+    <span class="no">21</span>
     <div class="card-title">
       <h2>爆浆肉末芝士焗蛋</h2>
       <p class="tagline">肉末垫底、鸡蛋划散、芝士盖顶，一锅到底</p>
@@ -589,7 +968,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="heiyanmai" data-cat="蛋与早餐" data-text="黑燕麦鸡蛋碗 她最早出圈的一条：三分钟，一碗，管饱 蛋与早餐 微波炉 + 碗 黑燕麦片 鸡蛋 牛奶 坚果 水果 盐或蜂蜜 早餐 微波炉 10分钟 减脂">
   <div class="card-top">
-    <span class="no">11</span>
+    <span class="no">22</span>
     <div class="card-title">
       <h2>黑燕麦鸡蛋碗</h2>
       <p class="tagline">她最早出圈的一条：三分钟，一碗，管饱</p>
@@ -621,9 +1000,383 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
     <p class="src">出处：<a href="https://www.163.com/dy/article/K3CSPVP20511A99L.html" target="_blank" rel="noopener noreferrer">网易号：5 分钟糊弄一顿饭，“橙学”火了</a></p>
   </div>
 </article>
+<article class="card" id="d032" data-cat="蛋与早餐" data-text="蒸水蛋 蛋液加温水、盖盘蒸，表面像布丁 蛋与早餐 蒸锅 + 浅碗 鸡蛋 温水 葱花 蒸菜 孩子 清淡">
+  <div class="card-top">
+    <span class="no">23</span>
+    <div class="card-title">
+      <h2>蒸水蛋</h2>
+      <p class="tagline">蛋液加温水、盖盘蒸，表面像布丁</p>
+    </div>
+    <span class="cat">蛋与早餐</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>15 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>蒸锅 + 浅碗</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">鸡蛋</span><span class="i-amt">2 个</span></li><li><span class="i-name">温水</span><span class="i-amt">约 150 毫升</span></li><li><span class="i-name">葱花</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>鸡蛋打匀，加温水搅匀，撇掉浮沫，倒入浅碗，盖上小盘或保鲜膜。</li><li>水开后上锅，中小火蒸 10–12 分钟，中心完全凝固即可，出锅撒葱花。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>蛋液和温水约 1:1.5，水越多越嫩。</li><li>盖盘是表面光滑的关键，不盖会有蜂窝。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">蒸菜</span><span class="tag">孩子</span><span class="tag">清淡</span></div>
+    <p class="src">出处：<a href="https://www.sina.cn/news/detail/5315497121812332.html" target="_blank" rel="noopener noreferrer">新浪 · 厚皮橙原帖</a></p>
+  </div>
+</article>
+<article class="card" id="d040" data-cat="蛋与早餐" data-text="吞拿鱼三明治 吞拿鱼拌酸奶，比沙拉酱清爽 蛋与早餐 无火 水浸吞拿鱼罐头 吐司 黄瓜 原味酸奶 早餐 带饭 10分钟">
+  <div class="card-top">
+    <span class="no">24</span>
+    <div class="card-title">
+      <h2>吞拿鱼三明治</h2>
+      <p class="tagline">吞拿鱼拌酸奶，比沙拉酱清爽</p>
+    </div>
+    <span class="cat">蛋与早餐</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>10 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>无火</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">水浸吞拿鱼罐头</span><span class="i-amt">1 罐</span></li><li><span class="i-name">吐司</span><span class="i-amt">4 片</span></li><li><span class="i-name">黄瓜</span><span class="i-amt">半根</span></li><li><span class="i-name">原味酸奶</span><span class="i-amt">2 汤匙</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>吞拿鱼沥干拨散，与酸奶拌匀；黄瓜切薄片并擦去水分。</li><li>吐司夹入黄瓜和吞拿鱼馅，对切即可。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>黄瓜擦干，面包才不会湿。</li><li>换成希腊酸奶更稠，口感更像沙拉酱。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">早餐</span><span class="tag">带饭</span><span class="tag">10分钟</span></div>
+    <p class="src">出处：<a href="https://www.sina.cn/news/detail/5319824150628475.html" target="_blank" rel="noopener noreferrer">新浪 · 厚皮橙原帖</a></p>
+  </div>
+</article>
+<article class="card" id="d083" data-cat="蛋与早餐" data-text="蓝莓果酱吐司 冷冻蓝莓直接炒，不加糖也出酱 蛋与早餐 小锅 冷冻蓝莓 吐司 酸奶或黄油 早餐 10分钟 低糖">
+  <div class="card-top">
+    <span class="no">25</span>
+    <div class="card-title">
+      <h2>蓝莓果酱吐司</h2>
+      <p class="tagline">冷冻蓝莓直接炒，不加糖也出酱</p>
+    </div>
+    <span class="cat">蛋与早餐</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>10 分钟</span>
+    <span><b>份量</b>1 人</span>
+    <span><b>工具</b>小锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">冷冻蓝莓</span><span class="i-amt">1 小碗</span></li><li><span class="i-name">吐司</span><span class="i-amt">2 片</span></li><li><span class="i-name">酸奶或黄油</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>冷冻蓝莓直接下锅，中小火炒到出汁变稠，不加糖。</li><li>吐司烤热，抹一层酸奶或黄油，铺蓝莓酱。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>冷冻蓝莓比新鲜的更容易出酱。</li><li>锅底剩的酱用面包擦干净，不浪费也好洗。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">早餐</span><span class="tag">10分钟</span><span class="tag">低糖</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/67c7dd1c0000000009015120" target="_blank" rel="noopener noreferrer">小红书 · 橙学总结 5.0 早餐篇</a></p>
+  </div>
+</article>
+<article class="card" id="d084" data-cat="蛋与早餐" data-text="青稞芝芝牛肉滑蛋 青稞面包夹牛肉滑蛋，一手一个 蛋与早餐 平底锅 青稞面包 牛肉片 鸡蛋 芝士片 生抽、黑胡椒 早餐 高蛋白 带饭">
+  <div class="card-top">
+    <span class="no">26</span>
+    <div class="card-title">
+      <h2>青稞芝芝牛肉滑蛋</h2>
+      <p class="tagline">青稞面包夹牛肉滑蛋，一手一个</p>
+    </div>
+    <span class="cat">蛋与早餐</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>15 分钟</span>
+    <span><b>份量</b>1 人</span>
+    <span><b>工具</b>平底锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">青稞面包</span><span class="i-amt">1 个</span></li><li><span class="i-name">牛肉片</span><span class="i-amt">80 克</span></li><li><span class="i-name">鸡蛋</span><span class="i-amt">2 个</span></li><li><span class="i-name">芝士片</span><span class="i-amt">1 片</span></li><li><span class="i-name">生抽、黑胡椒</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>牛肉用生抽、黑胡椒腌 10 分钟，煎熟备用；鸡蛋加牛奶打散。</li><li>小火炒滑蛋，半凝固关火，面包夹牛肉、滑蛋和芝士片。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>牛肉切薄片，煎 1 分钟就够。</li><li>滑蛋离火要早，余温会继续熟。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">早餐</span><span class="tag">高蛋白</span><span class="tag">带饭</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/67c7dd1c0000000009015120" target="_blank" rel="noopener noreferrer">小红书 · 橙学总结 5.0 早餐篇</a></p>
+  </div>
+</article>
+<article class="card" id="d085" data-cat="蛋与早餐" data-text="蟹柳滑蛋三明治 蟹柳撕条拌蛋，五分钟一个 蛋与早餐 平底锅 吐司 蟹柳 鸡蛋 蛋黄酱 早餐 10分钟 孩子">
+  <div class="card-top">
+    <span class="no">27</span>
+    <div class="card-title">
+      <h2>蟹柳滑蛋三明治</h2>
+      <p class="tagline">蟹柳撕条拌蛋，五分钟一个</p>
+    </div>
+    <span class="cat">蛋与早餐</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>10 分钟</span>
+    <span><b>份量</b>1 人</span>
+    <span><b>工具</b>平底锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">吐司</span><span class="i-amt">2 片</span></li><li><span class="i-name">蟹柳</span><span class="i-amt">4 根</span></li><li><span class="i-name">鸡蛋</span><span class="i-amt">2 个</span></li><li><span class="i-name">蛋黄酱</span><span class="i-amt">1 勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>蟹柳撕成条，鸡蛋打散加一点盐。</li><li>小火炒蛋，半凝固时下蟹柳，关火拌入蛋黄酱，夹进烤过的吐司。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>蟹柳本身有咸味，盐要少。</li><li>蛋黄酱关火后再拌，不会油水分离。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">早餐</span><span class="tag">10分钟</span><span class="tag">孩子</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/67c7dd1c0000000009015120" target="_blank" rel="noopener noreferrer">小红书 · 橙学总结 5.0 早餐篇</a></p>
+  </div>
+</article>
+<article class="card" id="d086" data-cat="蛋与早餐" data-text="薯仔泥三明治 土豆压泥当馅，饱腹感拉满 蛋与早餐 蒸锅 土豆 吐司 鸡蛋 蛋黄酱 盐 早餐 孩子 带饭">
+  <div class="card-top">
+    <span class="no">28</span>
+    <div class="card-title">
+      <h2>薯仔泥三明治</h2>
+      <p class="tagline">土豆压泥当馅，饱腹感拉满</p>
+    </div>
+    <span class="cat">蛋与早餐</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>25 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>蒸锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">土豆</span><span class="i-amt">2 个</span></li><li><span class="i-name">吐司</span><span class="i-amt">4 片</span></li><li><span class="i-name">鸡蛋</span><span class="i-amt">1 个</span></li><li><span class="i-name">蛋黄酱</span><span class="i-amt">1 勺</span></li><li><span class="i-name">盐</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>土豆蒸熟压成泥，加煮熟的鸡蛋碎、蛋黄酱和盐拌匀。</li><li>吐司烤热，夹入薯仔泥，压紧对切。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>土豆蒸完趁热压，才没有颗粒。</li><li>喜欢脆口就加点黄瓜丁。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">早餐</span><span class="tag">孩子</span><span class="tag">带饭</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/6836b9ce000000001101ff94" target="_blank" rel="noopener noreferrer">小红书 · 厚皮橙同款薯仔泥三明治</a></p>
+  </div>
+</article>
+<article class="card" id="d087" data-cat="蛋与早餐" data-text="控糖酸奶碗 无糖酸奶加坚果，嚼着吃更扛饿 蛋与早餐 无火 无糖希腊酸奶 坚果 奇亚籽或燕麦 蓝莓 早餐 低糖 5分钟">
+  <div class="card-top">
+    <span class="no">29</span>
+    <div class="card-title">
+      <h2>控糖酸奶碗</h2>
+      <p class="tagline">无糖酸奶加坚果，嚼着吃更扛饿</p>
+    </div>
+    <span class="cat">蛋与早餐</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>5 分钟</span>
+    <span><b>份量</b>1 人</span>
+    <span><b>工具</b>无火</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">无糖希腊酸奶</span><span class="i-amt">200 克</span></li><li><span class="i-name">坚果</span><span class="i-amt">1 小把</span></li><li><span class="i-name">奇亚籽或燕麦</span><span class="i-amt">1 勺</span></li><li><span class="i-name">蓝莓</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>酸奶倒碗里，撒坚果、奇亚籽和蓝莓。</li><li>想更稠就提前把酸奶滤掉乳清，冷藏一夜。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>选无糖的，甜味靠水果。</li><li>加一勺燕麦麸，饱腹感更强。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">早餐</span><span class="tag">低糖</span><span class="tag">5分钟</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/search?containerid=231522type%3D1%26t%3D10%26q%3D%23%E6%8E%A7%E7%B3%96%E6%97%A9%E9%A4%90%23" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙控糖早餐</a></p>
+  </div>
+</article>
+<article class="card" id="d088" data-cat="蛋与早餐" data-text="酸奶燕麦球 拌一拌冷藏，早上抓两个就走 蛋与早餐 碗 + 冰箱 即食燕麦 浓稠酸奶 坚果碎 蜂蜜 早餐 备餐 减脂">
+  <div class="card-top">
+    <span class="no">30</span>
+    <div class="card-title">
+      <h2>酸奶燕麦球</h2>
+      <p class="tagline">拌一拌冷藏，早上抓两个就走</p>
+    </div>
+    <span class="cat">蛋与早餐</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>15 分钟 + 冷藏</span>
+    <span><b>份量</b>约 8 个</span>
+    <span><b>工具</b>碗 + 冰箱</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">即食燕麦</span><span class="i-amt">100 克</span></li><li><span class="i-name">浓稠酸奶</span><span class="i-amt">100 克</span></li><li><span class="i-name">坚果碎</span><span class="i-amt">1 小把</span></li><li><span class="i-name">蜂蜜</span><span class="i-amt">1 勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>燕麦、酸奶、坚果碎和蜂蜜拌匀，太干就再加一点酸奶。</li><li>搓成小球，冷藏 1 小时定型，密封冷藏可放 3 天。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>酸奶要稠的，稀了搓不成球。</li><li>加一勺蛋白粉或可可粉，口味更丰富。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">早餐</span><span class="tag">备餐</span><span class="tag">减脂</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/68466ace000000002100a441" target="_blank" rel="noopener noreferrer">小红书 · 酸奶燕麦球</a></p>
+  </div>
+</article>
+<article class="card" id="d089" data-cat="蛋与早餐" data-text="恰巴塔牛肉滑蛋 牛肉隔夜腌好，早上五分钟 蛋与早餐 平底锅 恰巴塔 牛肉 鸡蛋 芝士片 生抽、胡椒、淀粉 早餐 高蛋白 带饭">
+  <div class="card-top">
+    <span class="no">31</span>
+    <div class="card-title">
+      <h2>恰巴塔牛肉滑蛋</h2>
+      <p class="tagline">牛肉隔夜腌好，早上五分钟</p>
+    </div>
+    <span class="cat">蛋与早餐</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>15 分钟</span>
+    <span><b>份量</b>1 人</span>
+    <span><b>工具</b>平底锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">恰巴塔</span><span class="i-amt">1 个</span></li><li><span class="i-name">牛肉</span><span class="i-amt">80 克</span></li><li><span class="i-name">鸡蛋</span><span class="i-amt">2 个</span></li><li><span class="i-name">芝士片</span><span class="i-amt">1 片</span></li><li><span class="i-name">生抽、胡椒、淀粉</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>牛肉逆纹切薄片，用盐、胡椒、生抽、淀粉抓匀，表面喷油，冷藏腌一夜。</li><li>牛肉快煎至变色，倒入蛋液炒成滑蛋，夹进恰巴塔，加芝士片。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>牛肉顶丝切，越薄越嫩。</li><li>面包切开先烘一下，不塌。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">早餐</span><span class="tag">高蛋白</span><span class="tag">带饭</span></div>
+    <p class="src">出处：<a href="http://mp.weixin.qq.com/s?__biz=MzYyNDkzNDA0NQ==&amp;mid=2247485471&amp;idx=1&amp;sn=ed4359ffdd45f722f8b7ca5feda72e4a" target="_blank" rel="noopener noreferrer">微信公众号 · 复刻恰巴塔牛肉滑蛋</a></p>
+  </div>
+</article>
+<article class="card" id="d091" data-cat="蛋与早餐" data-text="橙子酸奶三明治 橙子片夹酸奶，清清爽爽 蛋与早餐 无火 吐司 橙子 浓稠酸奶 早餐 水果 10分钟">
+  <div class="card-top">
+    <span class="no">32</span>
+    <div class="card-title">
+      <h2>橙子酸奶三明治</h2>
+      <p class="tagline">橙子片夹酸奶，清清爽爽</p>
+    </div>
+    <span class="cat">蛋与早餐</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>10 分钟</span>
+    <span><b>份量</b>1 人</span>
+    <span><b>工具</b>无火</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">吐司</span><span class="i-amt">2 片</span></li><li><span class="i-name">橙子</span><span class="i-amt">1 个</span></li><li><span class="i-name">浓稠酸奶</span><span class="i-amt">2 勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>橙子去皮，横切薄片，用厨房纸吸干汁水。</li><li>吐司抹酸奶，铺橙片，盖上另一片，压紧对切。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>橙子吸干水，面包才不塌。</li><li>选甜一点的橙子，不用加糖。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">早餐</span><span class="tag">水果</span><span class="tag">10分钟</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/6831966c000000002300cf01" target="_blank" rel="noopener noreferrer">小红书 · 橙子酸奶三明治</a></p>
+  </div>
+</article>
+<article class="card" id="d099" data-cat="蛋与早餐" data-text="菜包蛋 生菜叶卷滑蛋，减脂期的快手晚餐 蛋与早餐 平底锅 球生菜 鸡蛋 黄瓜 酱 减脂 快手 低碳">
+  <div class="card-top">
+    <span class="no">33</span>
+    <div class="card-title">
+      <h2>菜包蛋</h2>
+      <p class="tagline">生菜叶卷滑蛋，减脂期的快手晚餐</p>
+    </div>
+    <span class="cat">蛋与早餐</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>10 分钟</span>
+    <span><b>份量</b>1 人</span>
+    <span><b>工具</b>平底锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">球生菜</span><span class="i-amt">4 片</span></li><li><span class="i-name">鸡蛋</span><span class="i-amt">2 个</span></li><li><span class="i-name">黄瓜</span><span class="i-amt">半根</span></li><li><span class="i-name">酱</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>鸡蛋炒成滑蛋，黄瓜切条。</li><li>生菜叶铺开，放滑蛋和黄瓜，卷起来。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>生菜洗净甩干，卷的时候不滴水。</li><li>换低卡辣椒酱，比沙拉酱清爽。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">减脂</span><span class="tag">快手</span><span class="tag">低碳</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/682f42c70000000012003165" target="_blank" rel="noopener noreferrer">小红书 · 减脂快手晚餐</a></p>
+  </div>
+</article>
 <article class="card" id="yanju-ji" data-cat="鸡肉" data-text="电饭煲盐焗鸡 不用开火、不加水，煮饭键一按就等吃 鸡肉 电饭煲 整鸡 盐焗鸡粉 葱 姜 食用油 可选：大米 电饭煲 一锅出 新手 宴客">
   <div class="card-top">
-    <span class="no">12</span>
+    <span class="no">34</span>
     <div class="card-title">
       <h2>电饭煲盐焗鸡</h2>
       <p class="tagline">不用开火、不加水，煮饭键一按就等吃</p>
@@ -657,7 +1410,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="chiyou-ji" data-cat="鸡肉" data-text="电饭煲豉油鸡 一只鸡、半锅豉油汁，煮饭键二十分钟 鸡肉 电饭煲 整鸡 生抽 老抽 料酒 冰糖 葱 姜 洋葱 桂皮 香叶 水 电饭煲 粤菜 带饭 宴客">
   <div class="card-top">
-    <span class="no">13</span>
+    <span class="no">35</span>
     <div class="card-title">
       <h2>电饭煲豉油鸡</h2>
       <p class="tagline">一只鸡、半锅豉油汁，煮饭键二十分钟</p>
@@ -691,7 +1444,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="suanxiang-jichi" data-cat="鸡肉" data-text="蒜香鸡翅 冷锅、不放一滴油，靠鸡皮自己出油 鸡肉 带盖平底锅 鸡翅中 生抽 蚝油 糖 淀粉 油 蒜末 下饭 孩子 少油 新手">
   <div class="card-top">
-    <span class="no">14</span>
+    <span class="no">36</span>
     <div class="card-title">
       <h2>蒜香鸡翅</h2>
       <p class="tagline">冷锅、不放一滴油，靠鸡皮自己出油</p>
@@ -723,9 +1476,213 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
     <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/684140a5000000002301413d" target="_blank" rel="noopener noreferrer">跟着厚皮橙做蒜香鸡翅</a></p>
   </div>
 </article>
+<article class="card" id="d033" data-cat="鸡肉" data-text="姜葱炒鸡 姜葱爆香，鸡块煎上色再焖熟 鸡肉 炒锅 去骨鸡腿肉 姜 葱 生抽 油 下饭 粤菜 快手">
+  <div class="card-top">
+    <span class="no">37</span>
+    <div class="card-title">
+      <h2>姜葱炒鸡</h2>
+      <p class="tagline">姜葱爆香，鸡块煎上色再焖熟</p>
+    </div>
+    <span class="cat">鸡肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>25 分钟</span>
+    <span><b>份量</b>2–3 人</span>
+    <span><b>工具</b>炒锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">去骨鸡腿肉</span><span class="i-amt">350 克</span></li><li><span class="i-name">姜</span><span class="i-amt">5 片</span></li><li><span class="i-name">葱</span><span class="i-amt">2 根</span></li><li><span class="i-name">生抽</span><span class="i-amt">2 茶匙</span></li><li><span class="i-name">油</span><span class="i-amt">1 茶匙</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>鸡腿切块，葱切段，葱白和葱绿分开。</li><li>锅里放油，炒香姜和葱白，下鸡肉煎到表面金黄。加生抽和少量水，盖盖焖到鸡肉中心 74°C，拌入葱绿出锅。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>鸡肉别切太小，焖完才嫩。</li><li>葱绿最后放，颜色和香气都在。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">下饭</span><span class="tag">粤菜</span><span class="tag">快手</span></div>
+    <p class="src">出处：<a href="https://www.sina.cn/news/detail/5315497121812332.html" target="_blank" rel="noopener noreferrer">新浪 · 厚皮橙原帖</a></p>
+  </div>
+</article>
+<article class="card" id="d052" data-cat="鸡肉" data-text="香煎鸡腿扒 去骨鸡腿先煎皮，逼出油 鸡肉 平底锅 去骨鸡腿 生抽 蚝油 黑胡椒 快手 高蛋白 带饭">
+  <div class="card-top">
+    <span class="no">38</span>
+    <div class="card-title">
+      <h2>香煎鸡腿扒</h2>
+      <p class="tagline">去骨鸡腿先煎皮，逼出油</p>
+    </div>
+    <span class="cat">鸡肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>平底锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">去骨鸡腿</span><span class="i-amt">2 块</span></li><li><span class="i-name">生抽</span><span class="i-amt">1 勺</span></li><li><span class="i-name">蚝油</span><span class="i-amt">半勺</span></li><li><span class="i-name">黑胡椒</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>鸡腿用生抽、蚝油、黑胡椒腌 15 分钟。</li><li>冷锅皮朝下，中小火煎 6 分钟，翻面再 4 分钟，切开无血水即可。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>不放油，鸡皮自己的油够煎。</li><li>煎完静置 2 分钟再切，肉汁不流失。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">快手</span><span class="tag">高蛋白</span><span class="tag">带饭</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/67f4d0a5000000001d01c0d7" target="_blank" rel="noopener noreferrer">小红书 · 厚皮橙食谱分享整理</a></p>
+  </div>
+</article>
+<article class="card" id="d056" data-cat="鸡肉" data-text="冬瓜桑拿鸡 冬瓜垫底不加一滴水，焖出原汁 鸡肉 厚底带盖锅 鸡腿肉 冬瓜 姜丝 生抽 蚝油 淀粉 减脂 无油烟 快手">
+  <div class="card-top">
+    <span class="no">39</span>
+    <div class="card-title">
+      <h2>冬瓜桑拿鸡</h2>
+      <p class="tagline">冬瓜垫底不加一滴水，焖出原汁</p>
+    </div>
+    <span class="cat">鸡肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>30 分钟</span>
+    <span><b>份量</b>2–3 人</span>
+    <span><b>工具</b>厚底带盖锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">鸡腿肉</span><span class="i-amt">400 克</span></li><li><span class="i-name">冬瓜</span><span class="i-amt">400 克</span></li><li><span class="i-name">姜丝</span><span class="i-amt">1 勺</span></li><li><span class="i-name">生抽</span><span class="i-amt">1 勺</span></li><li><span class="i-name">蚝油</span><span class="i-amt">半勺</span></li><li><span class="i-name">淀粉</span><span class="i-amt">半勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>鸡腿肉切块，用姜丝、生抽、蚝油、淀粉腌 15 分钟；冬瓜切厚片铺锅底。</li><li>鸡肉铺在冬瓜上，盖盖中小火焖 15 分钟，靠冬瓜出的水把鸡焖熟。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>全程不加水，冬瓜会出水。</li><li>锅一定要厚底，不然容易糊。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">减脂</span><span class="tag">无油烟</span><span class="tag">快手</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/68aaa137000000001b0332a4" target="_blank" rel="noopener noreferrer">小红书 · 用厚皮橙水油焖法做桑拿鸡</a></p>
+  </div>
+</article>
+<article class="card" id="d057" data-cat="鸡肉" data-text="爆汁鸡腿 腌足半小时，煎到皮脆肉嫩 鸡肉 平底锅 鸡腿 生抽 蚝油 盐 油 下饭 孩子 快手">
+  <div class="card-top">
+    <span class="no">40</span>
+    <div class="card-title">
+      <h2>爆汁鸡腿</h2>
+      <p class="tagline">腌足半小时，煎到皮脆肉嫩</p>
+    </div>
+    <span class="cat">鸡肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>40 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>平底锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">鸡腿</span><span class="i-amt">2 只</span></li><li><span class="i-name">生抽</span><span class="i-amt">1 勺</span></li><li><span class="i-name">蚝油</span><span class="i-amt">半勺</span></li><li><span class="i-name">盐</span><span class="i-amt">少许</span></li><li><span class="i-name">油</span><span class="i-amt">1 小勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>鸡腿用调料抓匀，腌半小时以上。</li><li>锅放少许油，皮朝下中小火煎 6 分钟，翻面再煎 5 分钟，筷子插最厚处无血水。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>腌的时间比火候更重要。</li><li>煎的时候压一压，皮更贴锅更脆。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">下饭</span><span class="tag">孩子</span><span class="tag">快手</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/683ba0ac0000000022026080" target="_blank" rel="noopener noreferrer">小红书 · 厚皮橙的方法做爆汁鸡腿</a></p>
+  </div>
+</article>
+<article class="card" id="d058" data-cat="鸡肉" data-text="白切鸡 水开下鸡，关火浸熟，冰水一激 鸡肉 深锅 + 冰水 整鸡 姜 葱 盐 粤菜 宴客 原味">
+  <div class="card-top">
+    <span class="no">41</span>
+    <div class="card-title">
+      <h2>白切鸡</h2>
+      <p class="tagline">水开下鸡，关火浸熟，冰水一激</p>
+    </div>
+    <span class="cat">鸡肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>50 分钟</span>
+    <span><b>份量</b>3–4 人</span>
+    <span><b>工具</b>深锅 + 冰水</span>
+    <span><b>难度</b>中等</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">整鸡</span><span class="i-amt">半只，约 800 克</span></li><li><span class="i-name">姜</span><span class="i-amt">5 片</span></li><li><span class="i-name">葱</span><span class="i-amt">2 根</span></li><li><span class="i-name">盐</span><span class="i-amt">适量</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>水加姜葱煮开，提着鸡三提三放，再整只下去，水开立刻关火，盖盖浸 25–30 分钟。</li><li>捞出立刻放冰水浸 5 分钟，斩件，配姜葱蓉。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>浸不是煮，火一滚就关，肉才滑。</li><li>冰水一激，皮爽肉紧。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">粤菜</span><span class="tag">宴客</span><span class="tag">原味</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/detail/5318127464480816" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙一锅出</a></p>
+  </div>
+</article>
+<article class="card" id="d059" data-cat="鸡肉" data-text="蒸鸡 姜葱铺面，蒸 20 分钟，原汁原味 鸡肉 蒸锅 整鸡 姜 葱 盐 蒸菜 粤菜 少油">
+  <div class="card-top">
+    <span class="no">42</span>
+    <div class="card-title">
+      <h2>蒸鸡</h2>
+      <p class="tagline">姜葱铺面，蒸 20 分钟，原汁原味</p>
+    </div>
+    <span class="cat">鸡肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>35 分钟</span>
+    <span><b>份量</b>3–4 人</span>
+    <span><b>工具</b>蒸锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">整鸡</span><span class="i-amt">半只，约 800 克</span></li><li><span class="i-name">姜</span><span class="i-amt">5 片</span></li><li><span class="i-name">葱</span><span class="i-amt">3 根</span></li><li><span class="i-name">盐</span><span class="i-amt">适量</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>鸡洗净擦干，里外抹盐，铺姜葱，腌 20 分钟。</li><li>水开上锅，大火蒸 20–25 分钟，关火焖 5 分钟，斩件淋汁。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>蒸之前擦干，皮才不腥。</li><li>筷子插腿最厚处，没有血水就是熟了。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">蒸菜</span><span class="tag">粤菜</span><span class="tag">少油</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/search?containerid=231522type%3D1%26t%3D10%26q%3D%23%E5%87%8F%E8%84%82%E8%8F%9C%E5%BC%8F%23" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙减脂菜式</a></p>
+  </div>
+</article>
 <article class="card" id="chizhi-paigu" data-cat="猪牛肉" data-text="豉汁蒸排骨 热油泼豆豉那一秒，香味直接炸开 猪牛肉 蒸锅 + 深盘 排骨 豆豉 蒜末 葱白 生抽 蚝油 盐 糖 鸡粉 淀粉 热油 下饭 粤菜 蒸菜 孩子">
   <div class="card-top">
-    <span class="no">15</span>
+    <span class="no">43</span>
     <div class="card-title">
       <h2>豉汁蒸排骨</h2>
       <p class="tagline">热油泼豆豉那一秒，香味直接炸开</p>
@@ -759,7 +1716,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="nangua-paigu" data-cat="猪牛肉" data-text="南瓜焗排骨 南瓜垫底当锅，排骨在上面焗熟，汁全渗下去 猪牛肉 厚底带盖锅 肋排 贝贝南瓜 姜蒜粒 生抽 蚝油 盐 糖 淀粉水 油 下饭 一锅出 孩子 宴客">
   <div class="card-top">
-    <span class="no">16</span>
+    <span class="no">44</span>
     <div class="card-title">
       <h2>南瓜焗排骨</h2>
       <p class="tagline">南瓜垫底当锅，排骨在上面焗熟，汁全渗下去</p>
@@ -793,7 +1750,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="zhujiao-jiang" data-cat="猪牛肉" data-text="猪脚姜（减脂版） 姜先压软、醋先泡一夜，第二天才下猪脚 猪牛肉 高压锅 + 汤锅 猪脚 老黄姜 添丁甜醋 片糖 鸡蛋 水 粤菜 滋补 宴客 汤">
   <div class="card-top">
-    <span class="no">17</span>
+    <span class="no">45</span>
     <div class="card-title">
       <h2>猪脚姜（减脂版）</h2>
       <p class="tagline">姜先压软、醋先泡一夜，第二天才下猪脚</p>
@@ -827,7 +1784,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="heijiao-niulei" data-cat="猪牛肉" data-text="黑椒牛肋条饭 牛肋条不放油直接煎，剪块拌饭 猪牛肉 平底锅 牛肋条 洋葱 白蘑菇 玉米粒 黑椒酱 黄油 米饭 下饭 快手 带饭 高蛋白">
   <div class="card-top">
-    <span class="no">18</span>
+    <span class="no">46</span>
     <div class="card-title">
       <h2>黑椒牛肋条饭</h2>
       <p class="tagline">牛肋条不放油直接煎，剪块拌饭</p>
@@ -861,7 +1818,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="niurou-bing" data-cat="猪牛肉" data-text="洋葱牛肉饼（无模具） 冰牛肉 + 冰块搅打上劲，冻一盒随吃随煎 猪牛肉 绞肉机 + 平底锅 牛肉 盐 白糖 小苏打 胡椒粉 生抽 红薯淀粉 冰块 洋葱 常备 孩子 高蛋白 备餐">
   <div class="card-top">
-    <span class="no">19</span>
+    <span class="no">47</span>
     <div class="card-title">
       <h2>洋葱牛肉饼（无模具）</h2>
       <p class="tagline">冰牛肉 + 冰块搅打上劲，冻一盒随吃随煎</p>
@@ -893,9 +1850,383 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
     <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/6886ef710000000012014827" target="_blank" rel="noopener noreferrer">厚皮橙你的兵来了：无模具自制牛肉饼</a></p>
   </div>
 </article>
+<article class="card" id="d031" data-cat="猪牛肉" data-text="马蹄蒸肉饼 肉末拌到起胶，再拌马蹄，蒸出来又滑又脆 猪牛肉 蒸锅 + 浅盘 猪肉末 去皮马蹄 淀粉 生抽 清水 蒸菜 孩子 下饭">
+  <div class="card-top">
+    <span class="no">48</span>
+    <div class="card-title">
+      <h2>马蹄蒸肉饼</h2>
+      <p class="tagline">肉末拌到起胶，再拌马蹄，蒸出来又滑又脆</p>
+    </div>
+    <span class="cat">猪牛肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>25 分钟</span>
+    <span><b>份量</b>2–3 人</span>
+    <span><b>工具</b>蒸锅 + 浅盘</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">猪肉末</span><span class="i-amt">300 克</span></li><li><span class="i-name">去皮马蹄</span><span class="i-amt">5 个</span></li><li><span class="i-name">淀粉</span><span class="i-amt">1 茶匙</span></li><li><span class="i-name">生抽</span><span class="i-amt">2 茶匙</span></li><li><span class="i-name">清水</span><span class="i-amt">1 汤匙</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>马蹄切碎。猪肉末加生抽、淀粉和清水，顺一个方向拌到黏稠，再拌入马蹄。</li><li>肉末摊进浅盘，铺成均匀薄层。蒸锅水开后上锅，蒸到中心熟透，约 12–15 分钟。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>铺薄才熟得匀，厚了中间会发柴。</li><li>给孩子吃可以少放生抽，马蹄切得再碎一点。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">蒸菜</span><span class="tag">孩子</span><span class="tag">下饭</span></div>
+    <p class="src">出处：<a href="https://www.sina.cn/news/detail/5315497121812332.html" target="_blank" rel="noopener noreferrer">新浪 · 厚皮橙原帖</a></p>
+  </div>
+</article>
+<article class="card" id="d051" data-cat="猪牛肉" data-text="黑椒牛扒 大火两面封边，静置再切 猪牛肉 平底锅 牛排 黑胡椒 盐 黄油 西式 高蛋白 一人食">
+  <div class="card-top">
+    <span class="no">49</span>
+    <div class="card-title">
+      <h2>黑椒牛扒</h2>
+      <p class="tagline">大火两面封边，静置再切</p>
+    </div>
+    <span class="cat">猪牛肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>15 分钟</span>
+    <span><b>份量</b>1 人</span>
+    <span><b>工具</b>平底锅</span>
+    <span><b>难度</b>中等</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">牛排</span><span class="i-amt">1 块，约 200 克</span></li><li><span class="i-name">黑胡椒</span><span class="i-amt">适量</span></li><li><span class="i-name">盐</span><span class="i-amt">适量</span></li><li><span class="i-name">黄油</span><span class="i-amt">10 克</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>牛排提前回温，擦干水，两面撒盐和黑胡椒。</li><li>锅烧到冒烟，下牛排每面 1.5 分钟，关火放黄油淋面，静置 3 分钟再切。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>擦干才上色，出水就成煮牛排了。</li><li>静置这一步别省，汁水才锁得住。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">西式</span><span class="tag">高蛋白</span><span class="tag">一人食</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/67f4d0a5000000001d01c0d7" target="_blank" rel="noopener noreferrer">小红书 · 厚皮橙食谱分享整理</a></p>
+  </div>
+</article>
+<article class="card" id="d061" data-cat="猪牛肉" data-text="蜜汁叉烧 电饭煲也能做，刷蜜再焗一次 猪牛肉 电饭煲或烤箱 梅头肉 叉烧酱 生抽 蜂蜜 蒜 粤菜 下饭 孩子">
+  <div class="card-top">
+    <span class="no">50</span>
+    <div class="card-title">
+      <h2>蜜汁叉烧</h2>
+      <p class="tagline">电饭煲也能做，刷蜜再焗一次</p>
+    </div>
+    <span class="cat">猪牛肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>1 小时</span>
+    <span><b>份量</b>3 人</span>
+    <span><b>工具</b>电饭煲或烤箱</span>
+    <span><b>难度</b>中等</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">梅头肉</span><span class="i-amt">500 克</span></li><li><span class="i-name">叉烧酱</span><span class="i-amt">3 勺</span></li><li><span class="i-name">生抽</span><span class="i-amt">1 勺</span></li><li><span class="i-name">蜂蜜</span><span class="i-amt">1 勺</span></li><li><span class="i-name">蒜</span><span class="i-amt">2 瓣</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>肉切长条，用叉烧酱、生抽、蒜末腌 2 小时以上，隔夜更好。</li><li>电饭煲底铺葱姜，放肉按煮饭键；跳闸后刷蜂蜜，再按一次收汁。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>梅头肉带一点肥，烤完不柴。</li><li>蜂蜜最后刷，早刷会焦。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">粤菜</span><span class="tag">下饭</span><span class="tag">孩子</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/search?containerid=231522type%3D1%26t%3D10%26q%3D%23%E8%9C%9C%E6%B1%81%E5%8F%89%E7%83%A7%23" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙儿童下饭菜</a></p>
+  </div>
+</article>
+<article class="card" id="d062" data-cat="猪牛肉" data-text="苹果肉桂牛肉 苹果的甜配肉桂，牛肉不腻 猪牛肉 炒锅 牛肉片 苹果 洋葱 肉桂粉 生抽 淀粉 下饭 孩子 西式">
+  <div class="card-top">
+    <span class="no">51</span>
+    <div class="card-title">
+      <h2>苹果肉桂牛肉</h2>
+      <p class="tagline">苹果的甜配肉桂，牛肉不腻</p>
+    </div>
+    <span class="cat">猪牛肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>25 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>炒锅</span>
+    <span><b>难度</b>中等</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">牛肉片</span><span class="i-amt">200 克</span></li><li><span class="i-name">苹果</span><span class="i-amt">1 个</span></li><li><span class="i-name">洋葱</span><span class="i-amt">半个</span></li><li><span class="i-name">肉桂粉</span><span class="i-amt">少许</span></li><li><span class="i-name">生抽</span><span class="i-amt">1 勺</span></li><li><span class="i-name">淀粉</span><span class="i-amt">半勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>牛肉用生抽、淀粉、一点油腌 10 分钟；苹果去核切片，洋葱切丝。</li><li>炒香洋葱，下牛肉快炒变色，加苹果和肉桂粉，翻匀焖 2 分钟。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>苹果最后放，保持一点脆。</li><li>肉桂只要一点点，多了会苦。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">下饭</span><span class="tag">孩子</span><span class="tag">西式</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/search?containerid=231522type%3D1%26t%3D10%26q%3D%23%E5%84%BF%E7%AB%A5%E9%A4%90%23" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙儿童餐</a></p>
+  </div>
+</article>
+<article class="card" id="d064" data-cat="猪牛肉" data-text="牛肉炒黄瓜 牛肉先滑炒盛出，黄瓜最后回锅 猪牛肉 炒锅 牛肉 黄瓜 油浸蒜 生抽 淀粉 小苏打 下饭 快手 少油">
+  <div class="card-top">
+    <span class="no">52</span>
+    <div class="card-title">
+      <h2>牛肉炒黄瓜</h2>
+      <p class="tagline">牛肉先滑炒盛出，黄瓜最后回锅</p>
+    </div>
+    <span class="cat">猪牛肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>炒锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">牛肉</span><span class="i-amt">200 克</span></li><li><span class="i-name">黄瓜</span><span class="i-amt">1 根</span></li><li><span class="i-name">油浸蒜</span><span class="i-amt">1 勺</span></li><li><span class="i-name">生抽</span><span class="i-amt">1 勺</span></li><li><span class="i-name">淀粉</span><span class="i-amt">半勺</span></li><li><span class="i-name">小苏打</span><span class="i-amt">一小撮</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>牛肉用生抽、淀粉、小苏打和油腌 15 分钟；黄瓜切片。</li><li>热锅下牛肉快炒到变色盛出；下油浸蒜和黄瓜炒断生，牛肉回锅翻匀。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>黄瓜别炒久，脆的才好吃。</li><li>小苏打一小撮就够，多了发涩。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">下饭</span><span class="tag">快手</span><span class="tag">少油</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/686151f2000000002400829e" target="_blank" rel="noopener noreferrer">小红书 · 厚皮橙同款牛肉炒黄瓜</a></p>
+  </div>
+</article>
+<article class="card" id="d065" data-cat="猪牛肉" data-text="豆芽焖牛肉 豆芽垫底，牛肉铺面，小火焖四分钟 猪牛肉 带盖平底锅 牛肉片 豆芽 生抽 淀粉 油 减脂 无油烟 快手">
+  <div class="card-top">
+    <span class="no">53</span>
+    <div class="card-title">
+      <h2>豆芽焖牛肉</h2>
+      <p class="tagline">豆芽垫底，牛肉铺面，小火焖四分钟</p>
+    </div>
+    <span class="cat">猪牛肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>带盖平底锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">牛肉片</span><span class="i-amt">200 克</span></li><li><span class="i-name">豆芽</span><span class="i-amt">300 克</span></li><li><span class="i-name">生抽</span><span class="i-amt">1 勺</span></li><li><span class="i-name">淀粉</span><span class="i-amt">半勺</span></li><li><span class="i-name">油</span><span class="i-amt">1 小勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>牛肉用生抽、淀粉、油腌 15 分钟；豆芽洗净铺锅底。</li><li>牛肉铺在豆芽上，盖盖小火焖 3–4 分钟，开盖翻匀。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>豆芽会出水，不用另外加水。</li><li>牛肉铺平别堆，受热才均匀。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">减脂</span><span class="tag">无油烟</span><span class="tag">快手</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/685be656000000001002771e" target="_blank" rel="noopener noreferrer">小红书 · 打工人带饭</a></p>
+  </div>
+</article>
+<article class="card" id="d066" data-cat="猪牛肉" data-text="水煎五花肉 一点水一点盐，水干就煎 猪牛肉 平底锅 五花肉 水 盐 蒜片 下饭 少油 新手">
+  <div class="card-top">
+    <span class="no">54</span>
+    <div class="card-title">
+      <h2>水煎五花肉</h2>
+      <p class="tagline">一点水一点盐，水干就煎</p>
+    </div>
+    <span class="cat">猪牛肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>25 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>平底锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">五花肉</span><span class="i-amt">300 克</span></li><li><span class="i-name">水</span><span class="i-amt">小半碗</span></li><li><span class="i-name">盐</span><span class="i-amt">少许</span></li><li><span class="i-name">蒜片</span><span class="i-amt">可选</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>五花肉切薄片，冷水下锅，加一点盐，中火煮。</li><li>水收干后转小火，两面煎上色，出锅前可加蒜片、孜然。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>切薄一点熟得快。</li><li>水干那一刻立刻转小火，不然会糊。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">下饭</span><span class="tag">少油</span><span class="tag">新手</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/6970c076000000000d009964" target="_blank" rel="noopener noreferrer">小红书 · 橙学之水煎五花肉</a></p>
+  </div>
+</article>
+<article class="card" id="d067" data-cat="猪牛肉" data-text="脆皮五花 皮扎孔、抹盐，烤到起泡 猪牛肉 烤箱 带皮五花肉 盐 五香粉 白醋 粤菜 宴客 下饭">
+  <div class="card-top">
+    <span class="no">55</span>
+    <div class="card-title">
+      <h2>脆皮五花</h2>
+      <p class="tagline">皮扎孔、抹盐，烤到起泡</p>
+    </div>
+    <span class="cat">猪牛肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>1.5 小时</span>
+    <span><b>份量</b>3 人</span>
+    <span><b>工具</b>烤箱</span>
+    <span><b>难度</b>中等</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">带皮五花肉</span><span class="i-amt">500 克</span></li><li><span class="i-name">盐</span><span class="i-amt">1 勺</span></li><li><span class="i-name">五香粉</span><span class="i-amt">半勺</span></li><li><span class="i-name">白醋</span><span class="i-amt">1 勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>五花肉冷水下锅煮 15 分钟，捞出擦干，皮上用叉子扎满小孔。</li><li>皮抹白醋和盐，肉面抹五香粉，200°C 烤 40 分钟，再 220°C 烤 10 分钟起泡。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>皮一定要干，才脆。</li><li>最后高温那 10 分钟守着看。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">粤菜</span><span class="tag">宴客</span><span class="tag">下饭</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/detail/5305810710169312" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙一肉多吃</a></p>
+  </div>
+</article>
+<article class="card" id="d068" data-cat="猪牛肉" data-text="白切猪肉 整块浸熟，切薄片蘸姜葱 猪牛肉 汤锅 五花肉或猪脸肉 姜 葱 生抽 粤菜 原味 下饭">
+  <div class="card-top">
+    <span class="no">56</span>
+    <div class="card-title">
+      <h2>白切猪肉</h2>
+      <p class="tagline">整块浸熟，切薄片蘸姜葱</p>
+    </div>
+    <span class="cat">猪牛肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>50 分钟</span>
+    <span><b>份量</b>3 人</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">五花肉或猪脸肉</span><span class="i-amt">500 克</span></li><li><span class="i-name">姜</span><span class="i-amt">5 片</span></li><li><span class="i-name">葱</span><span class="i-amt">2 根</span></li><li><span class="i-name">生抽</span><span class="i-amt">2 勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>整块肉冷水下锅，加姜葱，水开转小火浸 30 分钟。</li><li>捞出放凉切薄片，配姜葱生抽蘸碟。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>浸熟比大火煮嫩。</li><li>放凉再切，片才完整。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">粤菜</span><span class="tag">原味</span><span class="tag">下饭</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/detail/5305810710169312" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙一肉多吃</a></p>
+  </div>
+</article>
+<article class="card" id="d069" data-cat="猪牛肉" data-text="卤牛肉 卤好泡一夜，切片不散 猪牛肉 汤锅 牛腱 生抽 老抽 冰糖 八角、桂皮、香叶 姜 常备 高蛋白 带饭">
+  <div class="card-top">
+    <span class="no">57</span>
+    <div class="card-title">
+      <h2>卤牛肉</h2>
+      <p class="tagline">卤好泡一夜，切片不散</p>
+    </div>
+    <span class="cat">猪牛肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>2 小时 + 浸泡</span>
+    <span><b>份量</b>4 人</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>中等</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">牛腱</span><span class="i-amt">800 克</span></li><li><span class="i-name">生抽</span><span class="i-amt">4 勺</span></li><li><span class="i-name">老抽</span><span class="i-amt">1 勺</span></li><li><span class="i-name">冰糖</span><span class="i-amt">1 块</span></li><li><span class="i-name">八角、桂皮、香叶</span><span class="i-amt">各少许</span></li><li><span class="i-name">姜</span><span class="i-amt">4 片</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>牛腱冷水下锅焯水，冲净。</li><li>加所有调料和水没过肉，煮开转小火 1.5 小时，关火泡一夜，吃前切片。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>泡一夜比多煮一小时更入味。</li><li>逆纹切，片才不散。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">常备</span><span class="tag">高蛋白</span><span class="tag">带饭</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/search?containerid=231522type%3D1%26t%3D10%26q%3D%23%E5%8D%A4%E7%89%9B%E8%82%89%23" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙卤牛肉</a></p>
+  </div>
+</article>
+<article class="card" id="d070" data-cat="猪牛肉" data-text="黑椒牛柳 牛柳滑炒，黑椒汁最后裹 猪牛肉 炒锅 牛柳 洋葱 彩椒 黑椒酱 淀粉 下饭 快手 西式">
+  <div class="card-top">
+    <span class="no">58</span>
+    <div class="card-title">
+      <h2>黑椒牛柳</h2>
+      <p class="tagline">牛柳滑炒，黑椒汁最后裹</p>
+    </div>
+    <span class="cat">猪牛肉</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>炒锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">牛柳</span><span class="i-amt">250 克</span></li><li><span class="i-name">洋葱</span><span class="i-amt">半个</span></li><li><span class="i-name">彩椒</span><span class="i-amt">半个</span></li><li><span class="i-name">黑椒酱</span><span class="i-amt">2 勺</span></li><li><span class="i-name">淀粉</span><span class="i-amt">半勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>牛柳切条，用生抽、淀粉、油腌 15 分钟。</li><li>大火滑炒牛柳变色盛出；炒香洋葱彩椒，加黑椒酱，牛柳回锅翻匀。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>牛柳全程大火，快进快出。</li><li>黑椒酱有咸味，盐可不放。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">下饭</span><span class="tag">快手</span><span class="tag">西式</span></div>
+    <p class="src">出处：<a href="https://www.36kr.com/p/3353144641926019" target="_blank" rel="noopener noreferrer">36氪 · 橙学报道</a></p>
+  </div>
+</article>
 <article class="card" id="yanju-xia" data-cat="海鲜" data-text="盐焗虾 粗盐当导热床，虾壳一红就好 海鲜 厚底带盖锅 鲜虾 姜 粗盐 花椒 快手 少油 高蛋白 宴客">
   <div class="card-top">
-    <span class="no">20</span>
+    <span class="no">59</span>
     <div class="card-title">
       <h2>盐焗虾</h2>
       <p class="tagline">粗盐当导热床，虾壳一红就好</p>
@@ -929,7 +2260,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="gali-yudan" data-cat="海鲜" data-text="咖喱鱼蛋 便利店之光，一锅煮出来 海鲜 小汤锅 鱼丸 咖喱块 蟹柳 椰浆 水 盐、糖 快手 孩子 便利店复刻 小食">
   <div class="card-top">
-    <span class="no">21</span>
+    <span class="no">60</span>
     <div class="card-title">
       <h2>咖喱鱼蛋</h2>
       <p class="tagline">便利店之光，一锅煮出来</p>
@@ -961,9 +2292,247 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
     <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/68ce3784000000000e0317b3" target="_blank" rel="noopener noreferrer">轻松复刻便利店美食咖喱鱼蛋</a></p>
   </div>
 </article>
+<article class="card" id="d075" data-cat="海鲜" data-text="煎泥蜢鱼 小鱼擦干，少油中小火煎脆 海鲜 平底锅 泥蜢鱼 盐 姜 油 快手 下饭 海边">
+  <div class="card-top">
+    <span class="no">61</span>
+    <div class="card-title">
+      <h2>煎泥蜢鱼</h2>
+      <p class="tagline">小鱼擦干，少油中小火煎脆</p>
+    </div>
+    <span class="cat">海鲜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>平底锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">泥蜢鱼</span><span class="i-amt">4 条</span></li><li><span class="i-name">盐</span><span class="i-amt">少许</span></li><li><span class="i-name">姜</span><span class="i-amt">3 片</span></li><li><span class="i-name">油</span><span class="i-amt">1 小勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>鱼处理干净，用盐和姜片腌 10 分钟，擦干水。</li><li>锅放少许油，中小火两面各煎 3–4 分钟，煎到骨边焦脆。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>鱼一定要擦干，不然粘锅。</li><li>小鱼不用去骨，煎脆了直接嚼。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">快手</span><span class="tag">下饭</span><span class="tag">海边</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/6763d731000000001300aafc" target="_blank" rel="noopener noreferrer">小红书 · 菜谱整理（第 4 道）</a></p>
+  </div>
+</article>
+<article class="card" id="d076" data-cat="海鲜" data-text="清蒸黄脚立 鱼够新鲜，姜葱蒸八分钟 海鲜 蒸锅 黄脚立 姜 葱 蒸鱼豉油 蒸菜 海鲜 清淡">
+  <div class="card-top">
+    <span class="no">62</span>
+    <div class="card-title">
+      <h2>清蒸黄脚立</h2>
+      <p class="tagline">鱼够新鲜，姜葱蒸八分钟</p>
+    </div>
+    <span class="cat">海鲜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>蒸锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">黄脚立</span><span class="i-amt">1 条，约 500 克</span></li><li><span class="i-name">姜</span><span class="i-amt">4 片</span></li><li><span class="i-name">葱</span><span class="i-amt">2 根</span></li><li><span class="i-name">蒸鱼豉油</span><span class="i-amt">2 勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>鱼洗净擦干，鱼身划两刀，铺姜片。</li><li>水开上锅大火蒸 8 分钟，倒掉盘里的水，铺葱丝，淋豉油和热油。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>蒸出来的水一定要倒掉，才不腥。</li><li>鱼眼凸出、鱼肉刚离骨就是熟了。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">蒸菜</span><span class="tag">海鲜</span><span class="tag">清淡</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/6a0c49c3000000003802223c" target="_blank" rel="noopener noreferrer">小红书 · 厚皮橙同款黄脚立</a></p>
+  </div>
+</article>
+<article class="card" id="d077" data-cat="海鲜" data-text="煎焗鱿鱼 先煎后焗，鱿鱼卷起来就熟 海鲜 带盖平底锅 鱿鱼 姜 葱 生抽 油 海鲜 下饭 快手">
+  <div class="card-top">
+    <span class="no">63</span>
+    <div class="card-title">
+      <h2>煎焗鱿鱼</h2>
+      <p class="tagline">先煎后焗，鱿鱼卷起来就熟</p>
+    </div>
+    <span class="cat">海鲜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>带盖平底锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">鱿鱼</span><span class="i-amt">400 克</span></li><li><span class="i-name">姜</span><span class="i-amt">3 片</span></li><li><span class="i-name">葱</span><span class="i-amt">2 根</span></li><li><span class="i-name">生抽</span><span class="i-amt">1 勺</span></li><li><span class="i-name">油</span><span class="i-amt">1 小勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>鱿鱼处理干净切圈，焯水 10 秒捞出沥干。</li><li>热锅下油炒香姜葱，下鱿鱼煎到微焦，淋生抽，盖盖焗 1 分钟。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>焯水别超过 10 秒，不然越煮越硬。</li><li>鱿鱼卷起来就是熟了。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">海鲜</span><span class="tag">下饭</span><span class="tag">快手</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/detail/5305810710169312" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙一肉多吃</a></p>
+  </div>
+</article>
+<article class="card" id="d078" data-cat="海鲜" data-text="盐焗蟹 粗盐铺底，蟹壳变红就出锅 海鲜 厚底带盖锅 螃蟹 粗盐 姜 花椒 海鲜 宴客 少油">
+  <div class="card-top">
+    <span class="no">64</span>
+    <div class="card-title">
+      <h2>盐焗蟹</h2>
+      <p class="tagline">粗盐铺底，蟹壳变红就出锅</p>
+    </div>
+    <span class="cat">海鲜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>厚底带盖锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">螃蟹</span><span class="i-amt">2 只</span></li><li><span class="i-name">粗盐</span><span class="i-amt">1 碗</span></li><li><span class="i-name">姜</span><span class="i-amt">4 片</span></li><li><span class="i-name">花椒</span><span class="i-amt">1 小撮</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>蟹刷洗干净，肚子朝上。</li><li>锅底铺粗盐、姜片、花椒，放蟹，盖盖中火焗 10–12 分钟，壳红即熟。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>蟹一定要活的，死蟹不能吃。</li><li>盐只做导热床，不会很咸。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">海鲜</span><span class="tag">宴客</span><span class="tag">少油</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/68bc381e000000001d00205c" target="_blank" rel="noopener noreferrer">小红书 · 周末菜单</a></p>
+  </div>
+</article>
+<article class="card" id="d079" data-cat="海鲜" data-text="盐焗花甲 花甲吐净沙，盐焗比水煮鲜 海鲜 厚底带盖锅 花甲 粗盐 姜 小米辣 海鲜 下酒 快手">
+  <div class="card-top">
+    <span class="no">65</span>
+    <div class="card-title">
+      <h2>盐焗花甲</h2>
+      <p class="tagline">花甲吐净沙，盐焗比水煮鲜</p>
+    </div>
+    <span class="cat">海鲜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>15 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>厚底带盖锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">花甲</span><span class="i-amt">500 克</span></li><li><span class="i-name">粗盐</span><span class="i-amt">半碗</span></li><li><span class="i-name">姜</span><span class="i-amt">3 片</span></li><li><span class="i-name">小米辣</span><span class="i-amt">1 根</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>花甲放盐水里吐沙 1 小时，冲洗干净。</li><li>锅底铺粗盐和姜片，倒花甲，盖盖中火焗 5–6 分钟，开口就好。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>不开口的挑掉，别吃。</li><li>吐沙时滴几滴油，吐得更干净。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">海鲜</span><span class="tag">下酒</span><span class="tag">快手</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/68bc381e000000001d00205c" target="_blank" rel="noopener noreferrer">小红书 · 周末菜单</a></p>
+  </div>
+</article>
+<article class="card" id="d080" data-cat="海鲜" data-text="虾仁豆腐抱蛋 豆腐垫底，虾仁蛋液一浇，嫩到抖 海鲜 带盖平底锅 嫩豆腐 虾仁 鸡蛋 生抽 黑芝麻、葱花 孩子 高蛋白 少油">
+  <div class="card-top">
+    <span class="no">66</span>
+    <div class="card-title">
+      <h2>虾仁豆腐抱蛋</h2>
+      <p class="tagline">豆腐垫底，虾仁蛋液一浇，嫩到抖</p>
+    </div>
+    <span class="cat">海鲜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>带盖平底锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">嫩豆腐</span><span class="i-amt">1 盒</span></li><li><span class="i-name">虾仁</span><span class="i-amt">150 克</span></li><li><span class="i-name">鸡蛋</span><span class="i-amt">2 个</span></li><li><span class="i-name">生抽</span><span class="i-amt">1 勺</span></li><li><span class="i-name">黑芝麻、葱花</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>豆腐切块铺锅底，虾仁摆在上面，倒上调好的生抽料汁，盖盖小火焖 3 分钟。</li><li>虾仁变色后倒蛋液，撒黑芝麻和葱花，盖盖焖到蛋定型。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>蛋液里加一勺水更嫩。</li><li>全程小火，蛋才不起泡。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">孩子</span><span class="tag">高蛋白</span><span class="tag">少油</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/6895bf2c0000000023026e1a" target="_blank" rel="noopener noreferrer">小红书 · 虾仁豆腐抱蛋</a></p>
+  </div>
+</article>
+<article class="card" id="d081" data-cat="海鲜" data-text="普宁豆瓣焖鱼 一勺普宁豆酱，咸鲜到位 海鲜 带盖炒锅 鲜鱼 普宁豆酱 姜 葱 油 下饭 潮汕 家常">
+  <div class="card-top">
+    <span class="no">67</span>
+    <div class="card-title">
+      <h2>普宁豆瓣焖鱼</h2>
+      <p class="tagline">一勺普宁豆酱，咸鲜到位</p>
+    </div>
+    <span class="cat">海鲜</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>25 分钟</span>
+    <span><b>份量</b>2–3 人</span>
+    <span><b>工具</b>带盖炒锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">鲜鱼</span><span class="i-amt">1 条</span></li><li><span class="i-name">普宁豆酱</span><span class="i-amt">1 勺</span></li><li><span class="i-name">姜</span><span class="i-amt">4 片</span></li><li><span class="i-name">葱</span><span class="i-amt">2 根</span></li><li><span class="i-name">油</span><span class="i-amt">1 小勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>鱼洗净擦干，两面煎到微黄。</li><li>下姜片、豆酱和半碗水，盖盖焖 8 分钟，收汁撒葱段。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>豆酱很咸，不用再放盐。</li><li>鱼煎定型再翻面，才不破皮。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">下饭</span><span class="tag">潮汕</span><span class="tag">家常</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/search?containerid=231522type%3D1%26t%3D10%26q%3D%23%E5%A4%A7%E4%BA%BA%E5%B0%8F%E5%AD%A9%E9%83%BD%E6%BB%A1%E8%B6%B3%23" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙儿童下饭菜</a></p>
+  </div>
+</article>
 <article class="card" id="baozaifan" data-cat="主食" data-text="腊味煲仔饭（不粘锅版） 米泡半小时，最后沿锅边淋一圈油出锅巴 主食 不粘锅带盖 大米 水 腊肠 腊肉 青菜 鸡蛋 生抽 老抽 糖 油 一锅出 粤菜 下饭 冬天">
   <div class="card-top">
-    <span class="no">22</span>
+    <span class="no">68</span>
     <div class="card-title">
       <h2>腊味煲仔饭（不粘锅版）</h2>
       <p class="tagline">米泡半小时，最后沿锅边淋一圈油出锅巴</p>
@@ -997,7 +2566,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="paigu-menfan" data-cat="主食" data-text="电饭煲排骨焖饭 排骨腌二十分钟，和米一起按下去 主食 电饭煲 排骨 大米 胡萝卜 香菇 蒜 生抽 老抽 盐 面粉 电饭煲 一锅出 带饭 下饭">
   <div class="card-top">
-    <span class="no">23</span>
+    <span class="no">69</span>
     <div class="card-title">
       <h2>电饭煲排骨焖饭</h2>
       <p class="tagline">排骨腌二十分钟，和米一起按下去</p>
@@ -1031,7 +2600,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="binghua-jianjiao" data-cat="主食" data-text="冰花煎饺 淀粉水里加一勺油，冰花又脆又整 主食 不粘平底锅 冷冻饺子 淀粉 水 油 快手 早餐 孩子 冷冻友好">
   <div class="card-top">
-    <span class="no">24</span>
+    <span class="no">70</span>
     <div class="card-title">
       <h2>冰花煎饺</h2>
       <p class="tagline">淀粉水里加一勺油，冰花又脆又整</p>
@@ -1065,7 +2634,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="fanqie-yimian" data-cat="主食" data-text="番茄肉末意面 番茄膏炒出红油，面水收汁挂面 主食 平底锅 + 汤锅 意面 肉末 洋葱 小番茄 番茄膏 生抽 盐 黑胡椒 油 快手 孩子 西式 下饭">
   <div class="card-top">
-    <span class="no">25</span>
+    <span class="no">71</span>
     <div class="card-title">
       <h2>番茄肉末意面</h2>
       <p class="tagline">番茄膏炒出红油，面水收汁挂面</p>
@@ -1097,9 +2666,553 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
     <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/691b35a70000000007036058" target="_blank" rel="noopener noreferrer">厚皮橙同款番茄意面</a></p>
   </div>
 </article>
+<article class="card" id="d039" data-cat="主食" data-text="咖喱菠萝炒饭 菠萝丁最后放，酸甜解腻 主食 炒锅 熟米饭 菠萝 鸡蛋 豌豆 咖喱粉 油 炒饭 孩子 清冰箱">
+  <div class="card-top">
+    <span class="no">72</span>
+    <div class="card-title">
+      <h2>咖喱菠萝炒饭</h2>
+      <p class="tagline">菠萝丁最后放，酸甜解腻</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>炒锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">熟米饭</span><span class="i-amt">350 克</span></li><li><span class="i-name">菠萝</span><span class="i-amt">100 克</span></li><li><span class="i-name">鸡蛋</span><span class="i-amt">2 个</span></li><li><span class="i-name">豌豆</span><span class="i-amt">50 克</span></li><li><span class="i-name">咖喱粉</span><span class="i-amt">半茶匙</span></li><li><span class="i-name">油</span><span class="i-amt">2 茶匙</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>菠萝切丁沥水；鸡蛋炒熟盛出；豌豆煮熟沥水。</li><li>锅中炒散米饭和咖喱粉，加入鸡蛋、豌豆和菠萝，翻炒到整锅热透。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>菠萝最后放，炒久了出水。</li><li>隔夜饭先抓散，炒出来才粒粒分明。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">炒饭</span><span class="tag">孩子</span><span class="tag">清冰箱</span></div>
+    <p class="src">出处：<a href="https://weibo.com/2/detail/5331543706831379" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙原帖</a></p>
+  </div>
+</article>
+<article class="card" id="d041" data-cat="主食" data-text="流心蛋牛肉丸乌冬面 牛肉丸煮汤，乌冬最后下，窝个蛋 主食 小汤锅 乌冬面 牛肉丸 鸡蛋 葱花 生抽 白胡椒粉 快手 一人食 汤面">
+  <div class="card-top">
+    <span class="no">73</span>
+    <div class="card-title">
+      <h2>流心蛋牛肉丸乌冬面</h2>
+      <p class="tagline">牛肉丸煮汤，乌冬最后下，窝个蛋</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>15 分钟</span>
+    <span><b>份量</b>1 人</span>
+    <span><b>工具</b>小汤锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">乌冬面</span><span class="i-amt">1 包</span></li><li><span class="i-name">牛肉丸</span><span class="i-amt">4 颗</span></li><li><span class="i-name">鸡蛋</span><span class="i-amt">1 个</span></li><li><span class="i-name">葱花</span><span class="i-amt">少许</span></li><li><span class="i-name">生抽</span><span class="i-amt">1 勺</span></li><li><span class="i-name">白胡椒粉</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>水开下牛肉丸，煮到浮起；下乌冬煮 2 分钟。</li><li>加生抽、白胡椒粉调味，打入鸡蛋，关火盖盖焖 1 分钟，撒葱花。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>蛋别搅，关火焖才流心。</li><li>有沙茶酱就加半勺，汤头更厚。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">快手</span><span class="tag">一人食</span><span class="tag">汤面</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/6763d731000000001300aafc" target="_blank" rel="noopener noreferrer">小红书 · 菜谱整理（第 1 道）</a></p>
+  </div>
+</article>
+<article class="card" id="d042" data-cat="主食" data-text="潮汕杂锦汤粿条 粿条焯水，汤底另煮，料码足 主食 汤锅 粿条 猪肉饼 牛肉丸 生菜 蒜头酥 沙茶酱 汤面 潮汕 一人食">
+  <div class="card-top">
+    <span class="no">74</span>
+    <div class="card-title">
+      <h2>潮汕杂锦汤粿条</h2>
+      <p class="tagline">粿条焯水，汤底另煮，料码足</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>1–2 人</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">粿条</span><span class="i-amt">200 克</span></li><li><span class="i-name">猪肉饼</span><span class="i-amt">几片</span></li><li><span class="i-name">牛肉丸</span><span class="i-amt">4 颗</span></li><li><span class="i-name">生菜</span><span class="i-amt">几片</span></li><li><span class="i-name">蒜头酥</span><span class="i-amt">1 小勺</span></li><li><span class="i-name">沙茶酱</span><span class="i-amt">半勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>汤底煮开，下牛肉丸、猪肉饼煮熟，加盐调味。</li><li>粿条另锅焯 30 秒捞出装碗，铺生菜，浇汤，撒蒜头酥，配沙茶酱。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>粿条别久煮，断生就捞。</li><li>蒜头酥最后撒，香气才在。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">汤面</span><span class="tag">潮汕</span><span class="tag">一人食</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/67f4d0a5000000001d01c0d7" target="_blank" rel="noopener noreferrer">小红书 · 厚皮橙食谱整理</a></p>
+  </div>
+</article>
+<article class="card" id="d043" data-cat="主食" data-text="牛肉丸沙茶面 沙茶酱一勺，汤立刻变浓 主食 小汤锅 面条 牛肉丸 沙茶酱 青菜 蒜头酥 快手 汤面 一人食">
+  <div class="card-top">
+    <span class="no">75</span>
+    <div class="card-title">
+      <h2>牛肉丸沙茶面</h2>
+      <p class="tagline">沙茶酱一勺，汤立刻变浓</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>15 分钟</span>
+    <span><b>份量</b>1 人</span>
+    <span><b>工具</b>小汤锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">面条</span><span class="i-amt">1 把</span></li><li><span class="i-name">牛肉丸</span><span class="i-amt">4 颗</span></li><li><span class="i-name">沙茶酱</span><span class="i-amt">1 勺</span></li><li><span class="i-name">青菜</span><span class="i-amt">几棵</span></li><li><span class="i-name">蒜头酥</span><span class="i-amt">1 小勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>清水下锅，加牛肉丸煮开；水开后加一勺沙茶酱和面条。</li><li>面快熟时下青菜，出锅前撒葱花、香菜和蒜头酥。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>沙茶酱本身咸，盐先别放。</li><li>蒜头酥是这碗面的灵魂，别省。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">快手</span><span class="tag">汤面</span><span class="tag">一人食</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/674ad1ca0000000002029bd8" target="_blank" rel="noopener noreferrer">小红书 · 橙学同款牛肉丸面</a></p>
+  </div>
+</article>
+<article class="card" id="d044" data-cat="主食" data-text="竹升面 湿面一抖就散，汤底清鲜最搭 主食 汤锅 竹升面 高汤或清水 青菜 葱花 汤面 粤式 快手">
+  <div class="card-top">
+    <span class="no">76</span>
+    <div class="card-title">
+      <h2>竹升面</h2>
+      <p class="tagline">湿面一抖就散，汤底清鲜最搭</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>15 分钟</span>
+    <span><b>份量</b>1 人</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">竹升面</span><span class="i-amt">1 份</span></li><li><span class="i-name">高汤或清水</span><span class="i-amt">500 毫升</span></li><li><span class="i-name">青菜</span><span class="i-amt">几棵</span></li><li><span class="i-name">葱花</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>水开下面，煮 1–2 分钟就捞，过一下冷水更弹。</li><li>另起清汤，加盐调味，放面、烫青菜，撒葱花。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>竹升面本身带碱味，过水一步别省。</li><li>汤底用大地鱼粉或虾皮提鲜，更接近店里的味道。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">汤面</span><span class="tag">粤式</span><span class="tag">快手</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/69242fcb000000001b0313ff" target="_blank" rel="noopener noreferrer">小红书 · 厚皮橙同款竹升面</a></p>
+  </div>
+</article>
+<article class="card" id="d045" data-cat="主食" data-text="酸辣汤河粉 酸辣汤底配河粉，开胃的一碗 主食 汤锅 河粉 番茄 小米辣 醋 生抽 青菜 汤粉 开胃 一人食">
+  <div class="card-top">
+    <span class="no">77</span>
+    <div class="card-title">
+      <h2>酸辣汤河粉</h2>
+      <p class="tagline">酸辣汤底配河粉，开胃的一碗</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>1–2 人</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">河粉</span><span class="i-amt">200 克</span></li><li><span class="i-name">番茄</span><span class="i-amt">1 个</span></li><li><span class="i-name">小米辣</span><span class="i-amt">1 根</span></li><li><span class="i-name">醋</span><span class="i-amt">1 勺</span></li><li><span class="i-name">生抽</span><span class="i-amt">1 勺</span></li><li><span class="i-name">青菜</span><span class="i-amt">几棵</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>番茄炒出汁，加水煮开，放醋、生抽和小米辣调成酸辣汤。</li><li>下河粉煮 1 分钟，放青菜，尝味后补盐。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>醋分两次放，起锅前再补半勺，酸味更亮。</li><li>河粉久煮会断，最后下。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">汤粉</span><span class="tag">开胃</span><span class="tag">一人食</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/detail/5305810710169312" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙一肉多吃</a></p>
+  </div>
+</article>
+<article class="card" id="d046" data-cat="主食" data-text="蛋炒饭 隔夜饭抓散，蛋液裹饭再炒 主食 炒锅 冷饭 鸡蛋 葱花 盐 油 炒饭 10分钟 清冰箱">
+  <div class="card-top">
+    <span class="no">78</span>
+    <div class="card-title">
+      <h2>蛋炒饭</h2>
+      <p class="tagline">隔夜饭抓散，蛋液裹饭再炒</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>10 分钟</span>
+    <span><b>份量</b>1–2 人</span>
+    <span><b>工具</b>炒锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">冷饭</span><span class="i-amt">2 碗</span></li><li><span class="i-name">鸡蛋</span><span class="i-amt">2 个</span></li><li><span class="i-name">葱花</span><span class="i-amt">少许</span></li><li><span class="i-name">盐</span><span class="i-amt">少许</span></li><li><span class="i-name">油</span><span class="i-amt">1 勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>冷饭抓散；鸡蛋打匀，倒一半进饭里拌匀。</li><li>热锅下油，炒剩下的蛋，倒饭大火翻炒到粒粒分开，加盐、葱花出锅。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>蛋液先拌饭，炒出来金黄又不结块。</li><li>冷饭偏干，炒前洒一小勺水更好散。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">炒饭</span><span class="tag">10分钟</span><span class="tag">清冰箱</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/67f4d0a5000000001d01c0d7" target="_blank" rel="noopener noreferrer">小红书 · 厚皮橙食谱分享整理</a></p>
+  </div>
+</article>
+<article class="card" id="d047" data-cat="主食" data-text="西芹炒饭 西芹切碎，和剩饭一起炒 主食 炒锅 剩饭 西芹 鸡蛋 盐 油 炒饭 清冰箱 快手">
+  <div class="card-top">
+    <span class="no">79</span>
+    <div class="card-title">
+      <h2>西芹炒饭</h2>
+      <p class="tagline">西芹切碎，和剩饭一起炒</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>10 分钟</span>
+    <span><b>份量</b>1–2 人</span>
+    <span><b>工具</b>炒锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">剩饭</span><span class="i-amt">2 碗</span></li><li><span class="i-name">西芹</span><span class="i-amt">2 根</span></li><li><span class="i-name">鸡蛋</span><span class="i-amt">1 个</span></li><li><span class="i-name">盐</span><span class="i-amt">少许</span></li><li><span class="i-name">油</span><span class="i-amt">1 勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>西芹切小丁，鸡蛋炒散盛出。</li><li>下西芹炒断生，倒饭炒散，加鸡蛋和盐，翻匀出锅。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>西芹丁切小一点，口感才不抢。</li><li>剩饭冷藏过夜最好炒。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">炒饭</span><span class="tag">清冰箱</span><span class="tag">快手</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/67e7d725000000000900e1ec" target="_blank" rel="noopener noreferrer">小红书 · 橙姐鱼汤配西芹炒饭</a></p>
+  </div>
+</article>
+<article class="card" id="d048" data-cat="主食" data-text="菜心拌饭 菜心切碎拌进热饭，一勺蒜油提味 主食 小锅 + 碗 菜心 米饭 油浸蒜 生抽 拌饭 一人食 少油">
+  <div class="card-top">
+    <span class="no">80</span>
+    <div class="card-title">
+      <h2>菜心拌饭</h2>
+      <p class="tagline">菜心切碎拌进热饭，一勺蒜油提味</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>15 分钟</span>
+    <span><b>份量</b>1 人</span>
+    <span><b>工具</b>小锅 + 碗</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">菜心</span><span class="i-amt">200 克</span></li><li><span class="i-name">米饭</span><span class="i-amt">1 碗</span></li><li><span class="i-name">油浸蒜</span><span class="i-amt">1 勺</span></li><li><span class="i-name">生抽</span><span class="i-amt">半勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>菜心焯熟或用水油焖熟，挤干水切碎。</li><li>趁热拌进米饭，加油浸蒜和生抽，拌匀。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>菜心挤干水，拌饭才不会烂。</li><li>加一勺蒜头酥更香。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">拌饭</span><span class="tag">一人食</span><span class="tag">少油</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/search?containerid=231522type%3D1%26t%3D10%26q%3D%23%E5%8E%9A%E7%9A%AE%E6%A9%99%23" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙儿童餐</a></p>
+  </div>
+</article>
+<article class="card" id="d049" data-cat="主食" data-text="海鲜面 花甲生蚝煮汤，鲜得不用味精 主食 汤锅 面条 花甲 生蚝 姜 葱花 汤面 海鲜 一人食">
+  <div class="card-top">
+    <span class="no">81</span>
+    <div class="card-title">
+      <h2>海鲜面</h2>
+      <p class="tagline">花甲生蚝煮汤，鲜得不用味精</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>20 分钟</span>
+    <span><b>份量</b>1–2 人</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">面条</span><span class="i-amt">1 把</span></li><li><span class="i-name">花甲</span><span class="i-amt">300 克</span></li><li><span class="i-name">生蚝</span><span class="i-amt">6 只</span></li><li><span class="i-name">姜</span><span class="i-amt">3 片</span></li><li><span class="i-name">葱花</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>花甲吐沙洗净，和姜片一起下冷水煮开，捞掉浮沫。</li><li>下面条煮熟，最后放生蚝烫 1 分钟，加盐、葱花。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>生蚝最后放，久煮会缩。</li><li>花甲本身有咸味，盐要少。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">汤面</span><span class="tag">海鲜</span><span class="tag">一人食</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/68bc381e000000001d00205c" target="_blank" rel="noopener noreferrer">小红书 · 周末菜单</a></p>
+  </div>
+</article>
+<article class="card" id="d050" data-cat="主食" data-text="白汁虾仁焗饭 牛奶面粉调白汁，芝士一焗 主食 平底锅 + 烤箱 米饭 虾仁 牛奶 面粉 黄油 芝士碎 焗饭 西式 孩子">
+  <div class="card-top">
+    <span class="no">82</span>
+    <div class="card-title">
+      <h2>白汁虾仁焗饭</h2>
+      <p class="tagline">牛奶面粉调白汁，芝士一焗</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>30 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>平底锅 + 烤箱</span>
+    <span><b>难度</b>中等</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">米饭</span><span class="i-amt">2 碗</span></li><li><span class="i-name">虾仁</span><span class="i-amt">200 克</span></li><li><span class="i-name">牛奶</span><span class="i-amt">250 毫升</span></li><li><span class="i-name">面粉</span><span class="i-amt">1 勺</span></li><li><span class="i-name">黄油</span><span class="i-amt">15 克</span></li><li><span class="i-name">芝士碎</span><span class="i-amt">80 克</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>黄油化开，加面粉炒匀，慢慢倒牛奶搅成白汁，加盐调味。</li><li>虾仁煎熟，和米饭、一半白汁拌匀，铺芝士碎，200°C 焗 10 分钟。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>牛奶分次倒，白汁才不结块。</li><li>没有烤箱就用带盖锅小火焖到芝士融化。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">焗饭</span><span class="tag">西式</span><span class="tag">孩子</span></div>
+    <p class="src">出处：<a href="https://www.163.com/dy/article/K3CSPVP20511A99L.html" target="_blank" rel="noopener noreferrer">网易号 · 橙学报道</a></p>
+  </div>
+</article>
+<article class="card" id="d053" data-cat="主食" data-text="窝蛋牛肉粥 牛肉腌好最后下，蛋窝在粥里 主食 汤锅 大米 牛肉 鸡蛋 姜丝 盐、胡椒粉 粥 暖胃 孩子">
+  <div class="card-top">
+    <span class="no">83</span>
+    <div class="card-title">
+      <h2>窝蛋牛肉粥</h2>
+      <p class="tagline">牛肉腌好最后下，蛋窝在粥里</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>40 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>中等</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">大米</span><span class="i-amt">半杯</span></li><li><span class="i-name">牛肉</span><span class="i-amt">150 克</span></li><li><span class="i-name">鸡蛋</span><span class="i-amt">2 个</span></li><li><span class="i-name">姜丝</span><span class="i-amt">少许</span></li><li><span class="i-name">盐、胡椒粉</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>米加水煮成稠粥；牛肉切薄片，用姜丝、盐、胡椒粉、一点油腌 10 分钟。</li><li>粥滚时下牛肉拨散，煮到变色，打入鸡蛋，关火盖盖焖 2 分钟。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>牛肉最后下，久煮就柴。</li><li>用冷冻米饭煮粥更快，这是她的省时招。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">粥</span><span class="tag">暖胃</span><span class="tag">孩子</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/684aa696000000000f039d8b" target="_blank" rel="noopener noreferrer">小红书 · 复刻厚皮橙同款窝蛋牛肉粥</a></p>
+  </div>
+</article>
+<article class="card" id="d054" data-cat="主食" data-text="生菜牛肉粥 生菜最后放，粥才清甜 主食 汤锅 大米 牛肉 生菜 姜丝 粥 清淡 孩子">
+  <div class="card-top">
+    <span class="no">84</span>
+    <div class="card-title">
+      <h2>生菜牛肉粥</h2>
+      <p class="tagline">生菜最后放，粥才清甜</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>40 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>中等</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">大米</span><span class="i-amt">半杯</span></li><li><span class="i-name">牛肉</span><span class="i-amt">150 克</span></li><li><span class="i-name">生菜</span><span class="i-amt">几片</span></li><li><span class="i-name">姜丝</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>米煮成粥；牛肉切薄片，用姜丝、盐、淀粉、油腌 10 分钟。</li><li>粥滚下牛肉拨散，变色后放生菜，烫软就关火。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>生菜最后 30 秒放，颜色才绿。</li><li>牛肉逆纹切，口感才嫩。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">粥</span><span class="tag">清淡</span><span class="tag">孩子</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/684aa696000000000f039d8b" target="_blank" rel="noopener noreferrer">小红书 · 复刻厚皮橙同款生菜牛肉粥</a></p>
+  </div>
+</article>
+<article class="card" id="d055" data-cat="主食" data-text="皮蛋瘦肉粥 皮蛋分两次放，一半煮化一半留块 主食 汤锅 大米 皮蛋 瘦肉 姜丝 葱花 粥 粤式 暖胃">
+  <div class="card-top">
+    <span class="no">85</span>
+    <div class="card-title">
+      <h2>皮蛋瘦肉粥</h2>
+      <p class="tagline">皮蛋分两次放，一半煮化一半留块</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>50 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>中等</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">大米</span><span class="i-amt">半杯</span></li><li><span class="i-name">皮蛋</span><span class="i-amt">2 个</span></li><li><span class="i-name">瘦肉</span><span class="i-amt">150 克</span></li><li><span class="i-name">姜丝</span><span class="i-amt">少许</span></li><li><span class="i-name">葱花</span><span class="i-amt">少许</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>米加水煮成粥；瘦肉切丝腌 10 分钟；皮蛋切丁。</li><li>一半皮蛋先下锅煮化，再下肉丝，最后放另一半皮蛋，加盐、姜丝、葱花。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>皮蛋分两次放，粥浓又有口感。</li><li>肉丝下锅后别猛搅，会散。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">粥</span><span class="tag">粤式</span><span class="tag">暖胃</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/6818d288000000002202c120" target="_blank" rel="noopener noreferrer">小红书 · 跟着厚皮橙做的皮蛋粥</a></p>
+  </div>
+</article>
+<article class="card" id="d090" data-cat="主食" data-text="鸡蛋煎粽 粽子裹蛋液，煎到两面焦香 主食 平底锅 粽子 鸡蛋 黑芝麻 油 早餐 端午 快手">
+  <div class="card-top">
+    <span class="no">86</span>
+    <div class="card-title">
+      <h2>鸡蛋煎粽</h2>
+      <p class="tagline">粽子裹蛋液，煎到两面焦香</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>15 分钟</span>
+    <span><b>份量</b>1–2 人</span>
+    <span><b>工具</b>平底锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">粽子</span><span class="i-amt">1 个</span></li><li><span class="i-name">鸡蛋</span><span class="i-amt">2 个</span></li><li><span class="i-name">黑芝麻</span><span class="i-amt">少许</span></li><li><span class="i-name">油</span><span class="i-amt">1 小勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>粽子切厚片；鸡蛋打散。</li><li>粽子片裹满蛋液，下锅小火煎，两面金黄后倒入剩下的蛋液，撒芝麻，盖盖焖 1 分钟。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>冷粽子更好切，不粘刀。</li><li>小火慢煎，里面才热透。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">早餐</span><span class="tag">端午</span><span class="tag">快手</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/683aaf67000000000303c629" target="_blank" rel="noopener noreferrer">小红书 · 鸡蛋煎粽</a></p>
+  </div>
+</article>
+<article class="card" id="d100" data-cat="主食" data-text="牛肉土豆芝士小汉堡 万能公式腌牛肉，土豆垫底，芝士封顶 主食 平底锅 牛肉末 土豆 小汉堡胚 芝士片 生抽 淀粉 下饭 孩子 中西合璧">
+  <div class="card-top">
+    <span class="no">87</span>
+    <div class="card-title">
+      <h2>牛肉土豆芝士小汉堡</h2>
+      <p class="tagline">万能公式腌牛肉，土豆垫底，芝士封顶</p>
+    </div>
+    <span class="cat">主食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>30 分钟</span>
+    <span><b>份量</b>2 人</span>
+    <span><b>工具</b>平底锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">牛肉末</span><span class="i-amt">200 克</span></li><li><span class="i-name">土豆</span><span class="i-amt">1 个</span></li><li><span class="i-name">小汉堡胚</span><span class="i-amt">2 个</span></li><li><span class="i-name">芝士片</span><span class="i-amt">2 片</span></li><li><span class="i-name">生抽</span><span class="i-amt">1 勺</span></li><li><span class="i-name">淀粉</span><span class="i-amt">半勺</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>牛肉末用生抽、淀粉和一点油腌 15 分钟；土豆切小丁，煎到金黄。</li><li>下牛肉炒散，和土豆一起炒熟，铺芝士片盖盖焖到融化，夹进烤热的小汉堡。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>土豆先煎再炒，外脆里粉。</li><li>芝士最后放，盖盖一焖就化。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">下饭</span><span class="tag">孩子</span><span class="tag">中西合璧</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/6989433d000000001a02c3b8" target="_blank" rel="noopener noreferrer">小红书 · 黄油小汉堡</a></p>
+  </div>
+</article>
 <article class="card" id="shourou-shui" data-cat="汤水" data-text="瘦肉水 肉末冷水泡两小时，隔水炖出一盅清汤 汤水 炖盅 + 蒸锅 瘦肉 羊肚菌 姜 水 盐 汤 粤菜 孩子 清淡">
   <div class="card-top">
-    <span class="no">26</span>
+    <span class="no">88</span>
     <div class="card-title">
       <h2>瘦肉水</h2>
       <p class="tagline">肉末冷水泡两小时，隔水炖出一盅清汤</p>
@@ -1133,7 +3246,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="xiyangcai-tang" data-cat="汤水" data-text="西洋菜陈肾排骨汤 西洋菜最后十五分钟才下，才够绿 汤水 汤锅 西洋菜 陈肾 排骨 蜜枣 干贝 姜 水 汤 粤菜 秋天 润">
   <div class="card-top">
-    <span class="no">27</span>
+    <span class="no">89</span>
     <div class="card-title">
       <h2>西洋菜陈肾排骨汤</h2>
       <p class="tagline">西洋菜最后十五分钟才下，才够绿</p>
@@ -1167,7 +3280,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="pingguo-tang" data-cat="汤水" data-text="苹果雪梨瘦肉汤 果皮一起煲，清甜不腻 汤水 汤锅 瘦肉 苹果 雪梨 无花果 姜 水 汤 粤菜 孩子 清甜">
   <div class="card-top">
-    <span class="no">28</span>
+    <span class="no">90</span>
     <div class="card-title">
       <h2>苹果雪梨瘦肉汤</h2>
       <p class="tagline">果皮一起煲，清甜不腻</p>
@@ -1201,7 +3314,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
 </article>
 <article class="card" id="niuleipai-tang" data-cat="汤水" data-text="牛肋排白萝卜汤 一个番茄去腥提甜，萝卜后放不烂 汤水 汤锅 牛肋排 白萝卜 姜 番茄 水 汤 冬天 高蛋白 一锅出">
   <div class="card-top">
-    <span class="no">29</span>
+    <span class="no">91</span>
     <div class="card-title">
       <h2>牛肋排白萝卜汤</h2>
       <p class="tagline">一个番茄去腥提甜，萝卜后放不烂</p>
@@ -1233,9 +3346,145 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
     <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/674ef13a0000000008006021" target="_blank" rel="noopener noreferrer">复刻厚皮橙牛肋排萝卜汤</a></p>
   </div>
 </article>
+<article class="card" id="d038" data-cat="汤水" data-text="鱼骨豆腐汤 鱼骨先煎后煮，汤白豆腐嫩 汤水 汤锅 鱼骨 嫩豆腐 姜 水 汤 补钙 孩子">
+  <div class="card-top">
+    <span class="no">92</span>
+    <div class="card-title">
+      <h2>鱼骨豆腐汤</h2>
+      <p class="tagline">鱼骨先煎后煮，汤白豆腐嫩</p>
+    </div>
+    <span class="cat">汤水</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>35 分钟</span>
+    <span><b>份量</b>2–3 碗</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>中等</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">鱼骨</span><span class="i-amt">250 克</span></li><li><span class="i-name">嫩豆腐</span><span class="i-amt">250 克</span></li><li><span class="i-name">姜</span><span class="i-amt">3 片</span></li><li><span class="i-name">水</span><span class="i-amt">约 800 毫升</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>鱼骨和姜放进水里煮开，撇掉浮沫，转小火煮出鲜味，约 20 分钟。</li><li>捞净鱼骨，汤过细筛，再下豆腐块煮透，加盐调味。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>给孩子盛之前一定再过一遍筛，检查有没有细刺。</li><li>鱼骨先煎一下再煮，汤会更白更香。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">汤</span><span class="tag">补钙</span><span class="tag">孩子</span></div>
+    <p class="src">出处：<a href="https://t.cn/AXjbLQ6F" target="_blank" rel="noopener noreferrer">厚皮橙原帖（短链）</a></p>
+  </div>
+</article>
+<article class="card" id="d060" data-cat="汤水" data-text="胡椒猪肚鸡 白胡椒暖胃，猪肚洗到不腥 汤水 汤锅 猪肚 鸡 白胡椒粒 姜 汤 粤菜 暖胃">
+  <div class="card-top">
+    <span class="no">93</span>
+    <div class="card-title">
+      <h2>胡椒猪肚鸡</h2>
+      <p class="tagline">白胡椒暖胃，猪肚洗到不腥</p>
+    </div>
+    <span class="cat">汤水</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>2 小时</span>
+    <span><b>份量</b>4 人</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>中等</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">猪肚</span><span class="i-amt">1 个</span></li><li><span class="i-name">鸡</span><span class="i-amt">半只</span></li><li><span class="i-name">白胡椒粒</span><span class="i-amt">1 把</span></li><li><span class="i-name">姜</span><span class="i-amt">5 片</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>猪肚用盐和淀粉反复搓洗，焯水切条；鸡斩块焯水。</li><li>全部材料加水和拍碎的白胡椒，大火煮开转小火 1.5 小时，加盐。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>猪肚洗不干净整锅都腥，盐和淀粉各搓两遍。</li><li>白胡椒拍碎才出味。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">汤</span><span class="tag">粤菜</span><span class="tag">暖胃</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/search?containerid=231522type%3D1%26t%3D10%26q%3D%23%E5%B9%BF%E4%B8%9C%E6%B1%A4%23" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙广东汤</a></p>
+  </div>
+</article>
+<article class="card" id="d063" data-cat="汤水" data-text="肉丸汤 肉末搅上劲，挤成丸子下微沸水 汤水 汤锅 猪肉末 山药或马蹄 淀粉 盐 青菜 汤 孩子 清淡">
+  <div class="card-top">
+    <span class="no">94</span>
+    <div class="card-title">
+      <h2>肉丸汤</h2>
+      <p class="tagline">肉末搅上劲，挤成丸子下微沸水</p>
+    </div>
+    <span class="cat">汤水</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>30 分钟</span>
+    <span><b>份量</b>3 人</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>中等</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">猪肉末</span><span class="i-amt">300 克</span></li><li><span class="i-name">山药或马蹄</span><span class="i-amt">100 克</span></li><li><span class="i-name">淀粉</span><span class="i-amt">1 勺</span></li><li><span class="i-name">盐</span><span class="i-amt">少许</span></li><li><span class="i-name">青菜</span><span class="i-amt">几棵</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>山药拍碎拌进肉末，加淀粉、盐，顺一个方向搅到起胶。</li><li>水微沸时挤丸子下锅，煮到浮起，放青菜，加盐和胡椒。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>水别大滚，丸子会散。</li><li>搅打上劲是弹牙的关键。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">汤</span><span class="tag">孩子</span><span class="tag">清淡</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/search?containerid=231522type%3D1%26t%3D10%26q%3D%23%E5%84%BF%E7%AB%A5%E9%A4%90%23" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙儿童餐</a></p>
+  </div>
+</article>
+<article class="card" id="d082" data-cat="汤水" data-text="盐水浸鱼汤 水开下鱼，关火浸熟，汤清肉嫩 汤水 汤锅 鲜鱼 姜 盐 白胡椒 油 汤 海鲜 清淡">
+  <div class="card-top">
+    <span class="no">95</span>
+    <div class="card-title">
+      <h2>盐水浸鱼汤</h2>
+      <p class="tagline">水开下鱼，关火浸熟，汤清肉嫩</p>
+    </div>
+    <span class="cat">汤水</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>25 分钟</span>
+    <span><b>份量</b>2–3 碗</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">鲜鱼</span><span class="i-amt">1 条</span></li><li><span class="i-name">姜</span><span class="i-amt">3 片</span></li><li><span class="i-name">盐</span><span class="i-amt">适量</span></li><li><span class="i-name">白胡椒</span><span class="i-amt">少许</span></li><li><span class="i-name">油</span><span class="i-amt">几滴</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>水开下姜、盐和几滴油，放鱼，水再开就关火，盖盖浸 8 分钟。</li><li>加白胡椒，尝汤调味，撒葱花。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>浸不是煮，火一滚就关。</li><li>鱼够新鲜才敢这么清。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">汤</span><span class="tag">海鲜</span><span class="tag">清淡</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/68ea528900000000050020d5" target="_blank" rel="noopener noreferrer">小红书 · 盐水浸鱼汤</a></p>
+  </div>
+</article>
 <article class="card" id="naixiang-yumi" data-cat="小食" data-text="奶香玉米（KFC 同款） 牛奶加黄油，中小火八分钟 小食 带盖小锅 甜玉米 牛奶 黄油 糖 孩子 小食 快手 甜">
   <div class="card-top">
-    <span class="no">30</span>
+    <span class="no">96</span>
     <div class="card-title">
       <h2>奶香玉米（KFC 同款）</h2>
       <p class="tagline">牛奶加黄油，中小火八分钟</p>
@@ -1266,6 +3515,142 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
     <div class="tags"><span class="tag">孩子</span><span class="tag">小食</span><span class="tag">快手</span><span class="tag">甜</span></div>
     <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/6879975f000000000b02c1ba" target="_blank" rel="noopener noreferrer">复刻厚皮橙 KFC 同款奶香玉米</a></p>
   </div>
+</article>
+<article class="card" id="d092" data-cat="小食" data-text="芒果西米露 西米煮到透明，椰浆最后调 小食 汤锅 芒果 西米 椰浆 牛奶 糖 糖水 甜品 夏天">
+  <div class="card-top">
+    <span class="no">97</span>
+    <div class="card-title">
+      <h2>芒果西米露</h2>
+      <p class="tagline">西米煮到透明，椰浆最后调</p>
+    </div>
+    <span class="cat">小食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>30 分钟</span>
+    <span><b>份量</b>3 碗</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">芒果</span><span class="i-amt">2 个</span></li><li><span class="i-name">西米</span><span class="i-amt">50 克</span></li><li><span class="i-name">椰浆</span><span class="i-amt">200 毫升</span></li><li><span class="i-name">牛奶</span><span class="i-amt">100 毫升</span></li><li><span class="i-name">糖</span><span class="i-amt">适量</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>水开下西米，煮到中间剩小白点，关火焖 10 分钟到全透明，过冷水。</li><li>芒果一半打泥一半切丁，与椰浆、牛奶、糖混合，加西米。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>西米焖比一直煮更省火。</li><li>冷藏半小时更好喝。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">糖水</span><span class="tag">甜品</span><span class="tag">夏天</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/68536e030000000011002218" target="_blank" rel="noopener noreferrer">小红书 · 复刻芒果西米露</a></p>
+  </div>
+</article>
+<article class="card" id="d093" data-cat="小食" data-text="茅根竹蔗水 竹蔗茅根马蹄，煮一锅当凉茶 小食 汤锅 茅根 竹蔗 马蹄 胡萝卜 糖水 凉茶 夏天">
+  <div class="card-top">
+    <span class="no">98</span>
+    <div class="card-title">
+      <h2>茅根竹蔗水</h2>
+      <p class="tagline">竹蔗茅根马蹄，煮一锅当凉茶</p>
+    </div>
+    <span class="cat">小食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>50 分钟</span>
+    <span><b>份量</b>4 碗</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">茅根</span><span class="i-amt">1 把</span></li><li><span class="i-name">竹蔗</span><span class="i-amt">3 段</span></li><li><span class="i-name">马蹄</span><span class="i-amt">6 个</span></li><li><span class="i-name">胡萝卜</span><span class="i-amt">1 根</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>竹蔗劈开，马蹄去皮，胡萝卜切块，茅根洗净。</li><li>全部加水煮开，转小火 40 分钟，不加糖也有甜味。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>竹蔗劈开才出味。</li><li>当水喝，别冰太狠。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">糖水</span><span class="tag">凉茶</span><span class="tag">夏天</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/search?containerid=231522type%3D1%26t%3D10%26q%3D%23%E5%B9%BF%E5%BC%8F%E5%87%89%E8%8C%B6%23" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙广式凉茶</a></p>
+  </div>
+</article>
+<article class="card" id="d094" data-cat="小食" data-text="红豆沙汤圆 红豆煮到起沙，汤圆最后下 小食 汤锅 红豆 冰糖 汤圆 陈皮 糖水 甜品 冬天">
+  <div class="card-top">
+    <span class="no">99</span>
+    <div class="card-title">
+      <h2>红豆沙汤圆</h2>
+      <p class="tagline">红豆煮到起沙，汤圆最后下</p>
+    </div>
+    <span class="cat">小食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>1 小时</span>
+    <span><b>份量</b>3 碗</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">红豆</span><span class="i-amt">200 克</span></li><li><span class="i-name">冰糖</span><span class="i-amt">适量</span></li><li><span class="i-name">汤圆</span><span class="i-amt">12 个</span></li><li><span class="i-name">陈皮</span><span class="i-amt">1 小片</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>红豆提前泡 2 小时，加陈皮和水煮 40 分钟到起沙。</li><li>加冰糖，下汤圆煮到浮起。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>加一小片陈皮，红豆沙更香。</li><li>汤圆另锅煮再捞进红豆沙，汤不浑。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">糖水</span><span class="tag">甜品</span><span class="tag">冬天</span></div>
+    <p class="src">出处：<a href="https://www.xiaohongshu.com/discovery/item/67f4d0a5000000001d01c0d7" target="_blank" rel="noopener noreferrer">小红书 · 厚皮橙食谱分享整理</a></p>
+  </div>
+</article>
+<article class="card" id="d095" data-cat="小食" data-text="陈皮绿豆汤 绿豆煮开花，陈皮解腻 小食 汤锅 绿豆 陈皮 冰糖 糖水 消暑 粤式">
+  <div class="card-top">
+    <span class="no">100</span>
+    <div class="card-title">
+      <h2>陈皮绿豆汤</h2>
+      <p class="tagline">绿豆煮开花，陈皮解腻</p>
+    </div>
+    <span class="cat">小食</span>
+  </div>
+  <p class="meta">
+    <span><b>用时</b>50 分钟</span>
+    <span><b>份量</b>4 碗</span>
+    <span><b>工具</b>汤锅</span>
+    <span><b>难度</b>简单</span>
+  </p>
+  <div class="cols">
+    <div class="box ing">
+      <h3>用料</h3>
+      <ul><li><span class="i-name">绿豆</span><span class="i-amt">200 克</span></li><li><span class="i-name">陈皮</span><span class="i-amt">1 块</span></li><li><span class="i-name">冰糖</span><span class="i-amt">适量</span></li></ul>
+    </div>
+    <div class="box how">
+      <h3>做法</h3>
+      <ol><li>绿豆洗净，陈皮泡软。</li><li>加水煮开转小火 40 分钟到绿豆开花，加冰糖。</li></ol>
+    </div>
+  </div>
+  <div class="box tips">
+    <h3>橙学要点</h3>
+    <ul><li>绿豆不用泡，直接煮更沙。</li><li>陈皮刮掉白瓤，不苦。</li></ul>
+  </div>
+  <div class="card-foot">
+    <div class="tags"><span class="tag">糖水</span><span class="tag">消暑</span><span class="tag">粤式</span></div>
+    <p class="src">出处：<a href="https://m.weibo.cn/status/5360587720624598" target="_blank" rel="noopener noreferrer">微博 · 厚皮橙陈皮绿豆汤</a></p>
+  </div>
 </article></section>
   <p class="empty" id="empty">没有匹配的菜，换个词试试（比如“排骨”“蒜”“汤”）。</p>
 </main>
@@ -1285,7 +3670,7 @@ footer { margin-top: 26px; padding: 30px 0 46px; border-top: 1px solid var(--lin
       <p>这不是官方逐字稿，是整理版；同一道菜她可能拍过不同版本。想学原版，去抖音看她的视频最准。</p>
     </div>
   </div>
-  <p class="more">打印版 PDF：<a href="orange-recipes.pdf">orange-recipes.pdf</a>（19 页，可直接打印） · 旧版专区（12 道原帖直出）：<a href="orange-archive.html">查看存档</a></p>
+  <p class="more">打印版 PDF：<a href="orange-recipes.pdf">orange-recipes.pdf</a>（打印版，可直接下载） · 旧版专区（12 道原帖直出）：<a href="orange-archive.html">查看存档</a></p>
   <p class="stamp">整理于 2026-11-22 · 仅作家庭做饭参考 · 出处见各菜卡片</p>
 </footer>
 
