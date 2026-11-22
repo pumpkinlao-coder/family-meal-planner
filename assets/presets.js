@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var STORAGE_KEY = 'mealprep.dual.state';
+  var STORAGE_KEY = 'mealprep.v34.state';
 
   function esc(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {

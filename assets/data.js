@@ -5,9 +5,9 @@
    ========================================================= */
 window.MEALPREP = {
   meta: {
-    version: '3.3.0',
+    version: '3.4.0',
     updated: '2026-11-20',
-    title: '家庭三餐规划 V3.3',
+    title: '家庭三餐规划 V3.4',
     subtitle: '可编辑份量、逐食材营养与自动采购的离线备用餐工具'
   },
 
@@ -715,6 +715,7 @@ window.MEALPREP = {
   },
 
   rotations: {
+    daughter: { label: "女儿喜欢", meals: ["dn1","dn4","dn5","dn8","dn3"], note: "全家同吃，儿童按年龄分量。" },
     balanced: { label: '均衡轮换', meals: ['dn1', 'dn2', 'dn3', 'dn4', 'dn5'], note: '鸡、牛、鱼、虾、豆腐轮换，按天数循环。' },
     fish: { label: '多鱼', meals: ['dn1', 'dn3', 'dn2', 'dn3', 'dn5'], note: '三文鱼为主，注意鱼刺与过敏。' },
     soy: { label: '多豆制品', meals: ['dn5', 'dn2', 'dn7', 'dn3', 'dn5'], note: '豆腐与毛豆为主，蛋白质来源更植物化。' },
@@ -740,6 +741,12 @@ window.MEALPREP = {
   ],
 
   weekPresets: [
+    {
+      id: 'daughter', label: '女儿喜欢',
+      note: '全家同吃白米饭，配少量毛豆。轮换去骨鸡腿、虾仁、豆腐和少量鱼；配到西兰花时给孩子 3 小朵，白蘑菇给 2 个半。',
+      requiresTools: ['riceCooker', 'stove'],
+      settings: { style: 'classic', rotation: 'daughter', shortcut: false, riceType: 'white', riceAddIn: 'none' }
+    },
     {
       id: 'onigiri',
       label: '日式饭团',

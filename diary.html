@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>备餐实验日记 Day 01 · 家庭餐桌</title>
+<meta name="description" content="第一次家庭冷冻盒饭实测：约10份、3小时、采购金额、饭盒成本和复热记录。区分实测、估算与待确认信息。">
+<style>
+  :root { --ink:#372c20; --muted:#6d5c49; --green:#32583d; --orange:#843b13; --line:#dcc7a6; --card:#fffdf7; --soft:#f5ecdc; --warn:#fff2d6; --warn-line:#dfb365; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin:0; background:#faf6ec; color:var(--ink); font:16px/1.68 system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  main { max-width:860px; margin:auto; padding:18px 16px 56px; }
+  a { color:var(--green); }
+  .back { display:inline-block; margin:2px 0 12px; font-size:14px; text-decoration:none; }
+  .back:hover { text-decoration:underline; }
+  header { border-bottom:2px solid #e9b570; margin:2px 0 20px; padding-bottom:14px; }
+  .eyebrow { margin:0; color:var(--orange); font-size:11px; font-weight:750; letter-spacing:.12em; text-transform:uppercase; }
+  h1 { margin:5px 0 8px; color:var(--orange); font-size:clamp(27px,5.5vw,42px); line-height:1.2; letter-spacing:-.01em; }
+  .byline { margin:0; color:var(--muted); font-size:13.5px; }
+  .lead { margin:14px 0 0; font-size:15px; color:#4f3d2c; }
+  .day-nav { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:14px 0 4px; }
+  .day-nav a, .day-nav span { display:inline-flex; align-items:center; min-height:32px; padding:5px 10px; border:1px solid var(--line); border-radius:999px; font-size:12.5px; text-decoration:none; }
+  .day-nav .is-current { background:var(--orange); border-color:var(--orange); color:#fff; font-weight:700; }
+  .day-nav .is-next { color:var(--muted); background:#fbf7ed; border-style:dashed; }
+  .notice { margin:14px 0; padding:11px 13px; border:1px solid var(--line); border-left:4px solid var(--green); background:var(--card); border-radius:10px; font-size:13.5px; }
+  .notice.warn { border-left-color:var(--warn-line); background:var(--warn); }
+  .notice strong { color:#51371e; }
+  .summary-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:18px 0 8px; }
+  .summary-card { padding:11px 12px; border:1px solid var(--line); border-radius:12px; background:var(--card); }
+  .summary-card small { display:block; color:var(--muted); font-size:11px; font-weight:650; letter-spacing:.04em; }
+  .summary-card b { display:block; margin-top:3px; font-size:19px; line-height:1.3; color:var(--ink); }
+  .summary-card span { display:block; margin-top:2px; font-size:11.5px; color:var(--muted); }
+  section { margin:22px 0 0; }
+  h2 { margin:0 0 8px; font-size:20px; letter-spacing:-.01em; color:#3e3023; }
+  h2 .num { color:#b2772d; font-size:13px; margin-right:6px; letter-spacing:.1em; }
+  p { margin:7px 0; }
+  .muted { color:var(--muted); }
+  .small { font-size:12.5px; }
+  .table-wrap { margin:9px 0 6px; overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--card); }
+  table { width:100%; border-collapse:collapse; min-width:560px; font-size:13px; }
+  caption { caption-side:top; text-align:left; padding:9px 12px; color:var(--muted); font-size:12px; border-bottom:1px solid var(--line); }
+  th, td { padding:8px 10px; border-bottom:1px solid #eee3d2; text-align:left; vertical-align:top; }
+  th { background:var(--soft); color:#513b27; font-size:12px; font-weight:700; white-space:nowrap; }
+  tr:last-child td { border-bottom:0; }
+  td.num, th.num { text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .tag { display:inline-block; padding:1px 6px; border-radius:5px; font-size:10.5px; font-weight:700; line-height:1.55; white-space:nowrap; }
+  .tag-actual { color:#2f5b3d; background:#e2efdf; }
+  .tag-estimate { color:#7b5a1b; background:#f5e7bf; }
+  .tag-todo { color:#6f4b65; background:#efe2ef; }
+  .tag-invest { color:#384c77; background:#e6eaf6; }
+  .bullets { padding-left:1.25em; margin:7px 0; }
+  .bullets li { margin:4px 0; }
+  .split { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:10px 0; }
+  .box { padding:11px 13px; border:1px solid var(--line); border-radius:12px; background:var(--card); }
+  .box h3 { margin:0 0 5px; font-size:14px; color:#5a3b1c; }
+  .box p, .box ul { margin:0; font-size:13px; }
+  .box ul { padding-left:1.2em; }
+  .box li { margin:3px 0; }
+  .cost { display:grid; grid-template-columns:1fr auto; gap:2px 12px; max-width:440px; margin:9px 0; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:var(--card); font-size:13.5px; }
+  .cost strong { font-variant-numeric:tabular-nums; }
+  .cost .total { border-top:1px solid var(--line); padding-top:7px; margin-top:4px; font-weight:700; }
+  .photo-slot { padding:11px 13px; border:1px dashed var(--line); border-radius:12px; color:var(--muted); background:#fbf7ed; font-size:13px; }
+  .day-next { margin-top:24px; padding:13px 14px; border:1px dashed var(--line); border-radius:12px; background:#fbf7ed; }
+  .day-next h2 { font-size:16px; }
+  .day-next p { font-size:13px; color:var(--muted); margin:5px 0 0; }
+  footer { margin-top:28px; padding-top:12px; border-top:1px solid var(--line); color:var(--muted); font-size:11.5px; }
+  @media (max-width:680px) {
+    main { padding:14px 12px 44px; }
+    .summary-grid { grid-template-columns:1fr 1fr; }
+    .summary-card b { font-size:17px; }
+    .split { grid-template-columns:1fr; gap:8px; }
+    table { min-width:520px; }
+    .day-nav { margin-top:10px; }
+  }
+  @media (max-width:390px) { .summary-grid { grid-template-columns:1fr 1fr; } h1 { font-size:26px; } }
+  @media print { .back, .day-nav { display:none; } body { background:#fff; } .table-wrap { overflow:visible; } table { min-width:0; } }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="index.html#simple" onclick="if (document.referrer && history.length > 1) { try { var u = new URL(document.referrer); if (u.pathname.endsWith('/index.html') || u.pathname.endsWith('/')) { history.back(); return false; } } catch (e) {} }">‹ 返回家庭餐桌</a>
+
+  <header>
+    <p class="eyebrow">家庭备餐实验日记 · Day 01</p>
+    <h1>第一次家庭冷冻盒饭实测</h1>
+    <p class="byline">2026 年 11 月 21 日 · 一次制作多份冷冻盒饭，记录成本、效率与真实体验</p>
+    <p class="lead">这次不是“做一桌菜”，而是把一批菜分装成接下来可以复热的盒饭。结果证明这条路可行，但也暴露了采购比例、劳动强度和饭盒使用方式的问题。</p>
+    <nav class="day-nav" aria-label="日记日期">
+      <a class="is-current" href="diary.html" aria-current="page">Day 01 · 11/21</a>
+      <span class="is-next">Day 02 · 待记录</span>
+    </nav>
+  </header>
+
+  <div class="notice">
+    <strong>口径说明：</strong><span class="tag tag-actual">实测</span> 表示本次实际称量或记录；<span class="tag tag-estimate">估算</span> 表示回顾估算、并非核实包装净含量；<span class="tag tag-todo">待确认</span> 表示还需要再试。价格均为本次实际购买金额。
+  </div>
+
+  <div class="summary-grid" aria-label="实验概况">
+    <div class="summary-card"><small>计划产量</small><b>15 份</b><span>目标</span></div>
+    <div class="summary-card"><small>实际产量</small><b>约 10 份</b><span>实测记录</span></div>
+    <div class="summary-card"><small>食材采购</small><b>¥293.10</b><span>12 项 · 采购金额</span></div>
+    <div class="summary-card"><small>饭盒采购</small><b>¥142.96</b><span>10 个盒身 · 设备投入</span></div>
+    <div class="summary-card"><small>制作时间</small><b>约 3 小时</b><span>不含洗碗机运行</span></div>
+    <div class="summary-card"><small>复热测试</small><b>约 10 分钟</b><span>750 ml / 800 W 中高火</span></div>
+  </div>
+
+  <section id="result">
+    <h2><span class="num">01</span>第一次实验的结果</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>本次实际记录与口径</caption>
+        <thead><tr><th>项目</th><th>实际结果</th><th>口径</th></tr></thead>
+        <tbody>
+          <tr><td>计划产量</td><td>15 份</td><td>原计划</td></tr>
+          <tr><td>实际产量</td><td>约 10 份</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>生米用量</td><td>4 杯，分量基本合适</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>食材采购</td><td>12 项，共 ¥293.10</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>饭盒采购</td><td>¥142.96</td><td><span class="tag tag-invest">设备投入</span></td></tr>
+          <tr><td>已记录采购支出</td><td>¥436.06</td><td>食材 + 饭盒</td></tr>
+          <tr><td>烹饪及分装时间</td><td>约 3 小时</td><td><span class="tag tag-actual">实测</span> 不含洗碗机</td></tr>
+          <tr><td>清洁方式</td><td>洗碗机</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>冷冻温度</td><td>-18°C</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>复热测试</td><td>750 ml 饭盒，800 W 微波炉中高火约 10 分钟</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>复热口感</td><td>整体良好，没有明显失败的菜品</td><td><span class="tag tag-actual">实测</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted">第一天的最大收获：批量冷冻备餐可行，但食材比例、劳动强度和饭盒使用方式都需要通过实际操作不断调整。手机上表格可左右滑动查看。</p>
+  </section>
+
+  <section id="shopping">
+    <h2><span class="num">02</span>食材采购与实际反馈</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>本次实际购买总价，不是实际消耗成本</caption>
+        <thead><tr><th>食材</th><th>购买规格 / 估算重量</th><th class="num">价格</th><th>实际反馈</th><th>口径</th></tr></thead>
+        <tbody>
+          <tr><td>银鲑鱼</td><td>500 g</td><td class="num">¥89.90</td><td>偏多</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>阿根廷红虾仁</td><td>200 g</td><td class="num">¥35.90</td><td>偏少</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>日式蒜香胡椒风味鸡中翅</td><td>1 盒，7 只</td><td class="num">¥29.00</td><td>每盒饭放 2 只较合适</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>五香酱牛肉</td><td>166 g</td><td class="num">¥27.80</td><td>全部用完，偏少</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>鸡肉滑</td><td>约 200 g</td><td class="num">¥19.10</td><td>待进一步评价</td><td><span class="tag tag-estimate">估算</span></td></tr>
+          <tr><td>牛肉滑</td><td>约 200 g</td><td class="num">¥21.30</td><td>待进一步评价</td><td><span class="tag tag-estimate">估算</span></td></tr>
+          <tr><td>三色彩椒</td><td>3 个，450 g</td><td class="num">¥13.90</td><td>实测 OK</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>农家胡萝卜</td><td>3 根，500 g</td><td class="num">¥6.50</td><td>偏多</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>白蘑菇</td><td>200 g</td><td class="num">¥8.90</td><td>刚好</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>贝贝南瓜</td><td>2 个，拳头大小</td><td class="num">¥12.90</td><td>偏多</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>西兰花</td><td>300 g</td><td class="num">¥8.00</td><td>实测 OK</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>甜玉米粒</td><td>250 g 用于备餐</td><td class="num">¥19.90</td><td>实测 OK</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td><strong>采购合计</strong></td><td>12 项</td><td class="num"><strong>¥293.10</strong></td><td>实际购买金额</td><td><span class="tag tag-actual">实测</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="notice warn">
+      <strong>鸡肉滑和牛肉滑约 200 g 是回顾估算，不是核实的包装净含量。</strong> 采购总价也不等于实际消耗成本：部分食材可能没有全部用完，米饭、调味料、食用油、水电等也未计入。
+    </div>
+    <div class="split">
+      <div class="box">
+        <h3>下次减少</h3>
+        <ul><li>银鲑鱼：500 g 对约 10 份混合盒饭偏多。</li><li>胡萝卜：3 根、500 g 偏多。</li><li>贝贝南瓜：两个拳头大小的量偏多。</li></ul>
+      </div>
+      <div class="box">
+        <h3>下次增加</h3>
+        <ul><li>红虾仁：200 g 偏少。</li><li>五香酱牛肉：166 g 全部用完仍不够。</li><li>鸡中翅：每份放 2 只较合适。</li></ul>
+      </div>
+    </div>
+    <p>白蘑菇 200 g 刚好；4 杯生米用于约 10 份盒饭，整体分量合适。下一次采购应按“每盒实际需要多少”计算，而不是只看食材总重量；鸡翅、肉丸等按个数分配的食材尤其适合按“每份几只、几颗”规划。</p>
+  </section>
+
+  <section id="boxes">
+    <h2><span class="num">03</span>饭盒采购与使用经验</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>宜家 IKEA 365+ 系列 PP 塑料饭盒</caption>
+        <thead><tr><th>规格</th><th class="num">数量</th><th class="num">金额</th><th>备注</th></tr></thead>
+        <tbody>
+          <tr><td>750 ml，含盖</td><td class="num">6 个（2 组）</td><td class="num">¥79.98</td><td>本次主要复热测试规格</td></tr>
+          <tr><td>1000 ml，含盖</td><td class="num">3 个（1 组）</td><td class="num">¥49.99</td><td>容量更大</td></tr>
+          <tr><td>1000 ml，仅盒身</td><td class="num">1 个</td><td class="num">¥12.99</td><td>利用已有盖子</td></tr>
+          <tr><td><strong>合计</strong></td><td class="num"><strong>10 个盒身</strong></td><td class="num"><strong>¥142.96</strong></td><td><span class="tag tag-invest">设备投入</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="split">
+      <div class="box">
+        <h3>盖子兼容能省钱</h3>
+        <p>本次发现 1000 ml 盒身能适配 750 ml 饭盒的盖子，因此可以只买 ¥12.99 的盒身，利用已有盖子。这个经验只适用于本次具体款式；其他批次购买前仍要核对型号、尺寸和密封效果。</p>
+      </div>
+      <div class="box">
+        <h3>冷冻后跌落会破裂</h3>
+        <p>一只 750 ml PP 饭盒在 -18°C 冷冻后取出，不慎跌落地面，发生破裂。不能据此断言每次跌落都会破裂，但冷冻状态应双手取放、避免堆叠过高。破损饭盒应报废，可能混入碎片的食物也应丢弃。</p>
+      </div>
+    </div>
+    <p class="small muted">本次购买 10 个盒身，损坏 1 个，目前剩余 9 个完好盒身。</p>
+  </section>
+
+  <section id="workflow">
+    <h2><span class="num">04</span>烹饪与分装效率</h2>
+    <p>从食材处理、做菜做饭到分装，合计约 <strong>3 小时</strong>，不包含洗碗机运行时间。</p>
+    <ul class="bullets">
+      <li>洗菜、切菜和烹饪都比较累；分装阶段相对轻松。</li>
+      <li>用洗碗机统一清洗餐具，能明显降低收尾阶段的疲劳感。</li>
+      <li>批量备餐最大的负担不一定是分装，而是前期食材处理和连续烹饪。</li>
+    </ul>
+    <p>下一次优先优化洗切、备料和多道菜的烹饪顺序：提前规划哪些菜可以同时蒸、煮、煎，减少反复洗锅和切换操作。洗碗机应当成为批量备餐流程的一部分，而不是全部做完后再进行大量手洗。</p>
+  </section>
+
+  <section id="reheat">
+    <h2><span class="num">05</span>冷冻复热实测</h2>
+    <div class="table-wrap">
+      <table>
+        <caption>本次复热条件与实际结果</caption>
+        <thead><tr><th>项目</th><th>条件 / 结果</th><th>口径</th></tr></thead>
+        <tbody>
+          <tr><td>饭盒</td><td>宜家 365+，750 ml PP 塑料饭盒</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>初始状态</td><td>约 -18°C 完全冷冻</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>设备</td><td>800 W 微波炉，中高火</td><td><span class="tag tag-actual">实测</span></td></tr>
+          <tr><td>复热时间</td><td>约 10 分钟</td><td><span class="tag tag-actual">本次经验</span></td></tr>
+          <tr><td>实际结果</td><td>基本可以，饭菜味道和口感整体良好；没有明显变干、变硬、严重出水或味道变差</td><td><span class="tag tag-actual">实测</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="notice warn">
+      <strong>10 分钟只是本次经验，不代表不同装量、不同微波炉都适用。</strong> 复热时应适当翻动，确认中心充分热透；剩菜复热建议中心达到 74°C。800 W 是微波炉标称功率，中高火未必等于持续 800 W 输出。
+    </div>
+  </section>
+
+  <section id="cost">
+    <h2><span class="num">06</span>成本分析</h2>
+    <div class="cost" aria-label="成本组成">
+      <span>食材采购</span><strong>¥293.10</strong>
+      <span>饭盒采购</span><strong>¥142.96</strong>
+      <span class="total">两项合计</span><strong class="total">¥436.06</strong>
+    </div>
+    <p>如果按约 10 份盒饭分摊，已记录食材采购金额约 <strong>¥29.31/份</strong>。</p>
+    <div class="notice warn">
+      <strong>这不是精确的每份食材消耗成本。</strong> 部分食材可能未全部使用，且尚未计入米饭、调味料、食用油、水电等费用。饭盒属于可以重复使用的设备，不应把首次采购费用全部算作每次盒饭的日常成本。
+    </div>
+    <p class="small muted">后续建议分开记录：① 食材实际消耗成本；② 饭盒及设备投入；③ 水电和清洁耗材；④ 人工制作时间。</p>
+  </section>
+
+  <section id="next">
+    <h2><span class="num">07</span>下一次实验的改进方向</h2>
+    <ol class="bullets">
+      <li><strong>调整采购比例：</strong>减少三文鱼、胡萝卜和贝贝南瓜；增加虾仁和酱牛肉；鸡中翅按每份 2 只规划。鸡肉滑、牛肉滑等尚未明确评价的食材暂时不作大幅调整。</li>
+      <li><strong>优化制作流程：</strong>以 3 小时为基准，下次尝试减少重复洗切、等待和锅具切换，提高并行烹饪效率。</li>
+      <li><strong>继续记录冷冻复热：</strong>记录不同饭盒容量、实际装量、微波炉火力、复热时间及口感；每次至少记录一个可比较的变量。</li>
+      <li><strong>家庭成员专属版本：</strong>女儿提出希望拥有适合自己的备餐版本。这是独立开发需求，本次不重复实现；未来应允许不同成员拥有独立菜单偏好和份量。</li>
+      <li><strong>从固定菜谱转向灵活组合：</strong>本次实际用了多种肉类、蔬菜和主食灵活组合，而不是严格制作几种固定口味。工具应同时支持标准菜谱与自由组合，帮助家庭按现有食材和个人喜好分装。</li>
+    </ol>
+  </section>
+
+  <section id="takeaway">
+    <h2><span class="num">08</span>第一天的最终心得</h2>
+    <p>第一次备餐证明，一次集中制作约 10 份冷冻盒饭，在家庭厨房中是可以实现的。食材丰富、搭配灵活，经过冷冻和微波复热后，整体口感仍然令人满意。</p>
+    <p>但实际操作也暴露了三个问题：</p>
+    <ol class="bullets">
+      <li><strong>采购量不能只靠理论估算。</strong>不同食材的体积、可食部分和每份搭配方式，会直接影响最终产量。</li>
+      <li><strong>省下日常做饭时间，并不意味着集中备餐完全不累。</strong>三小时连续操作仍有明显劳动强度，洗碗机和合理的烹饪顺序很重要。</li>
+      <li><strong>冷冻盒饭需要经过真实使用验证。</strong>饭盒耐用性、复热时间和食物口感，都应以实际经验不断修正。</li>
+    </ol>
+    <p>这次不是追求一次做到完美，而是为家庭建立一套越来越准确、越来越省事的备餐系统。下一次目标：保持口感和食材丰富度，同时提高采购准确性、降低劳动强度，让批量备餐成为可持续的家庭习惯。</p>
+  </section>
+
+  <section id="photos">
+    <h2><span class="num">09</span>实验照片</h2>
+    <div class="photo-slot">本次照片位待补充。后续把照片放到项目里，并在对应 Day 下加入 <code>&lt;figure&gt;</code>，不要用示意图代替真实记录。</div>
+  </section>
+
+  <section class="day-next" id="day-02">
+    <h2>Day 02 · 待记录</h2>
+    <p>下一篇沿用同一结构：实验概况 → 采购与反馈 → 饭盒与工具 → 制作效率 → 冷冻复热 → 成本 → 下次改进 → 心得。新增日记时复制 Day 01 的 section 结构，保留实测、估算、待确认三种口径。</p>
+  </section>
+
+  <footer>
+    <p>这是家庭备餐实验记录，不是营养或医疗建议。价格为本次实际购买金额；食材重量与份量以实际称量为准，估算项已在表中标明。</p>
+    <p>家庭餐桌 · 备餐实验日记 · Day 01 · 2026-11-21</p>
+  </footer>
+</main>
+</body>
+</html>
