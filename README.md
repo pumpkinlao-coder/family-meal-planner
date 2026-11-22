@@ -3,7 +3,8 @@
 > **在线预览**：<https://pumpkinlao-coder.github.io/family-meal-planner/>  
 > **简选版**：<https://pumpkinlao-coder.github.io/family-meal-planner/#simple>  
 > **备餐日记**：<https://pumpkinlao-coder.github.io/family-meal-planner/diary.html>  
-> **厚皮橙专区**：<https://pumpkinlao-coder.github.io/family-meal-planner/orange.html>
+> **厚皮橙专区**：<https://pumpkinlao-coder.github.io/family-meal-planner/orange.html>  
+> **旧版存档**：<https://pumpkinlao-coder.github.io/family-meal-planner/orange-archive.html>
 
 从「/Volumes/Samsung_T5/食谱文件/家庭餐桌3.4」继续。打开同目录的 `index.html` 可离线预览，地址末尾加 `#simple` 进入简选版。两种视图共用数据和计算逻辑。已发布 GitHub Pages。
 
@@ -11,7 +12,7 @@
 
 - 「换整周方案 → 女儿喜欢」适用于全家。儿童按年龄估算份量，配到西兰花时约 3 小朵，配到白蘑菇时约 2 个半。它是一套整周方案。
 - 不开火午餐此前已按同一组家庭设置生成五天菜单验证。开启或关闭晚餐时，午餐当天都只需复热熟食或组合。开火模式可出现煎鸡等现做步骤。涉及午餐时，请用同样的方法复测实际步骤。
-- 顶栏切换视图的按钮旁有「厚皮橙专区」，链接到 `orange.html`。厚皮橙是美食博主。当前有 12 道菜，卡片内有家庭版用料、文字步骤和原帖链接。用量和步骤是本站整理，引用时保留此说明。
+- 顶栏切换视图的按钮旁有「厚皮橙专区」，链接到 `orange.html`。厚皮橙是美食博主。专区现为 30 道橙学快手菜，按「基本功 / 蔬菜 / 蛋 / 鸡 / 肉 / 海鲜 / 主食 / 汤 / 小食」分类，支持搜索、筛选和打印；页面右上可打印，页脚可下载 `orange-recipes.pdf`（19 页）。改版前的 12 道原帖直出保留在 `orange-archive.html`。用料与步骤为本站整理的复刻版，引用时保留此说明。
 - 顶栏另有「备餐日记」入口，链接到 `diary.html`。当前只做 Day 01 最小可用页：实验概况、采购反馈、饭盒成本、制作效率、冷冻复热、成本口径和下次改进；Day 02 采用同一 section 结构继续追加。页面区分「实测 / 估算 / 待确认」，采购总额不当成实际消耗成本，照片位未放示意图。
 
 ## 建议先验收专区

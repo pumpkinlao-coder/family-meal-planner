@@ -24,6 +24,8 @@ jobs:
           mkdir -p _site/简选版 _site/dist
           cp index.html _site/index.html
           cp orange.html _site/orange.html
+          cp orange-archive.html _site/orange-archive.html
+          cp orange-recipes.pdf _site/orange-recipes.pdf
           cp diary.html _site/diary.html
           cp -R assets _site/assets
           cp 简选版/index.html _site/简选版/index.html
