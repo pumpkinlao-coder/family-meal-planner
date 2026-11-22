@@ -6,7 +6,7 @@
 
   var DATA = window.MEALPREP;
   var M = window.MealPrepModel;
-  var STORAGE_KEY = 'mealprep.dual.state';
+  var STORAGE_KEY = 'mealprep.v34.state';
   var $ = function (sel, root) { return (root || document).querySelector(sel); };
   var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
 
@@ -429,7 +429,7 @@
     if (plan && (plan.lunchMode === 'packed' || plan.lunchMode === 'cook')) return plan.lunchMode;
     if (!lunchPacked()) return 'cook';
     var enabled = planMealEnabled(plan);
-    return enabled.dinner ? 'packed' : 'cook';
+    return 'packed';
   }
 
   function lunchPackedFor(plan) {
@@ -802,7 +802,7 @@
           ? '午餐复用当天晚餐同款，多做一份装便当；采购增加一份，时间线只加装盒，不增加锅次。'
           : '午餐从晚餐菜库里独立选一道，采购和时间线都按单独一餐计算。');
       if (current === 'packed' && !meals.dinner) {
-        note += ' 当前晚餐未开启，带饭会自动按现做处理；想带饭请同时开启晚餐。';
+        note += ' 当前仅为午餐提前做熟并分装。';
       }
       modeHtml = '<div class="lunch-mode-row" id="lunchModeRow">' +
         '<span class="field-label" id="lunchModeLabel">午餐怎么吃</span>' +
@@ -1445,7 +1445,7 @@
       return head + '<p><strong>午餐未开启：</strong>本页只规划' + esc(planning) + '，午餐、加餐和饮料没有计入营养和采购；需要时在顶部「这周吃哪几餐」打开午餐。</p></div></div>';
     }
     if (lunchPackedFor(plan)) {
-      return head + '<p><strong>午餐是带饭模式：</strong>复用当天晚餐同款、多做一份装便当，不额外开火；采购按多做一份自动增加，营养按实际吃掉的餐计入。</p></div></div>';
+      return head + '<p><strong>午餐是带饭模式：</strong>按轮换菜提前做熟，单独分装午餐，不额外开火；采购按多做一份自动增加，营养按实际吃掉的餐计入。</p></div></div>';
     }
     if (lunchPacked()) {
       return head + '<p><strong>午餐按现做处理：</strong>当前没有开启晚餐，带饭没有可复制的来源，所以午餐改为从晚餐菜库单独选一道、单独开火；营养、采购、时间线和分装都按独立一餐计算。想带饭就同时开启晚餐。</p></div></div>';
@@ -1539,7 +1539,7 @@
 
     var packed = slot === 'lunch' && lunchPackedFor(plan);
     var packedNote = packed
-      ? '<p class="meal-note">复用当天晚餐，多做一份；不额外开火。</p>' : '';
+      ? '<p class="meal-note">提前做熟分装；午餐取熟食复热、组合。</p>' : '';
 
     return '<div class="meal' + (slot === 'lunch' ? (packed ? ' is-packed' : ' is-cooked') : '') + '" data-meal-slot="' + slot + '">' +
       '<div class="meal-head"><span>' + esc(label) + '</span><span class="meal-kcal">' + (/^bf_frozen_/.test(meal.id) ? '已知配餐约 ' : '约 ') + fmt(nutrition.adult.kcal) + ' kcal</span></div>' +
@@ -1588,7 +1588,7 @@
     /* 带饭午餐跟随当天晚餐，不需要单独的替换下拉。 */
     if (slot === 'lunch' && lunchPackedFor(plan)) {
       return '<span class="swap-static" data-lunch-packed="' + dayIndex + '">' +
-        '<span>' + esc(label) + '</span><span class="swap-static-note">带饭：跟随晚餐</span></span>';
+        '<span>' + esc(label) + '</span><span class="swap-static-note">带饭：提前分装</span></span>';
     }
     var dropdown = '<label class="swap-label"><span>' + esc(label) + '</span>' +
       '<select data-meal-swap="' + slot + '" data-day="' + dayIndex + '"' +
@@ -2573,7 +2573,7 @@
     if (!dish) return;
     dialogContext = { dishId: dishId, day: dayIndex, slot: slot };
     $('#dishDialogTitle').textContent = dish.name;
-    $('#dishDialogKicker').textContent = '第 ' + (dayIndex + 1) + ' 天 · ' + (slot === 'breakfast' ? '早餐' : '晚餐') + ' · 每人份量';
+    $('#dishDialogKicker').textContent = '第 ' + (dayIndex + 1) + ' 天 · ' + (SLOT_LABEL[slot] || slot) + ' · 每人份量';
     renderDialogBody();
     var dialog = $('#dishDialog');
     if (dialog.showModal) dialog.showModal();
@@ -2601,6 +2601,11 @@
     var dishId = dialogContext.dishId;
     var settings = state.settings;
     var dish = DATA.dishes[dishId];
+    if (dialogContext.slot === 'lunch' && lunchPacked()) {
+      var meal = build().plan.days[dialogContext.day].lunch;
+      var item = meal && meal.dishes.find(function(d){return d.id === dishId;});
+      if (item) dish = Object.assign({}, dish, { steps:item.lunchSteps, storage:item.storage.key, marinade:null });
+    }
     var current = M.resolveParts(dishId, settings, state.edits);
 
     var rows = current.map(function (part) {

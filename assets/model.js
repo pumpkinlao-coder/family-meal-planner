@@ -709,7 +709,16 @@
     var d = dish(dishId);
     if (!d) return [];
     var edit = edits && edits[dishId] ? edits[dishId] : null;
-    return baseParts(dishId, settings).map(function (part) {
+    var parts = baseParts(dishId, settings);
+    if (settings.rotation === 'daughter') {
+      parts = parts.map(function (p) {
+        return p.ingredient === 'corn' || p.ingredient === 'salmon' ? Object.assign({}, p, {grams: p.grams / 2}) : p;
+      });
+      if (dishId === 'rice_bowl' && settings.riceAddIn === 'none' && !settings.exclude.includes('soy')) {
+        parts = parts.concat({ingredient: 'edamame', grams: 15, role: 'veg'});
+      }
+    }
+    return parts.map(function (part) {
       var grams = part.grams;
       var edited = false;
       if (edit && edit[part.ingredient] != null) {
@@ -964,17 +973,27 @@
 
   /* 带饭午餐：直接复制当天已确认的晚餐（同一配方、多做一份），
      不再做第二次过敏检查；采购/容器/时间线会按“多做一份”再算一遍。 */
-  function copyPackedLunch(dinner) {
+  function copyPackedLunch(dinner, dayIndex, settings, edits) {
+    // 需要当天制作的配菜改为提前做熟的西兰花；每餐只准备一份。
+    var ids = uniq(dinner.dishes.map(function(dish) {
+      return dish.storage.key === 'prep' ? 'broccoli_plain' : dish.id;
+    }));
+    var items = ids.map(function(id){ return { dish: id }; });
+    var packed = decorateMeal(Object.assign({}, dinner, {items: items}), dayIndex, settings, edits);
+    packed.dishes.forEach(function(dish){
+      dish.lunchSteps = [dish.storage.key === 'fresh' && dish.id !== 'rice_bowl'
+        ? '取即食配菜，按份组合。' : '取本餐已熟份量，按包装或复热说明加热，熟食中心达到 74°C 后装盘。'];
+    });
     return {
       id: dinner.id,
       type: 'lunch',
-      name: '午餐（带饭）：' + dinner.name,
+      name: '午餐（带饭）：' + packed.dishes.map(function(d){return d.name;}).join('＋'),
       pending: false,
       packed: true,
       sourceMealId: dinner.id,
-      items: dinner.items,
-      dishes: dinner.dishes,
-      allergens: dinner.allergens,
+      items: packed.items,
+      dishes: packed.dishes,
+      allergens: packed.allergens,
       shortcut: dinner.shortcut
     };
   }
@@ -993,9 +1012,7 @@
     var hasLunch = slots.indexOf('lunch') >= 0;
     var hasDinner = slots.indexOf('dinner') >= 0;
     var requestedLunchMode = settings.lunchMode === 'cook' ? 'cook' : 'packed';
-    // 晚餐关闭时带饭没有来源，自动按现做处理（下面加 warning/备注）。
-    var lunchFallbackToCook = hasLunch && requestedLunchMode === 'packed' && !hasDinner;
-    var lunchMode = lunchFallbackToCook ? 'cook' : requestedLunchMode;
+    var lunchMode = requestedLunchMode;
     var warnings = [];
     var days = [];
     var confirmedIngredients = []; // 前面已确认餐的最终食材 id
@@ -1090,15 +1107,21 @@
 
       var lunch = null;
       if (hasLunch && lunchMode === 'packed') {
-        if (dinner && !dinner.pending) {
-          lunch = copyPackedLunch(dinner);
+        var source = dinner;
+        if (!hasDinner && mealFits(dinnerId, settings, edits)) {
+          var base = effectiveMeal(dinnerId, settings, i);
+          var prepared = addVegetableSide(base, settings, edits, i, 'lunch', vegHistory, todayVeg, warnings);
+          source = decorateMeal(prepared.effective, i, settings, edits);
+        }
+        if (source && !source.pending) {
+          lunch = copyPackedLunch(source, i, settings, edits);
           confirmedMeals += 1;
-          lastLunch = dinner.id;
+          lastLunch = source.id;
         } else {
           // 晚餐待选时，带饭午餐没有可复制的配方，只能一起待选。
           pendingCount += 1;
           lunch = pendingMeal('lunch', [], null);
-          lunch.reason = '晚餐待选，带饭午餐无法确定';
+          lunch.reason = hasDinner ? '晚餐待选，带饭午餐无法确定' : '本日轮换餐与过敏排除冲突';
           lunch.packed = true;
           lunch.sourceMealId = null;
           warnings.push({ day: i, meal: 'lunch', from: null, to: null, pending: true, reason: lunch.reason });
@@ -1113,13 +1136,9 @@
           lunch.name = '午餐：' + lunch.name;
           lunch.packed = false;
           lunch.sourceMealId = lunchId;
-          if (lunchFallbackToCook) lunch.reason = '晚餐未选，午餐按现做处理';
           confirmedMeals += 1;
           lastLunch = lunchId;
           confirmedIngredients = confirmedIngredients.concat(finalMealIngredientIds(lunchId, settings, edits));
-          if (lunchFallbackToCook) {
-            warnings.push({ day: i, meal: 'lunch', from: null, to: null, pending: false, reason: lunch.reason });
-          }
         } else {
           pendingCount += 1;
           lunch = pendingMeal('lunch', conflictAllergens(lunchId, settings, edits), recommendMeal(
@@ -1128,11 +1147,7 @@
           ));
           lunch.packed = false;
           lunch.sourceMealId = lunchId;
-          if (lunchFallbackToCook) lunch.reason = '晚餐未选，午餐按现做处理';
           warnings.push({ day: i, meal: 'lunch', from: lunchId, to: null, pending: true, reason: lunch.reason });
-          if (lunchFallbackToCook) {
-            warnings.push({ day: i, meal: 'lunch', from: null, to: null, pending: false, reason: '晚餐未选，午餐按现做处理' });
-          }
         }
       }
 
@@ -1258,11 +1273,24 @@
     return out;
   }
 
+  function daughterParts(id, settings, edits) {
+    var parts = resolveParts(id, settings, edits);
+    var factor = kidFactor(settings);
+    var active = settings.rotation === 'daughter' && factor > 0;
+    var result = parts.map(function (p) {
+      var grams = p.grams * factor;
+      if (active && !p.edited && p.ingredient === 'broccoli') grams = 45;
+      if (active && !p.edited && p.ingredient === 'mushroom') grams = 50;
+      return Object.assign({}, p, {grams: grams});
+    });
+    return result;
+  }
+
   function dishNutrition(dishId, settings, edits) {
     var parts = resolveParts(dishId, settings, edits);
     var adult = nutrientsForParts(parts, 1);
-    var kid = settings.kidAge === 'none' ? null : nutrientsForParts(parts, kidFactor(settings));
-    var family = nutrientsForParts(parts, familyFactor(settings));
+    var kid = settings.kidAge === 'none' ? null : nutrientsForParts(daughterParts(dishId, settings, edits), 1);
+    var family = addNutrients(nutrientsForParts(parts, settings.adults),kid);
     return {
       dishId: dishId,
       parts: parts,
@@ -1461,10 +1489,10 @@
       builtMealSlots(day).forEach(function (slot) {
         var m = day[slot];
         m.dishes.forEach(function (item) {
-          var parts = resolveParts(item.id, settings, edits);
+          var parts = resolveParts(item.id, settings, edits).map(function(p){return Object.assign({},p,{grams:p.grams*settings.adults});}).concat(daughterParts(item.id,settings,edits));
           parts.forEach(function (part) {
             if (!need[part.ingredient]) need[part.ingredient] = 0;
-            need[part.ingredient] += part.grams * factor;
+            need[part.ingredient] += part.grams;
           });
         });
       });
@@ -1868,7 +1896,7 @@
     // 都不重复生成周末备餐的烹饪块。
     if (packedLunchDays > 0) {
       add('午餐', twoBatches ? '1:55' : '1:30', '装午餐便当',
-        '带饭午餐 ' + packedLunchDays + ' 天：按当天晚餐同款多做一份，冷却后装便当盒（冷藏 ≤24 小时），食用前复热到 74°C。带饭不额外开火，采购与容器已按加量计入。', true);
+        '带饭午餐 ' + packedLunchDays + ' 天：提前做熟午餐主菜和配菜，迅速分装；跨日份冷冻，食用前在冰箱解冻，食用前复热到 74°C。带饭不额外开火，采购与容器已按加量计入。', true);
     }
     if (cookLunchDays > 0) {
       add('午餐', '当天', '午餐现做',
@@ -1931,6 +1959,7 @@
 
   var api = {
     NUTRIENTS: NUTRIENTS,
+    daughterParts: daughterParts,
     settingsFrom: settingsFrom,
     kidFactor: kidFactor,
     familyFactor: familyFactor,

@@ -1,6 +1,6 @@
 (function(){
  'use strict';
- const store = 'mealprep.dual.state';
+ const store = 'mealprep.v34.state';
  const hash = location.hash.slice(1);
  const requested = ['simple','full'].includes(hash);
  function read(key){try{return localStorage.getItem(key)}catch{return null}}
